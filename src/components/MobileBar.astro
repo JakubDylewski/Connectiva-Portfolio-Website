@@ -1,0 +1,82 @@
+---
+/**
+ * Dolny pasek na mobile (SPEC 7.3).
+ *
+ * Tylko poniżej 1024 px. Pojawia się dopiero, gdy hero wyjedzie z ekranu —
+ * żeby nie zasłaniać CTA hero — i chowa się, gdy widoczny jest formularz.
+ * Sterowanie jest w `motion.ts`; tutaj tylko markup i przejście `translateY`.
+ *
+ * Pasek stoi poza przepływem, więc nie wpływa na CLS. Za to, żeby nie
+ * zasłaniał elementu z fokusem, odpowiada `scroll-padding-bottom` w
+ * `global.css` (SPEC 11.3).
+ */
+import Button from './Button.astro';
+
+interface Props {
+  audytHref?: string;
+  kontaktHref?: string;
+}
+
+// Etap 4 przełącza na `/audyt/`, Etap 6 na `/kontakt/` — dziś te podstrony
+// jeszcze nie istnieją, więc celujemy w kotwice na stronie głównej.
+const { audytHref = '#audyt', kontaktHref = '#kontakt' } = Astro.props;
+---
+
+<div class="pasek" data-pasek>
+  <div class="pasek__srodek">
+    <Button wariant="glowny" href={audytHref} class="pasek__btn">Bezpłatny audyt</Button>
+    <Button wariant="wtorny" href={kontaktHref} class="pasek__btn">Napisz</Button>
+  </div>
+</div>
+
+<style>
+  .pasek {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    background-color: rgb(0 0 0 / 0.8);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--color-line);
+    padding-bottom: env(safe-area-inset-bottom);
+    /* Domyślnie schowany — pokazuje go dopiero wyjście hero z ekranu. */
+    transform: translateY(110%);
+    transition: transform 250ms var(--ease-wejscie);
+  }
+
+  .pasek.jest-widoczny {
+    transform: translateY(0);
+  }
+
+  /* Hook dla Etapów 4 i 6: sekcja z formularzem chowa pasek. Reguła stoi
+     po `.jest-widoczny`, żeby wygrywała. */
+  .pasek.jest-schowany {
+    transform: translateY(110%);
+  }
+
+  .pasek__srodek {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 56px;
+    padding: 4px var(--spacing-margines);
+  }
+
+  .pasek__btn {
+    flex: 1 1 0;
+  }
+
+  /* Tylko poniżej 1024 px (SPEC 7.3) */
+  @media (min-width: 1024px) {
+    .pasek {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pasek {
+      transition: none;
+    }
+  }
+</style>

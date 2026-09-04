@@ -1,18 +1,22 @@
 ---
 /**
- * Górna belka (SPEC 7.2) — szkielet Etapu 0, bez ruchu.
+ * Górna belka (SPEC 7.2).
  *
- * W Etapie 1 dochodzi: klasa `.is-scrolled` po 80 px, linia postępu scrolla
- * (`--g-brand`, scaleX), zmniejszenie logo do 110 px, menu pełnoekranowe na
- * mobile z focus trapem. Elementy DOM, których potrzebuje tamten etap
- * (linia postępu), są już na miejscu — nie porusza ich żaden skrypt.
+ * Wysokość 64 px, tło przezroczyste. Po przewinięciu 80 px belka dostaje
+ * klasę `.is-scrolled`: tło rgb(0 0 0 / 0.72) z rozmyciem, dolna linia
+ * i logo zmniejszone do 110 px. Pod belką linia postępu scrolla — jedyna
+ * gradientowa rzecz w nawigacji poza logo (SPEC 6.2).
  *
- * Etap 0 nie renderuje odnośników do podstron, które jeszcze nie istnieją.
- * Lista bierze się z `site.config.ts` i rośnie razem z projektem.
+ * Zmniejszenie logo robimy `transform: scale`, a nie zmianą szerokości:
+ * skalowanie zostaje na kompozytorze i nie wymusza przeliczenia układu
+ * (SPEC 10.2).
+ *
+ * Poniżej 1024 px zamiast linków jest przycisk „Menu" i menu pełnoekranowe.
+ * Jego obsługa (fokus, Esc, pułapka Tab) siedzi w `src/scripts/nav.ts`.
  */
 import Logo from './Logo.astro';
 import Button from './Button.astro';
-import { nawigacja as nawigacjaZConfig, navCta as ctaZConfig } from '../site.config';
+import { site, nawigacja as nawigacjaZConfig, navCta as ctaZConfig } from '../site.config';
 
 interface Props {
   /** Podmiana listy linków — używane przez `/styleguide/` do pokazu. */
@@ -21,72 +25,154 @@ interface Props {
 }
 
 const { linki = nawigacjaZConfig, cta = ctaZConfig } = Astro.props;
+
+/** Pola TODO z konfiguracji nie trafiają na stronę. */
+const uzupelnione = (v: string) => Boolean(v) && !v.startsWith('TODO_');
+const mailOk = uzupelnione(site.email);
+const instaOk = uzupelnione(site.instagram.nazwa) && uzupelnione(site.instagram.url);
+const jestMenu = linki.length > 0 || cta !== null;
 ---
 
 <header class="belka" data-belka>
   <div class="kontener belka__srodek">
-    <a href="/" class="belka__logo" aria-label="Connectiva, strona główna">
+    <a
+      href="/"
+      class="belka__logo"
+      aria-label="Connectiva, strona główna"
+      data-wejscie="logo"
+    >
       <Logo szerokosc={132} dekoracyjne />
     </a>
 
     {
-      (linki.length > 0 || cta) && (
-        <nav class="belka__nawigacja" aria-label="Główna">
-          {linki.length > 0 && (
-            <ul class="belka__linki">
-              {linki.map((l) => (
-                <li>
-                  <a class="belka__link" href={l.href}>
-                    {l.etykieta}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          )}
-          {cta && (
-            <Button wariant="glowny" href={cta.href}>
-              {cta.etykieta}
-            </Button>
-          )}
-        </nav>
+      jestMenu && (
+        <>
+          <nav class="belka__nawigacja" aria-label="Główna">
+            {linki.length > 0 && (
+              <ul class="belka__linki">
+                {linki.map((l) => (
+                  <li>
+                    <a class="belka__link" href={l.href}>
+                      {l.etykieta}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {cta && (
+              <Button wariant="glowny" href={cta.href}>
+                {cta.etykieta}
+              </Button>
+            )}
+          </nav>
+
+          <button
+            type="button"
+            class="belka__menu"
+            aria-expanded="false"
+            aria-controls="menu-mobile"
+            aria-label="Menu"
+            data-menu-otworz
+          >
+            {/* Ikona to dwie kreski w przesunięciu — ten sam motyw co logo
+                i Łącznik. Nie dokładamy drugiego znaku (SPEC 6, 13). */}
+            <svg viewBox="0 0 24 16" aria-hidden="true" focusable="false">
+              <path d="M2 11 H13" />
+              <path d="M11 5 H22" />
+            </svg>
+          </button>
+        </>
       )
     }
   </div>
 
-  {/* Linia postępu scrolla — jedyna gradientowa rzecz w belce poza logo
-      (SPEC 6.2, 10.4). Napędzana dopiero w Etapie 1. */}
+  {/* Linia postępu scrolla (SPEC 10.4). Napędza ją jeden ScrollTrigger. */}
   <div class="belka__postep" aria-hidden="true"><span data-postep></span></div>
 </header>
 
+{
+  jestMenu && (
+    <div class="menu" id="menu-mobile" hidden data-menu>
+      <div class="kontener menu__srodek">
+        <div class="menu__gora">
+          <button type="button" class="menu__zamknij" data-menu-zamknij>
+            Zamknij
+          </button>
+        </div>
+
+        <nav class="menu__nawigacja" aria-label="Menu">
+          <ul>
+            {linki.map((l) => (
+              <li>
+                <a class="menu__link" href={l.href}>
+                  {l.etykieta}
+                </a>
+              </li>
+            ))}
+            {cta && (
+              <li>
+                <a class="menu__link" href={cta.href}>
+                  {cta.etykieta}
+                </a>
+              </li>
+            )}
+          </ul>
+        </nav>
+
+        {(mailOk || instaOk) && (
+          <div class="menu__kontakt">
+            {mailOk && (
+              <a class="link" href={`mailto:${site.email}`}>
+                {site.email}
+              </a>
+            )}
+            {instaOk && (
+              <a class="link" href={site.instagram.url} target="_blank" rel="noopener">
+                {site.instagram.nazwa}
+              </a>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 <style>
   .belka {
-    /* Etap 0: belka jest w normalnym przepływie. Przypięcie do góry ma sens
-       dopiero razem ze stanem `.is-scrolled` z Etapu 1 (tło rgb(0 0 0 / 0.72)
-       + blur) — bez niego przezroczysta belka nachodzi na treść i nic się
-       przez nią nie da przeczytać. Etap 1 ustawia `position: sticky`. */
-    position: relative;
+    position: sticky;
+    top: 0;
     z-index: 50;
     background-color: transparent;
+    transition:
+      background-color 200ms var(--ease-wejscie),
+      border-color 200ms var(--ease-wejscie);
+    border-bottom: 1px solid transparent;
+  }
+
+  .belka.is-scrolled {
+    background-color: rgb(0 0 0 / 0.72);
+    backdrop-filter: blur(12px);
+    border-bottom-color: var(--color-line);
   }
 
   .belka__srodek {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem 1.5rem;
-    flex-wrap: wrap;
+    gap: 1rem;
     min-height: 64px;
-    padding-block: 0.75rem;
   }
 
   .belka__logo {
     display: block;
     border-radius: 2px;
+    transform-origin: left center;
+    transition: transform 200ms var(--ease-wejscie);
   }
 
   /* Minimalna szerokość logo: 112 px w belce mobilnej (SPEC 3.3).
-     Selektor musi być `:global`, bo `svg` przychodzi z komponentu Logo —
-     zakres stylów Astro nie obejmuje elementu głównego dziecka. */
+     Selektor musi być `:global`, bo `svg` przychodzi z komponentu Logo. */
   .belka__logo :global(svg) {
     width: 112px;
     height: auto;
@@ -96,13 +182,16 @@ const { linki = nawigacjaZConfig, cta = ctaZConfig } = Astro.props;
     .belka__logo :global(svg) {
       width: 132px;
     }
+    /* Po przewinięciu 132 px → 110 px, bez ruszania układu. */
+    .belka.is-scrolled .belka__logo {
+      transform: scale(0.8333);
+    }
   }
 
   .belka__nawigacja {
-    display: flex;
+    display: none;
     align-items: center;
     gap: 1.5rem;
-    flex-wrap: wrap;
   }
 
   .belka__linki {
@@ -125,6 +214,37 @@ const { linki = nawigacjaZConfig, cta = ctaZConfig } = Astro.props;
     color: var(--color-text);
   }
 
+  .belka__menu {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin-right: -10px;
+    background: transparent;
+    border: 0;
+    border-radius: var(--radius-kontrolka);
+    color: var(--color-text);
+    cursor: pointer;
+  }
+
+  .belka__menu svg {
+    width: 24px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+  }
+
+  @media (min-width: 1024px) {
+    .belka__nawigacja {
+      display: flex;
+    }
+    .belka__menu {
+      display: none;
+    }
+  }
+
   .belka__postep {
     height: 1px;
     background-color: transparent;
@@ -136,5 +256,117 @@ const { linki = nawigacjaZConfig, cta = ctaZConfig } = Astro.props;
     background: var(--g-brand);
     transform: scaleX(0);
     transform-origin: left center;
+  }
+
+  /* Przy ograniczonym ruchu linia postępu nie jest napędzana — pusta kreska
+     nic nie mówi, więc jej nie pokazujemy. Belka dostaje za to tło na stałe,
+     bo bez ScrollTriggera nie ma kto włączyć `.is-scrolled` (SPEC 10.1:
+     „wszystko w stanie końcowym"). */
+  @media (prefers-reduced-motion: reduce) {
+    .belka {
+      background-color: rgb(0 0 0 / 0.72);
+      backdrop-filter: blur(12px);
+      border-bottom-color: var(--color-line);
+    }
+    .belka__postep {
+      display: none;
+    }
+  }
+
+  /* --- menu pełnoekranowe ------------------------------------------------ */
+
+  .menu {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    background-color: var(--color-ink-1);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 200ms var(--ease-wejscie),
+      visibility 0s linear 200ms;
+    overflow-y: auto;
+  }
+
+  .menu.jest-otwarte {
+    opacity: 1;
+    visibility: visible;
+    transition:
+      opacity 200ms var(--ease-wejscie),
+      visibility 0s;
+  }
+
+  .menu__srodek {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    padding-block: 0.75rem 3rem;
+  }
+
+  .menu__gora {
+    display: flex;
+    justify-content: flex-end;
+    min-height: 64px;
+    align-items: center;
+  }
+
+  .menu__zamknij {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding-inline: 0.5rem;
+    margin-right: -0.5rem;
+    background: transparent;
+    border: 0;
+    color: var(--color-text-2);
+    font-size: var(--text-body);
+    cursor: pointer;
+  }
+
+  .menu__zamknij:hover {
+    color: var(--color-text);
+  }
+
+  .menu__nawigacja {
+    margin-top: 2.5rem;
+  }
+
+  .menu__nawigacja ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .menu__link {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: var(--text-display-2);
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    color: var(--color-text);
+  }
+
+  .menu__kontakt {
+    margin-top: auto;
+    padding-top: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+    font-size: var(--text-body);
+  }
+
+  @media (min-width: 1024px) {
+    .menu {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .menu {
+      transition: none;
+    }
   }
 </style>

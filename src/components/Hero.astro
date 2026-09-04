@@ -1,0 +1,104 @@
+---
+/**
+ * Hero (SPEC 8.0). Typograficzne, bez obrazu — LCP to tekst.
+ *
+ * H1 ma dokładnie dwie linie, łamane ręcznie, druga wcięta (zasada
+ * przesunięcia, SPEC 6.2). Jeśli tekst przestanie się mieścić w dwóch
+ * linijkach na 360 px — skracamy tekst, nie zmieniamy zasady.
+ *
+ * Atrybuty `data-wejscie` są punktami zaczepienia sekwencji otwarcia
+ * z `src/scripts/motion.ts`. Stan początkowy siedzi w `global.css` pod
+ * `html[data-ruch="przed"]`, żeby nic nie mignęło przed startem GSAP-a.
+ */
+import Lacznik from './Lacznik.astro';
+import Button from './Button.astro';
+import SegmentChips from './SegmentChips.astro';
+---
+
+<section id="top" class="hero" data-hero>
+  <div class="kontener hero__srodek">
+    {/*
+      DO DECYZJI JAKUBA (SPEC 8.0 — wybór wariantu H1, SPEC 6.2 — dwie linie).
+      Zmierzone na 360 px, display-1 = 44 px, po wcięciu zostaje 276 px:
+        „zapełnia kalendarz."  345 px → za szerokie o 69 px (wariant 1, ten)
+        „Wychodzi z rezerwacją."  417 px → za szerokie o 141 px (wariant 2)
+        „Pełny kalendarz."     296 px → za szerokie o 20 px (wariant 3)
+      Żaden z trzech wariantów ze SPEC 8.0 nie mieści się dziś w dwóch
+      linijkach na 360 px. Zgodnie ze SPEC 6.2 skraca się tekst, a nie zasadę —
+      ale to jest decyzja o treści, więc zostawiam wariant 1 i raportuję.
+    */}
+    <h1 class="hero__h1" data-wejscie="h1">
+      <span class="l1">Strona, która</span>
+      <span class="l2">zapełnia kalendarz.</span>
+    </h1>
+
+    <div class="hero__lacznik" data-wejscie="lacznik">
+      <Lacznik wariant="hero" />
+    </div>
+
+    <p class="hero__lead" data-wejscie="reszta">
+      Strony i&nbsp;systemy pozyskiwania klientek dla salonów beauty, gabinetów
+      kosmetologii i&nbsp;klinik medycyny estetycznej. Jedna marka na miasto.
+      Cena znana przed pierwszą rozmową.
+    </p>
+
+    <div class="hero__cta" data-wejscie="reszta">
+      <Button wariant="glowny" href="#audyt">Bezpłatny audyt w 60 sekund</Button>
+      <Button wariant="wtorny" href="#projekty" przesuniety>Zobacz projekty</Button>
+    </div>
+
+    <div class="hero__chipy" data-wejscie="reszta">
+      <SegmentChips przewinDo="#projekty" />
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    padding-block: clamp(3rem, 1.5rem + 6.4vw, 6rem) var(--spacing-sekcja);
+  }
+
+  .hero__srodek {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hero__h1 {
+    font-family: var(--font-display);
+    font-size: var(--text-display-1);
+    font-weight: 400;
+    line-height: 1.02;
+    letter-spacing: -0.015em;
+    /* Łamanie jest ręczne (dwa `span`), więc automatyczne wyważanie tylko by
+       je psuło. `nowrap` byłoby ryzykiem poziomego przewijania — zamiast tego
+       pilnujemy, żeby tekst mieścił się w dwóch linijkach. */
+    text-wrap: pretty;
+  }
+
+  .hero__lacznik {
+    width: 100%;
+    margin-top: clamp(2rem, 1.4rem + 2.6vw, 3.5rem);
+  }
+
+  .hero__lead {
+    margin-top: clamp(2rem, 1.4rem + 2.6vw, 3.5rem);
+    font-size: var(--text-lead);
+    line-height: 1.55;
+    color: var(--color-text-2);
+  }
+
+  .hero__cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-top: 2.5rem;
+    /* Miejsce na Łącznik pod przyciskiem głównym */
+    padding-bottom: 0.75rem;
+  }
+
+  .hero__chipy {
+    margin-top: 2.5rem;
+  }
+</style>

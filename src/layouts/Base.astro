@@ -2,11 +2,13 @@
 /**
  * Układ bazowy (SPEC 12).
  *
- * Etap 0: meta, skip link, `lang="pl"`, Nav, Footer, wpięcie warstwy ruchu.
+ * Etap 1: meta, skip link, `lang="pl"`, Nav, opcjonalny pasek dolny, Footer,
+ * wpięcie warstwy ruchu i obsługi menu.
  * Etap 6 dokłada OG, JSON-LD i sitemapę. Etap 8 — View Transitions.
  */
 import '../styles/global.css';
 import Nav from '../components/Nav.astro';
+import MobileBar from '../components/MobileBar.astro';
 import Footer from '../components/Footer.astro';
 import { site } from '../site.config';
 
@@ -18,6 +20,10 @@ interface Props {
   /** Podmiana linków w belce — używane tylko przez `/styleguide/`. */
   navLinki?: ReadonlyArray<{ etykieta: string; href: string }>;
   navCta?: { etykieta: string; href: string } | null;
+  /** Dolny pasek na mobile (SPEC 7.3) — tylko tam, gdzie są cele CTA. */
+  pasekMobile?: boolean;
+  /** Strona ma sekwencję otwarcia hero (SPEC 8.0). */
+  sekwencjaOtwarcia?: boolean;
 }
 
 const {
@@ -26,6 +32,8 @@ const {
   noindex = false,
   navLinki,
   navCta,
+  pasekMobile = false,
+  sekwencjaOtwarcia = false,
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
@@ -55,6 +63,27 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
     <meta property="og:title" content={tytul} />
     <meta property="og:description" content={opis} />
     <meta property="og:url" content={canonical} />
+
+    {
+      sekwencjaOtwarcia && (
+        <script is:inline>
+          {/* Ustawiamy tryb ruchu, zanim cokolwiek zostanie namalowane —
+              inaczej hero mignąłby gotowy i dopiero potem schował się pod
+              sekwencję. `przed` włącza stan początkowy z global.css. */}
+          (() => {
+            const de = document.documentElement;
+            const cicho = matchMedia('(prefers-reduced-motion: reduce)').matches;
+            de.dataset.ruch = cicho ? 'off' : 'przed';
+            if (cicho) return;
+            // Bezpiecznik: gdyby moduł ruchu nie wstał albo fonty nie
+            // przyszły, treść i tak musi się pokazać.
+            setTimeout(() => {
+              if (de.dataset.ruch === 'przed') de.dataset.ruch = 'off';
+            }, 2500);
+          })();
+        </script>
+      )
+    }
   </head>
 
   <body>
@@ -68,10 +97,26 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
 
     <Footer />
 
+    {pasekMobile && <MobileBar />}
+
     <script>
       import { initMotion } from '../scripts/motion';
-      // Etap 8 zamieni to na `astro:page-load` / `astro:before-swap`.
-      document.addEventListener('DOMContentLoaded', () => void initMotion());
+      import { initNav } from '../scripts/nav';
+      import { initSegmentChips } from '../scripts/segment';
+
+      // Menu i chipy muszą działać niezależnie od preferencji ruchu, więc
+      // nie czekają na GSAP. Etap 8 przełoży to na `astro:page-load`.
+      function start() {
+        initNav();
+        initSegmentChips();
+        void initMotion();
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', start);
+      } else {
+        start();
+      }
     </script>
   </body>
 </html>

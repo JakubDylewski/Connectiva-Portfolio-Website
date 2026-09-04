@@ -46,15 +46,23 @@ export const site = {
 } as const;
 
 /**
- * Linki nawigacji. W Etapie 0 pusta — dokładamy pozycje dopiero wtedy, gdy
- * podstrona faktycznie istnieje, żeby nie wystawiać martwych odnośników.
+ * Linki nawigacji (SPEC 7.2).
  *
- * Docelowo (SPEC 7.2): Projekty, Cennik, Kontakt + przycisk „Bezpłatny audyt".
+ * Na razie kotwice na stronie głównej — podstrony `/cennik/`, `/kontakt/`
+ * i `/audyt/` powstają w Etapach 4–6 i dopiero wtedy przełączamy tu ścieżki.
+ * Nie wystawiamy odnośników do stron, których nie ma.
  */
-export const nawigacja: ReadonlyArray<{ etykieta: string; href: string }> = [];
+export const nawigacja: ReadonlyArray<{ etykieta: string; href: string }> = [
+  { etykieta: 'Projekty', href: '#projekty' },
+  { etykieta: 'Cennik', href: '#cennik' },
+  { etykieta: 'Kontakt', href: '#kontakt' },
+];
 
-/** Przycisk główny w belce. Null, dopóki `/audyt/` nie istnieje (Etap 4). */
-export const navCta: { etykieta: string; href: string } | null = null;
+/** Przycisk główny w belce. Etap 4 przełącza go na `/audyt/`. */
+export const navCta: { etykieta: string; href: string } | null = {
+  etykieta: 'Bezpłatny audyt',
+  href: '#audyt',
+};
 
 /**
  * Kolumny linków w stopce (SPEC 8.9). Jak wyżej — uzupełniane etapami,

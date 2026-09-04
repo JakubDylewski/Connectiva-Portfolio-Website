@@ -326,6 +326,68 @@
 }
 
 /* ==========================================================================
+   LENIS (SPEC 10.1)
+   Wymagane przez bibliotekę. Ważna jest zwłaszcza trzecia reguła: natywne
+   `scroll-behavior: smooth` biłoby się z Lenis o tę samą pozycję scrolla.
+   ========================================================================== */
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+/* Otwarte menu blokuje przewijanie tła także wtedy, gdy Lenis nie działa
+   (ograniczony ruch). */
+html.menu-otwarte {
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   STAN PRZED SEKWENCJĄ OTWARCIA (SPEC 8.0)
+
+   Ustawiany skryptem w <head>, zanim cokolwiek zostanie namalowane. Wartości
+   muszą się zgadzać co do joty ze stanem startowym, który `motion.ts` wpisuje
+   przez `gsap.set()` — inaczej przy przełączeniu na `data-ruch="on"` treść
+   by mignęła.
+
+   Nic tutaj nie zmienia układu, więc CLS zostaje zerowy.
+   ========================================================================== */
+
+html[data-ruch='przed'] [data-wejscie='logo'] {
+  opacity: 0;
+}
+
+html[data-ruch='przed'] [data-wejscie='h1'] > span {
+  clip-path: inset(0% 0% 100% 0%);
+  transform: translateY(24px);
+}
+
+html[data-ruch='przed'] [data-wejscie='lacznik'] path {
+  transform: scaleX(0);
+}
+
+html[data-ruch='przed'] [data-wejscie='reszta'] {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+/* ==========================================================================
    OGRANICZONY RUCH (SPEC 10.1, 11.3)
    Warstwa CSS. Odpowiednik po stronie GSAP jest w src/scripts/motion.ts.
    ========================================================================== */

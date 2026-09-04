@@ -1,42 +1,143 @@
 ---
 /**
- * Strona główna — PLACEHOLDER ETAPU 0.
+ * Strona główna (SPEC 8).
  *
- * Hero, sekcje i ruch powstają w Etapie 1 i dalszych (SPEC 8, 14).
- * Do tego czasu strona jest `noindex`, żeby przypadkowy deploy na Cloudflare
- * Pages nie wpuścił do wyszukiwarki pustej wizytówki. Etap 1 zdejmuje flagę.
+ * Etap 1: hero, obie belki i silnik ruchu. Pozostałe sekcje są na razie
+ * placeholderami — mają prawdziwy nagłówek, licznik pozycji i lead ze
+ * specyfikacji, żeby scroll miał długość i żeby dało się ocenić rytm strony.
+ * Treść dochodzi etapami (SPEC 14).
+ *
+ * Strona zostaje `noindex` do Etapu 6, w którym wchodzi warstwa SEO. Póki
+ * połowa sekcji jest pusta, nie ma czego wpuszczać do wyszukiwarki.
  */
 import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
 import SectionHead from '../components/SectionHead.astro';
-import Button from '../components/Button.astro';
+
+/**
+ * Sekcje strony głównej w kolejności ze SPEC 8. Licznik „NN / 07".
+ *
+ * DO DECYZJI JAKUBA (SPEC 6.2 — nagłówki mają dokładnie dwie linie).
+ * Zmierzone na 360 px przy display-2 = 34 px — trzy nagłówki się nie mieszczą
+ * i łamią się na więcej niż dwie linijki:
+ *   01 „Trzy segmenty rynku. / Trzy projekty pokazowe."    → 4 linie
+ *   02 „Jeden produkt. / Wszystko, co zapełnia kalendarz." → 3 linie
+ *   03 „Jedna marka na miasto. / Sprawdź, czy Twoje jest wolne." → 4 linie
+ * Pozostałe pięć mieści się w dwóch. Zgodnie ze SPEC 6.2 skraca się tekst,
+ * a nie zasadę — te trzy sekcje i tak dostają treść w Etapach 2–3.
+ */
+const sekcje = [
+  {
+    id: 'projekty',
+    index: '01',
+    linia1: 'Trzy segmenty rynku.',
+    linia2: 'Trzy projekty pokazowe.',
+    lead: 'Trzy pełne strony dla fikcyjnych marek — po jednej na każdy typ gabinetu — żebyś zobaczyła produkt, zanim go zamówisz. Każdą otworzysz w przeglądarce jak prawdziwą.',
+    etap: 2,
+  },
+  {
+    id: 'zakres',
+    index: '02',
+    linia1: 'Jeden produkt.',
+    linia2: 'Wszystko, co zapełnia kalendarz.',
+    lead: 'Nie sprzedajemy pakietów. Jest jedna strona, zrobiona do końca — od projektu po pierwsze rezerwacje.',
+    etap: 3,
+  },
+  {
+    id: 'miasto',
+    index: '03',
+    linia1: 'Jedna marka na miasto.',
+    linia2: 'Sprawdź, czy Twoje jest wolne.',
+    lead: 'Nie zrobimy strony Twojej konkurencji z tej samej ulicy. W każdym mieście pracujemy z jednym salonem beauty, jednym gabinetem kosmetologii i jedną kliniką.',
+    etap: 3,
+  },
+  {
+    id: 'audyt',
+    index: '04',
+    linia1: 'Sprawdź swoją stronę',
+    linia2: 'w 60 sekund.',
+    lead: 'Sześć pytań. Bez logowania, bez maila. Na końcu zdecydujesz, czy chcesz pełny audyt wideo.',
+    etap: 4,
+  },
+  {
+    id: 'proces',
+    index: '05',
+    linia1: 'Cztery tygodnie.',
+    linia2: 'Pięć kroków.',
+    lead: 'Termin liczy się od dnia, w którym mamy Twoje teksty źródłowe i zdjęcia. Bez niespodzianek po drodze.',
+    etap: 5,
+  },
+  {
+    id: 'cennik',
+    index: '06',
+    linia1: '8 000–10 000 zł.',
+    // Cudzysłowy jako escape'y — polskie znaki cudzysłowu w stringach JS
+    // potrafiły wywalić build (SPEC 5, lekcja z ELARY).
+    linia2: 'Tyle, nie \u201Eod\u201D.',
+    lead: 'Jedna cena widełkowa, znana przed startem. Po rozmowie dostajesz kwotę końcową i to ona jest w umowie.',
+    etap: 5,
+  },
+  {
+    id: 'pytania',
+    index: '07',
+    // SPEC 8.7 nie podaje nagłówka tej sekcji — propozycja do potwierdzenia
+    // przez Jakuba, trzyma wzór „liczba + liczba" z sekcji Proces.
+    linia1: 'Osiem pytań.',
+    linia2: 'Osiem odpowiedzi.',
+    lead: 'Wszystko, o co pytają najczęściej: termin, rezerwacja, prawa do strony, faktury i zakaz reklamy w klinikach.',
+    etap: 6,
+  },
+  {
+    id: 'kontakt',
+    index: undefined,
+    linia1: 'Zacznijmy',
+    linia2: 'od Twojej strony.',
+    lead: 'Odpowiedź w ciągu 24 godzin w dni robocze.',
+    etap: 6,
+  },
+];
 ---
 
 <Base
-  tytul="Connectiva — strona w budowie"
-  opis="Strona portfolio Connectivy jest w budowie."
+  tytul="Strony dla salonów beauty i klinik medycyny estetycznej — Connectiva"
   noindex
+  pasekMobile
+  sekwencjaOtwarcia
 >
-  <section class="kontener wstep">
-    <SectionHead
-      poziom="h1"
-      linia1="Strona portfolio"
-      linia2="jest w budowie."
-      lead="Fundament projektu jest gotowy: tokeny, typografia, logo i komponenty bazowe. Treść dochodzi etapami."
-      lacznik
-    />
+  <Hero />
 
-    <div class="wstep__akcje">
-      <Button wariant="wtorny" href="/styleguide/">Zobacz styleguide</Button>
-    </div>
-  </section>
+  {
+    sekcje.map((s) => (
+      <section id={s.id} class="sekcja">
+        <div class="kontener">
+          <SectionHead
+            index={s.index}
+            linia1={s.linia1}
+            linia2={s.linia2}
+            lead={s.lead}
+            lacznik
+          />
+          <p class="sekcja__placeholder">
+            Treść tej sekcji dochodzi w Etapie {s.etap}.
+          </p>
+        </div>
+      </section>
+    ))
+  }
 </Base>
 
 <style>
-  .wstep {
+  .sekcja {
     padding-block: var(--spacing-sekcja);
+    /* Placeholderom dajemy wysokość, żeby dało się ocenić rytm przewijania
+       i żeby paski nawigacji miały na czym pracować. Znika razem z treścią. */
+    min-height: 70vh;
+    scroll-margin-top: 5rem;
   }
 
-  .wstep__akcje {
+  .sekcja__placeholder {
     margin-top: 2.5rem;
+    font-size: var(--text-small);
+    color: var(--color-text-3);
   }
 </style>

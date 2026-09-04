@@ -81,12 +81,51 @@ const gid = `g-lacznik-${crypto.randomUUID().slice(0, 8)}`;
     height: 10px;
   }
 
+  /* Każda kreska rośnie od własnego lewego końca: dolna od x = 0 w stronę
+     środka, górna od x = 101 w prawo. Razem czytają się jak jedno
+     pociągnięcie przeskakujące o poziom (SPEC 6.1).
+
+     Punkt zaczepienia podajemy w jednostkach viewBoxa (`view-box`), a nie
+     przez `fill-box`: pozioma kreska ma zerową wysokość bounding boxa
+     i przeglądarki radzą sobie z takim przypadkiem różnie. */
+  .lacznik path {
+    transform-box: view-box;
+  }
+
+  .lacznik .l-bottom {
+    transform-origin: 0px 22px;
+  }
+
+  .lacznik .l-top {
+    transform-origin: 101px 2px;
+  }
+
   /* Wariant CTA: górna kreska dorysowuje się dopiero na hover elementu
      nadrzędnego z klasą `.grupa-cta` (SPEC 6.1, 7.4). */
   .lacznik--cta .l-top {
     transform: scaleX(0);
-    transform-origin: left center;
     transition: transform 250ms var(--ease-wejscie);
+  }
+
+  /* Rysowanie w sekwencji otwarcia (SPEC 6.1: dolna, po 120 ms górna,
+     expo.out, 0.7 s). Prowadzi je CSS, a nie GSAP — przy viewBoksie
+     rozciąganym niejednorodnie (`preserveAspectRatio="none"`) GSAP nadpisuje
+     `transform-origin` i dokłada kompensację przesunięcia, przez którą górna
+     kreska odjeżdża poza kontener. Czysty transform CSS trafia co do piksela.
+     Klasy przełącza `motion.ts` w odpowiednim miejscu osi czasu. */
+  .lacznik--czeka .l-bottom,
+  .lacznik--czeka .l-top {
+    transform: scaleX(0);
+  }
+
+  .lacznik--czeka.lacznik--rysuj .l-bottom {
+    transform: scaleX(1);
+    transition: transform 700ms var(--ease-wejscie);
+  }
+
+  .lacznik--czeka.lacznik--rysuj .l-top {
+    transform: scaleX(1);
+    transition: transform 700ms var(--ease-wejscie) 120ms;
   }
 
   :global(.grupa-cta:hover) .lacznik--cta .l-top,

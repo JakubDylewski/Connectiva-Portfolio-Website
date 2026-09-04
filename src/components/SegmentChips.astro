@@ -1,0 +1,116 @@
+---
+/**
+ * Przełącznik „Dla kogo" (SPEC 8.0, interakcja 1).
+ *
+ * Grupa `radiogroup` z trzema chipami. Wybór trafia jako `data-segment` na
+ * `<html>` — w Etapie 2 steruje aktywnym projektem, w Etapie 3 jest wspólny
+ * ze sprawdzarką miast (SPEC 8.3).
+ *
+ * Kolor nie jest jedynym nośnikiem stanu: aktywny chip ma też inne tło,
+ * obramowanie i `aria-checked` (SPEC 11.3).
+ */
+
+interface Props {
+  /** Widoczna etykieta nad chipami. */
+  etykieta?: string;
+  /** Po wyborze przewiń do tej kotwicy (SPEC 8.0). Pomiń, żeby nie przewijać. */
+  przewinDo?: string | null;
+  class?: string;
+}
+
+const {
+  etykieta = 'Dla kogo:',
+  przewinDo = null,
+  class: klasa,
+} = Astro.props;
+
+const id = `chipy-${crypto.randomUUID().slice(0, 8)}`;
+
+const segmenty = [
+  { klucz: 'salon', etykieta: 'Salon beauty' },
+  { klucz: 'kosmetologia', etykieta: 'Gabinet kosmetologii' },
+  { klucz: 'klinika', etykieta: 'Klinika lekarska' },
+];
+---
+
+<div class:list={['chipy', klasa]}>
+  <p class="chipy__etykieta" id={id}>{etykieta}</p>
+
+  <div
+    class="chipy__grupa"
+    role="radiogroup"
+    aria-labelledby={id}
+    data-chipy
+    data-przewin={przewinDo ?? undefined}
+  >
+    {
+      segmenty.map((s) => (
+        <button
+          type="button"
+          class="chip"
+          role="radio"
+          aria-checked="false"
+          tabindex="-1"
+          data-segment={s.klucz}
+        >
+          {s.etykieta}
+        </button>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .chipy__etykieta {
+    font-size: var(--text-small);
+    color: var(--color-text-2);
+    margin-bottom: 0.75rem;
+    max-width: none;
+  }
+
+  .chipy__grupa {
+    display: flex;
+    flex-wrap: wrap;
+    /* Odstęp celów dotyku ≥ 8 px (SPEC 7.4) */
+    gap: 0.75rem;
+  }
+
+  .chip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    /* Wysokość 40 px wprost ze SPEC 8.0 */
+    height: 40px;
+    padding-inline: 1rem;
+    background-color: transparent;
+    border: 1px solid var(--color-line-2);
+    border-radius: var(--radius-kontrolka);
+    color: var(--color-text-2);
+    font-size: var(--text-small);
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      background-color 200ms var(--ease-wejscie),
+      border-color 200ms var(--ease-wejscie),
+      color 200ms var(--ease-wejscie);
+  }
+
+  /* Chip mierzy 40 px, ale pole trafienia rozciągamy do 44 px w pionie —
+     reguła celów dotyku ze SPEC 7.4 zostaje spełniona bez zmiany układu. */
+  .chip::before {
+    content: '';
+    position: absolute;
+    inset: -2px 0;
+  }
+
+  .chip:hover {
+    color: var(--color-text);
+    border-color: var(--color-text-3);
+  }
+
+  .chip[aria-checked='true'] {
+    background-color: var(--color-ink-2);
+    border-color: var(--color-green);
+    color: var(--color-text);
+  }
+</style>
