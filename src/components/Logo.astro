@@ -1,0 +1,93 @@
+---
+/**
+ * Logo Connectiva (SPEC 3).
+ *
+ * Wordmark jest zamieniony na ścieżki SVG (generator: `npm run wordmark`),
+ * więc logo nie czeka na font: nie miga, nie generuje CLS i nie ciągnie za
+ * sobą 18 KB Montserrata na każdą podstronę.
+ *
+ * Zasady użycia (SPEC 3.3): tylko na czerni lub ciemnych przebarwieniach,
+ * nigdy na jasnym tle, nigdy w innym kolorze. Minimalna szerokość 120 px
+ * (112 px dopuszczalne w belce mobilnej).
+ */
+import { VIEWBOX, LINIE, WORDMARK_PATH } from '../data/wordmark';
+
+interface Props {
+  /** Szerokość w px. Domyślnie 132 — belka desktop (SPEC 3.3). */
+  szerokosc?: number;
+  /**
+   * `gradient` — wersja podstawowa.
+   * `mono` — pełna biel, tylko tam, gdzie gradient nie ma szans zadziałać
+   * (SPEC 3.3: favicon, e-mail).
+   */
+  wariant?: 'gradient' | 'mono';
+  /** Gdy logo jest w linku z własną etykietą, ukryj je przed czytnikiem. */
+  dekoracyjne?: boolean;
+  class?: string;
+}
+
+const {
+  szerokosc = 132,
+  wariant = 'gradient',
+  dekoracyjne = false,
+  class: klasa,
+} = Astro.props;
+
+// Unikalny identyfikator gradientu — logo może być na stronie kilka razy.
+const gid = `g-brand-${crypto.randomUUID().slice(0, 8)}`;
+const wypelnienie = wariant === 'mono' ? 'var(--color-text)' : `url(#${gid})`;
+
+// Jawne width/height, żeby przeglądarka zarezerwowała miejsce (CLS 0).
+const wysokosc = Math.round((szerokosc / VIEWBOX.width) * VIEWBOX.height * 100) / 100;
+---
+
+<svg
+  class={klasa}
+  width={szerokosc}
+  height={wysokosc}
+  viewBox={`0 0 ${VIEWBOX.width} ${VIEWBOX.height}`}
+  fill="none"
+  role={dekoracyjne ? undefined : 'img'}
+  aria-hidden={dekoracyjne ? 'true' : undefined}
+  aria-label={dekoracyjne ? undefined : 'Connectiva'}
+>
+  {
+    wariant === 'gradient' && (
+      <defs>
+        <linearGradient
+          id={gid}
+          gradientUnits="userSpaceOnUse"
+          x1="0"
+          x2={VIEWBOX.width}
+        >
+          <stop offset="0" stop-color="#4898AB" />
+          <stop offset="0.5" stop-color="#6CB68B" />
+          <stop offset="1" stop-color="#8FD46C" />
+        </linearGradient>
+      </defs>
+    )
+  }
+
+  {/* Dwie linie w przesunięciu — motyw marki (SPEC 3.1) */}
+  <line
+    x1={LINIE.gora.x1}
+    y1={LINIE.gora.y}
+    x2={LINIE.gora.x2}
+    y2={LINIE.gora.y}
+    stroke={wypelnienie}
+    stroke-width={LINIE.szerokosc}
+    stroke-linecap="butt"
+  />
+  <line
+    x1={LINIE.dol.x1}
+    y1={LINIE.dol.y}
+    x2={LINIE.dol.x2}
+    y2={LINIE.dol.y}
+    stroke={wypelnienie}
+    stroke-width={LINIE.szerokosc}
+    stroke-linecap="butt"
+  />
+
+  {/* Wordmark */}
+  <path d={WORDMARK_PATH} fill={wypelnienie} fill-rule="nonzero" />
+</svg>

@@ -1,0 +1,77 @@
+---
+/**
+ * Układ bazowy (SPEC 12).
+ *
+ * Etap 0: meta, skip link, `lang="pl"`, Nav, Footer, wpięcie warstwy ruchu.
+ * Etap 6 dokłada OG, JSON-LD i sitemapę. Etap 8 — View Transitions.
+ */
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../site.config';
+
+interface Props {
+  tytul?: string;
+  opis?: string;
+  /** Strony robocze (np. `/styleguide/`) nie trafiają do wyszukiwarek. */
+  noindex?: boolean;
+  /** Podmiana linków w belce — używane tylko przez `/styleguide/`. */
+  navLinki?: ReadonlyArray<{ etykieta: string; href: string }>;
+  navCta?: { etykieta: string; href: string } | null;
+}
+
+const {
+  tytul = site.tytul,
+  opis = site.opis,
+  noindex = false,
+  navLinki,
+  navCta,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
+---
+
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{tytul}</title>
+    <meta name="description" content={opis} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <meta name="theme-color" content="#000000" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    {/* Fonty są same-origin i wskazane z arkusza, który i tak blokuje
+        renderowanie — `preload` pominięty świadomie, żeby nie ryzykować
+        pobrania drugiej kopii pliku obok tej, której używa CSS.
+        Za brak CLS odpowiadają metryki fallbacku w global.css (SPEC 5). */}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pl_PL" />
+    <meta property="og:site_name" content={site.nazwa} />
+    <meta property="og:title" content={tytul} />
+    <meta property="og:description" content={opis} />
+    <meta property="og:url" content={canonical} />
+  </head>
+
+  <body>
+    <a class="skip" href="#tresc">Przejdź do treści</a>
+
+    <Nav linki={navLinki} cta={navCta} />
+
+    <main id="tresc">
+      <slot />
+    </main>
+
+    <Footer />
+
+    <script>
+      import { initMotion } from '../scripts/motion';
+      // Etap 8 zamieni to na `astro:page-load` / `astro:before-swap`.
+      document.addEventListener('DOMContentLoaded', () => void initMotion());
+    </script>
+  </body>
+</html>

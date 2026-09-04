@@ -12,13 +12,18 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-
 # environment variables
 .env
 .env.production
 
 # macOS-specific files
 .DS_Store
+Thumbs.db
 
 # jetbrains setting folder
 .idea/
+
+# Surowe zrzuty ekranu z Playwrighta (Etap 2). Do repo trafiają dopiero
+# przerobione WebP w src/assets/shots/ (SPEC 11.1).
+scripts/.shots-raw/
+*.raw.png

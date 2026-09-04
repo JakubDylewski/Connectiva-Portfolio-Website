@@ -1,17 +1,42 @@
 ---
-
+/**
+ * Strona główna — PLACEHOLDER ETAPU 0.
+ *
+ * Hero, sekcje i ruch powstają w Etapie 1 i dalszych (SPEC 8, 14).
+ * Do tego czasu strona jest `noindex`, żeby przypadkowy deploy na Cloudflare
+ * Pages nie wpuścił do wyszukiwarki pustej wizytówki. Etap 1 zdejmuje flagę.
+ */
+import Base from '../layouts/Base.astro';
+import SectionHead from '../components/SectionHead.astro';
+import Button from '../components/Button.astro';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Base
+  tytul="Connectiva — strona w budowie"
+  opis="Strona portfolio Connectivy jest w budowie."
+  noindex
+>
+  <section class="kontener wstep">
+    <SectionHead
+      poziom="h1"
+      linia1="Strona portfolio"
+      linia2="jest w budowie."
+      lead="Fundament projektu jest gotowy: tokeny, typografia, logo i komponenty bazowe. Treść dochodzi etapami."
+      lacznik
+    />
+
+    <div class="wstep__akcje">
+      <Button wariant="wtorny" href="/styleguide/">Zobacz styleguide</Button>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .wstep {
+    padding-block: var(--spacing-sekcja);
+  }
+
+  .wstep__akcje {
+    margin-top: 2.5rem;
+  }
+</style>

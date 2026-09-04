@@ -1,0 +1,780 @@
+---
+/**
+ * /styleguide/ — strona robocza (SPEC 9). `noindex`, w Etapie 6 dochodzi
+ * także wpis `Disallow` w robots.txt.
+ *
+ * Pokazuje: tokeny palety z realnymi kontrastami, skalę typograficzną
+ * z polskimi znakami, przyciski, Łącznik w czterech wariantach, nagłówek
+ * sekcji i logo nałożone na oryginalny PNG.
+ */
+import Base from '../layouts/Base.astro';
+import Logo from '../components/Logo.astro';
+import Lacznik from '../components/Lacznik.astro';
+import Button from '../components/Button.astro';
+import SectionHead from '../components/SectionHead.astro';
+import { METRYKI, VIEWBOX } from '../data/wordmark';
+
+// --- Oryginał logo do nałożenia (SPEC 3.2) --------------------------------
+// Plik jest opcjonalny: dopóki nie ma `brand/logo-oryginal.png`, pokazujemy
+// instrukcję zamiast porównania. Nie udajemy, że porównanie się odbyło.
+const znalezione = import.meta.glob<unknown>(
+  '../../brand/logo-oryginal.{png,jpg,jpeg,webp}',
+  { eager: true, import: 'default' },
+);
+const pierwszy = Object.values(znalezione)[0] as
+  | string
+  | { src: string; width?: number; height?: number }
+  | undefined;
+const oryginalSrc =
+  typeof pierwszy === 'string' ? pierwszy : (pierwszy?.src ?? null);
+
+// --- Kontrast (SPEC 4) ------------------------------------------------------
+function kanal(v: number): number {
+  const s = v / 255;
+  return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+}
+function luminancja(hex: string): number {
+  const h = hex.replace('#', '');
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16));
+  return 0.2126 * kanal(r) + 0.7152 * kanal(g) + 0.0722 * kanal(b);
+}
+function kontrastNaCzerni(hex: string): string {
+  const l = luminancja(hex);
+  return ((l + 0.05) / 0.05).toFixed(2).replace('.', ',');
+}
+
+const kolory = [
+  { token: 'black', hex: '#000000', opis: 'tło główne' },
+  { token: 'ink-1', hex: '#0E1210', opis: 'panele, karty, tło inputów' },
+  { token: 'ink-2', hex: '#171D1A', opis: 'powierzchnie podniesione, hover' },
+  { token: 'text', hex: '#EEF2EF', opis: 'tekst główny' },
+  { token: 'text-2', hex: '#A6B0AA', opis: 'leady i opisy' },
+  { token: 'text-3', hex: '#6E7873', opis: 'meta, tylko od 14 px w górę' },
+  { token: 'teal', hex: '#4898AB', opis: 'początek gradientu' },
+  { token: 'green', hex: '#6CB68B', opis: 'akcent: linki, aktywne stany' },
+  { token: 'lime', hex: '#8FD46C', opis: 'gradient i focus ring' },
+  { token: 'error', hex: '#E08C7C', opis: 'komunikaty błędów' },
+  { token: 'tint-aurelia', hex: '#1A1407', opis: 'przebarwienie Aurelii' },
+  { token: 'tint-elara', hex: '#1C1210', opis: 'przebarwienie ELARY' },
+  { token: 'tint-halicka', hex: '#0A1611', opis: 'przebarwienie HALICKIEJ' },
+];
+
+const linie = [
+  { token: 'line', wartosc: 'rgb(242 246 243 / 0.10)', opis: 'linie podziału' },
+  {
+    token: 'line-2',
+    wartosc: 'rgb(242 246 243 / 0.22)',
+    opis: 'obramowania przycisków wtórnych',
+  },
+];
+
+// --- Skala typograficzna (SPEC 5) ------------------------------------------
+const POLSKIE = 'ĄĆĘŁŃÓŚŹŻ ąćęłńóśźż';
+const PROBKA = 'Strona, która zapełnia kalendarz';
+
+const skala = [
+  { token: 'display-1', rozmiar: '44 → 96 px', font: 'Newsreader 400', klasa: 'p-display-1' },
+  { token: 'display-2', rozmiar: '34 → 64 px', font: 'Newsreader 400', klasa: 'p-display-2' },
+  { token: 'price', rozmiar: '48 → 88 px', font: 'Newsreader 300, tabular-nums', klasa: 'p-price' },
+  { token: 'h3', rozmiar: '22 → 28 px', font: 'Hanken 500', klasa: 'p-h3' },
+  { token: 'lead', rozmiar: '18 → 20 px', font: 'Hanken 400, text-2', klasa: 'p-lead' },
+  { token: 'body', rozmiar: '16 → 17 px', font: 'Hanken 400', klasa: 'p-body' },
+  { token: 'small', rozmiar: '14 px', font: 'Hanken 400/500', klasa: 'p-small' },
+  { token: 'index', rozmiar: '14 px', font: 'Hanken 500, tabular-nums', klasa: 'p-index' },
+];
+
+// Belka w wersji docelowej — tylko na tej stronie, do oceny układu.
+const navPokaz = [
+  { etykieta: 'Projekty', href: '#logo' },
+  { etykieta: 'Cennik', href: '#logo' },
+  { etykieta: 'Kontakt', href: '#logo' },
+];
+---
+
+<Base
+  tytul="Styleguide — Connectiva"
+  opis="Strona robocza: tokeny, typografia i komponenty bazowe."
+  noindex
+  navLinki={navPokaz}
+  navCta={{ etykieta: 'Bezpłatny audyt', href: '#przyciski' }}
+>
+  <div class="kontener sg">
+    <header class="sg__glowa">
+      <p class="index">styleguide</p>
+      <h1 class="sg__h1">
+        <span class="l1">Fundament.</span>
+        <span class="l2">Etap 0.</span>
+      </h1>
+      <p class="sg__lead">
+        Strona robocza do przeglądu tokenów i komponentów bazowych. Nie trafia
+        do wyszukiwarek i nie jest linkowana z nawigacji.
+      </p>
+      <nav class="sg__spis" aria-label="Spis sekcji styleguide">
+        <ul>
+          <li><a class="link" href="#logo">Logo</a></li>
+          <li><a class="link" href="#paleta">Paleta</a></li>
+          <li><a class="link" href="#typografia">Typografia</a></li>
+          <li><a class="link" href="#lacznik">Łącznik</a></li>
+          <li><a class="link" href="#przyciski">Przyciski</a></li>
+          <li><a class="link" href="#naglowek">Nagłówek sekcji</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    {/* ================================================================= */}
+    <section id="logo" class="sg__sekcja">
+      <h2 class="sg__h2">Logo</h2>
+      <p class="sg__opis">
+        Wordmark jest zamieniony na ścieżki SVG, więc logo nie czeka na font
+        i nie generuje CLS. Generator: <code>npm run wordmark</code>.
+      </p>
+
+      <div class="sg__karta">
+        <h3 class="sg__h3">Wersja podstawowa i mono</h3>
+        <div class="sg__logo-rzad">
+          <div>
+            <Logo szerokosc={320} />
+            <p class="sg__meta">gradient, 320 px</p>
+          </div>
+          <div>
+            <Logo szerokosc={320} wariant="mono" />
+            <p class="sg__meta">mono, tylko favicon i e-mail</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="sg__karta">
+        <h3 class="sg__h3">Rozmiary użytkowe</h3>
+        <div class="sg__logo-rzad">
+          <div><Logo szerokosc={132} /><p class="sg__meta">132 px, belka desktop</p></div>
+          <div><Logo szerokosc={112} /><p class="sg__meta">112 px, belka mobile</p></div>
+          <div><Logo szerokosc={110} /><p class="sg__meta">110 px, belka po przewinięciu</p></div>
+          <div><Logo szerokosc={120} /><p class="sg__meta">120 px, minimum ze SPEC 3.3</p></div>
+        </div>
+      </div>
+
+      <div class="sg__karta">
+        <h3 class="sg__h3">Nałożenie na oryginał</h3>
+
+        {
+          oryginalSrc ? (
+            <div class="sg__naloz">
+              <div class="sg__sterowanie">
+                <label class="sg__pole">
+                  Krycie SVG
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value="55"
+                    data-krycie
+                    aria-describedby="naloz-opis"
+                  />
+                </label>
+                <label class="sg__pole sg__pole--check">
+                  <input type="checkbox" data-roznica />
+                  Tryb różnicy
+                </label>
+              </div>
+
+              <p id="naloz-opis" class="sg__meta">
+                Suwak przenika SVG przez PNG. Tryb różnicy gasi wszystko, co się
+                pokrywa — im czarniej, tym lepiej trafione.
+              </p>
+
+              <div class="sg__stos" data-stos>
+                <img
+                  src={oryginalSrc}
+                  alt="Oryginalne logo Connectiva z pliku PNG"
+                  width={VIEWBOX.width}
+                  height={VIEWBOX.height}
+                  class="sg__png"
+                />
+                <div class="sg__svg" data-warstwa>
+                  <Logo szerokosc={VIEWBOX.width} dekoracyjne />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div class="sg__brak">
+              <p>
+                Brak pliku <code>brand/logo-oryginal.png</code> — porównania nie
+                da się pokazać i nie udajemy, że się odbyło.
+              </p>
+              <p>
+                Wrzuć oryginał (2000 × 476 px, czarne tło) do katalogu{' '}
+                <code>brand/</code> pod tą nazwą i odśwież stronę. Nałożenie
+                pojawi się tutaj automatycznie.
+              </p>
+            </div>
+          )
+        }
+
+        <dl class="sg__dane">
+          <div><dt>Font wordmarku</dt><dd>{METRYKI.font}</dd></div>
+          <div><dt>Rozmiar</dt><dd>{METRYKI.fontSizePx} px</dd></div>
+          <div><dt>Tracking</dt><dd>{METRYKI.trackingEm} em</dd></div>
+          <div><dt>Wysokość wersalika</dt><dd>{METRYKI.wysokoscWersalika} jednostek</dd></div>
+          <div>
+            <dt>Ink bbox napisu</dt>
+            <dd>
+              x {METRYKI.inkBBox.x}, {METRYKI.inkBBox.width} × {METRYKI.inkBBox.height}
+            </dd>
+          </div>
+        </dl>
+
+        <p class="sg__uwaga">
+          Do sprawdzenia (SPEC 16, decyzja otwarta nr 7): przy wysokości
+          wersalika 199 Montserrat Light składa &bdquo;Connectiva&rdquo; na
+          1536 jednostek, a oryginał ma 1411. Żeby trafić w&nbsp;szerokość,
+          tracking musi zejść do
+          {' '}{METRYKI.trackingEm} em. To dużo jak na logo, więc albo w Canvie
+          jest ujemny odstęp liter, albo font nie jest Montserratem. Nałożenie
+          na PNG rozstrzygnie.
+        </p>
+      </div>
+    </section>
+
+    {/* ================================================================= */}
+    <section id="paleta" class="sg__sekcja">
+      <h2 class="sg__h2">Paleta</h2>
+      <p class="sg__opis">
+        Baza jest prawdziwą czernią. Gradient pojawia się najwyżej trzy razy na
+        ekran; nie ma go na przyciskach ani w tekście poza wordmarkiem.
+      </p>
+
+      <ul class="sg__paleta">
+        {
+          kolory.map((k) => (
+            <li class="sg__kolor">
+              <span class="sg__probka" style={`background-color: ${k.hex}`} />
+              <span class="sg__kolor-dane">
+                <code>{k.token}</code>
+                <span class="sg__meta">{k.hex} — {k.opis}</span>
+                <span class="sg__meta">kontrast na czerni {kontrastNaCzerni(k.hex)} : 1</span>
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+
+      <ul class="sg__paleta">
+        {
+          linie.map((l) => (
+            <li class="sg__kolor">
+              <span class="sg__probka sg__probka--linia" style={`background-color: ${l.wartosc}`} />
+              <span class="sg__kolor-dane">
+                <code>{l.token}</code>
+                <span class="sg__meta">{l.wartosc} — {l.opis}</span>
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="sg__karta">
+        <h3 class="sg__h3">Gradient marki</h3>
+        <div class="sg__gradient"></div>
+        <p class="sg__meta">
+          <code>--g-brand</code>: #4898AB 0%, #6CB68B 50%, #8FD46C 100%
+        </p>
+      </div>
+
+      <div class="sg__karta">
+        <h3 class="sg__h3">Głębia bez cieni</h3>
+        <div class="sg__glebia">
+          <div class="sg__warstwa sg__warstwa--black"><span>black</span></div>
+          <div class="sg__warstwa sg__warstwa--ink1"><span>ink-1</span></div>
+          <div class="sg__warstwa sg__warstwa--ink2"><span>ink-2</span></div>
+        </div>
+      </div>
+    </section>
+
+    {/* ================================================================= */}
+    <section id="typografia" class="sg__sekcja">
+      <h2 class="sg__h2">Typografia</h2>
+      <p class="sg__opis">
+        Newsreader na nagłówki i liczby, Hanken Grotesk na treść i interfejs.
+        Obie rodziny z podzbiorem latin-ext — polskie znaki poniżej są testem,
+        nie ozdobą.
+      </p>
+
+      {
+        skala.map((s) => (
+          <div class="sg__karta">
+            <p class="sg__meta">
+              <code>{s.token}</code> — {s.rozmiar}, {s.font}
+            </p>
+            <p class={`sg__probka-tekstu ${s.klasa}`}>{PROBKA}</p>
+            <p class={`sg__probka-tekstu ${s.klasa}`}>{POLSKIE}</p>
+          </div>
+        ))
+      }
+
+      <div class="sg__karta">
+        <h3 class="sg__h3">Polska typografia w praktyce</h3>
+        <p>
+          Cena mieści się w widełkach 8&nbsp;000–10&nbsp;000 zł, a strona
+          powstaje w&nbsp;cztery tygodnie. Pracujemy w&nbsp;Gdyni,
+          w&nbsp;Gdańsku i&nbsp;w&nbsp;Toruniu. Klientka mówi:
+          &bdquo;to wygląda drogo&rdquo;, i&nbsp;zostaje.
+        </p>
+        <p class="sg__meta">
+          Sprawdzane: cudzysłowy &bdquo;&nbsp;&rdquo;, półpauza w&nbsp;zakresie,
+          twarda spacja po spójnikach jednoliterowych, tysiące z&nbsp;twardą
+          spacją.
+        </p>
+      </div>
+
+      <div class="sg__karta">
+        <h3 class="sg__h3">Miara tekstu</h3>
+        <p>
+          Akapit ma domyślnie <code>max-width: 40rem</code>, czyli mniej więcej
+          siedemdziesiąt znaków w wierszu. To jest ta granica — jeżeli wiersz
+          robi się dłuższy, oko gubi początek następnego.
+        </p>
+      </div>
+    </section>
+
+    {/* ================================================================= */}
+    <section id="lacznik" class="sg__sekcja">
+      <h2 class="sg__h2">Łącznik</h2>
+      <p class="sg__opis">
+        Dwie kreski w przesunięciu, które kończą się w tym samym punkcie
+        w poziomie, ale na dwóch poziomach. Jedyny motyw dekoracyjny na stronie.
+      </p>
+
+      <div class="sg__karta">
+        <p class="sg__meta"><code>hero</code> — 60% kontenera, pod H1</p>
+        <Lacznik wariant="hero" />
+      </div>
+      <div class="sg__karta">
+        <p class="sg__meta"><code>section</code> — 160 px, statyczny</p>
+        <Lacznik wariant="section" />
+      </div>
+      <div class="sg__karta">
+        <p class="sg__meta"><code>inline</code> — 56 px, marker w listach</p>
+        <ul class="sg__lista-inline">
+          <li><Lacznik wariant="inline" /><span>Projekt szyty pod Twoją markę</span></li>
+          <li><Lacznik wariant="inline" /><span>System pozyskiwania klientek</span></li>
+          <li><Lacznik wariant="inline" /><span>Rezerwacja online bez prowizji</span></li>
+        </ul>
+      </div>
+      <div class="sg__karta">
+        <p class="sg__meta">
+          <code>cta</code> — podkreślenie przycisku głównego. Górna kreska
+          dorysowuje się przy najechaniu na przycisk poniżej.
+        </p>
+        <div class="sg__cta-pokaz"><Lacznik wariant="cta" /></div>
+      </div>
+    </section>
+
+    {/* ================================================================= */}
+    <section id="przyciski" class="sg__sekcja">
+      <h2 class="sg__h2">Przyciski</h2>
+      <p class="sg__opis">
+        Wysokość 48 px, zaokrąglenie 6 px, nigdy pill. Najedź na przycisk
+        główny, żeby zobaczyć Łącznik. Przejdź tabulatorem, żeby zobaczyć focus.
+      </p>
+
+      <div class="sg__karta">
+        <div class="sg__przyciski">
+          <Button wariant="glowny" href="#przyciski">Bezpłatny audyt w 60 sekund</Button>
+          <Button wariant="wtorny" href="#przyciski">Zobacz projekty</Button>
+          <Button wariant="tekstowy" href="#przyciski">Zobacz case study</Button>
+        </div>
+      </div>
+
+      <div class="sg__karta">
+        <h3 class="sg__h3">Para w przesunięciu</h3>
+        <p class="sg__meta">
+          Na desktopie przycisk wtórny stoi 8 px niżej — zasada przesunięcia.
+        </p>
+        <div class="sg__przyciski">
+          <Button wariant="glowny" href="#przyciski">Bezpłatny audyt</Button>
+          <Button wariant="wtorny" href="#przyciski" przesuniety>Zobacz projekty</Button>
+        </div>
+      </div>
+
+      <div class="sg__karta">
+        <h3 class="sg__h3">Link zewnętrzny</h3>
+        <div class="sg__przyciski">
+          <Button wariant="wtorny" href="https://astro.build" zewnetrzny>Otwórz demo</Button>
+        </div>
+        <p class="sg__meta">
+          Dokłada <code>target="_blank"</code>, <code>rel="noopener"</code>
+          i „otwiera się w nowej karcie" dla czytników.
+        </p>
+      </div>
+    </section>
+
+    {/* ================================================================= */}
+    <section id="naglowek" class="sg__sekcja">
+      <h2 class="sg__h2">Nagłówek sekcji</h2>
+      <p class="sg__opis">
+        Licznik pozycji, H2 złożony ręcznie z dwóch linii, druga wcięta.
+        Bez etykiet wielkimi literami i bez akcentowania pojedynczych słów.
+      </p>
+
+      <div class="sg__karta">
+        <SectionHead
+          index="01"
+          linia1="Trzy segmenty rynku."
+          linia2="Trzy projekty pokazowe."
+          lead="Trzy pełne strony dla fikcyjnych marek — po jednej na każdy typ gabinetu."
+          lacznik
+        />
+      </div>
+
+      <div class="sg__karta">
+        <SectionHead
+          index="06"
+          linia1={'8 000–10 000 zł.'}
+          linia2={'Tyle, nie „od”.'}
+          lead="Jedna cena widełkowa, znana przed startem."
+        />
+      </div>
+    </section>
+  </div>
+</Base>
+
+<script>
+  // Sterowanie nałożeniem logo na oryginał. Tylko na tej stronie roboczej.
+  const stos = document.querySelector<HTMLElement>('[data-stos]');
+  const warstwa = document.querySelector<HTMLElement>('[data-warstwa]');
+  const krycie = document.querySelector<HTMLInputElement>('[data-krycie]');
+  const roznica = document.querySelector<HTMLInputElement>('[data-roznica]');
+
+  if (stos && warstwa && krycie && roznica) {
+    const odswiez = () => {
+      warstwa.style.opacity = String(Number(krycie.value) / 100);
+      warstwa.style.mixBlendMode = roznica.checked ? 'difference' : 'normal';
+      stos.style.backgroundColor = roznica.checked ? '#000' : 'transparent';
+    };
+    krycie.addEventListener('input', odswiez);
+    roznica.addEventListener('change', odswiez);
+    odswiez();
+  }
+</script>
+
+<style>
+  .sg {
+    padding-block: 4rem var(--spacing-sekcja);
+  }
+
+  .sg__glowa {
+    padding-bottom: 4rem;
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .sg__h1 {
+    margin-top: 1.5rem;
+    font-family: var(--font-display);
+    font-size: var(--text-display-1);
+    font-weight: 400;
+    line-height: 1.02;
+    letter-spacing: -0.015em;
+  }
+
+  .sg__lead {
+    margin-top: 1.5rem;
+    font-size: var(--text-lead);
+    color: var(--color-text-2);
+  }
+
+  .sg__spis ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .sg__sekcja {
+    padding-block: 4rem;
+    border-bottom: 1px solid var(--color-line);
+    scroll-margin-top: 6rem;
+  }
+
+  .sg__h2 {
+    font-family: var(--font-display);
+    font-size: var(--text-display-2);
+    font-weight: 400;
+    line-height: 1.06;
+    letter-spacing: -0.01em;
+  }
+
+  .sg__h3 {
+    font-size: var(--text-h3);
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+
+  .sg__opis {
+    margin-top: 1rem;
+    font-size: var(--text-lead);
+    color: var(--color-text-2);
+  }
+
+  .sg__karta {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background-color: var(--color-ink-1);
+    border-radius: var(--radius-panel);
+  }
+
+  .sg__meta {
+    font-size: var(--text-small);
+    color: var(--color-text-3);
+    max-width: none;
+  }
+
+  .sg__uwaga {
+    margin-top: 1.5rem;
+    padding-left: 1rem;
+    border-left: 2px solid var(--color-green);
+    font-size: var(--text-small);
+    color: var(--color-text-2);
+    max-width: 40rem;
+  }
+
+  code {
+    font-family: var(--font-body);
+    font-weight: 500;
+    color: var(--color-text);
+  }
+
+  /* --- logo -------------------------------------------------------------- */
+  .sg__logo-rzad {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 2.5rem;
+  }
+  .sg__logo-rzad > div > :global(svg) {
+    margin-bottom: 0.75rem;
+  }
+
+  .sg__sterowanie {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .sg__pole {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: var(--text-small);
+    color: var(--color-text-2);
+  }
+
+  .sg__pole input[type='range'] {
+    accent-color: var(--color-green);
+    min-height: 44px;
+    width: 12rem;
+  }
+
+  .sg__pole--check input {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--color-green);
+  }
+
+  .sg__stos {
+    position: relative;
+    margin-top: 1rem;
+    aspect-ratio: 1442 / 328;
+    isolation: isolate;
+  }
+
+  .sg__png,
+  .sg__svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .sg__svg :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .sg__brak {
+    padding: 1.25rem;
+    border: 1px solid var(--color-line-2);
+    border-radius: var(--radius-kontrolka);
+    color: var(--color-text-2);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .sg__dane {
+    margin: 1.5rem 0 0;
+    display: grid;
+    gap: 0.5rem;
+    font-size: var(--text-small);
+  }
+  .sg__dane > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    border-top: 1px solid var(--color-line);
+    padding-top: 0.5rem;
+  }
+  .sg__dane dt {
+    color: var(--color-text-3);
+    min-width: 12rem;
+  }
+  .sg__dane dd {
+    margin: 0;
+    color: var(--color-text-2);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* --- paleta ------------------------------------------------------------ */
+  .sg__paleta {
+    margin-top: 2rem;
+    display: grid;
+    gap: 1px;
+    background-color: var(--color-line);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-panel);
+    overflow: hidden;
+  }
+
+  .sg__kolor {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background-color: var(--color-black);
+  }
+
+  .sg__probka {
+    width: 3rem;
+    height: 3rem;
+    flex: none;
+    border-radius: var(--radius-kontrolka);
+    border: 1px solid var(--color-line);
+  }
+
+  .sg__probka--linia {
+    background-image: linear-gradient(
+      45deg,
+      var(--color-ink-2) 25%,
+      transparent 25% 75%,
+      var(--color-ink-2) 75%
+    );
+    background-size: 12px 12px;
+  }
+
+  .sg__kolor-dane {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .sg__gradient {
+    height: 3rem;
+    border-radius: var(--radius-kontrolka);
+    background: var(--g-brand);
+    margin-bottom: 0.75rem;
+  }
+
+  .sg__glebia {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .sg__warstwa {
+    flex: 1 1 8rem;
+    min-height: 6rem;
+    display: flex;
+    align-items: flex-end;
+    padding: 0.75rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-kontrolka);
+    font-size: var(--text-small);
+    color: var(--color-text-2);
+  }
+  .sg__warstwa--black { background-color: var(--color-black); }
+  .sg__warstwa--ink1 { background-color: var(--color-ink-1); }
+  .sg__warstwa--ink2 { background-color: var(--color-ink-2); }
+
+  /* --- typografia -------------------------------------------------------- */
+  .sg__probka-tekstu {
+    margin-top: 0.75rem;
+    max-width: none;
+  }
+
+  .p-display-1 {
+    font-family: var(--font-display);
+    font-size: var(--text-display-1);
+    font-weight: 400;
+    line-height: 1.02;
+    letter-spacing: -0.015em;
+  }
+  .p-display-2 {
+    font-family: var(--font-display);
+    font-size: var(--text-display-2);
+    font-weight: 400;
+    line-height: 1.06;
+    letter-spacing: -0.01em;
+  }
+  .p-price {
+    font-family: var(--font-display);
+    font-size: var(--text-price);
+    font-weight: 300;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .p-h3 {
+    font-size: var(--text-h3);
+    font-weight: 500;
+    line-height: 1.25;
+  }
+  .p-lead {
+    font-size: var(--text-lead);
+    line-height: 1.55;
+    color: var(--color-text-2);
+  }
+  .p-body {
+    font-size: var(--text-body);
+    line-height: 1.6;
+  }
+  .p-small {
+    font-size: var(--text-small);
+    line-height: 1.5;
+  }
+  .p-index {
+    font-size: var(--text-index);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text-3);
+  }
+
+  /* --- łącznik ----------------------------------------------------------- */
+  .sg__lista-inline li {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-block: 0.75rem;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .sg__cta-pokaz {
+    max-width: 18rem;
+  }
+
+  /* --- przyciski --------------------------------------------------------- */
+  .sg__przyciski {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 1rem 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+</style>

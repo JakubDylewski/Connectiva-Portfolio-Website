@@ -1,0 +1,140 @@
+---
+/**
+ * Stopka (SPEC 8.9) — szkielet Etapu 0.
+ *
+ * Kolumny linków bierzemy z `site.config.ts`; w Etapie 0 lista jest pusta,
+ * bo podstrony jeszcze nie istnieją i nie chcemy martwych odnośników.
+ * Dane rejestrowe, e-mail i Instagram to pola TODO — uzupełnia je Jakub
+ * (SPEC 16, decyzja otwarta nr 2).
+ *
+ * Linia technologii jest jedynym miejscem, w którym na stronie pada nazwa
+ * stacku (SPEC 13). Ujawnienie o projektach pokazowych i wygenerowanych
+ * zdjęciach jest obowiązkowe (SPEC 15).
+ */
+import Logo from './Logo.astro';
+import { site, stopkaKolumny } from '../site.config';
+
+const rok = new Date().getFullYear();
+---
+
+<footer class="stopka">
+  <div class="kontener stopka__srodek">
+    <div class="stopka__gora">
+      <div class="stopka__logo"><Logo szerokosc={132} /></div>
+
+      {
+        stopkaKolumny.length > 0 && (
+          <div class="stopka__kolumny">
+            {stopkaKolumny.map((kolumna) => (
+              <nav class="stopka__kolumna" aria-label={kolumna.tytul}>
+                {/* Celowo `p`, nie nagłówek — kolejność h1/h2/h3 na stronie
+                    ma zostać nienaruszona (SPEC 11.3). Landmark opisuje
+                    `aria-label` na `nav`. */}
+                <p class="stopka__tytul">{kolumna.tytul}</p>
+                <ul class="stopka__lista">
+                  {kolumna.linki.map((l) => (
+                    <li>
+                      <a class="stopka__link" href={l.href}>
+                        {l.etykieta}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            ))}
+          </div>
+        )
+      }
+    </div>
+
+    <div class="stopka__dol">
+      <p class="stopka__dane">
+        {site.firma.nazwa}, NIP {site.firma.nip}, {site.firma.adres}
+      </p>
+
+      <p class="stopka__meta">
+        Strona zbudowana w Astro, hostowana na Cloudflare. Ruch: GSAP.
+      </p>
+
+      <p class="stopka__meta">
+        Projekty pokazowe przedstawiają fikcyjne marki. Zdjęcia w projektach
+        pokazowych są wygenerowane — u realnych klientek pracujemy na sesji
+        zdjęciowej.
+      </p>
+
+      <p class="stopka__meta">© {rok} {site.nazwa}</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .stopka {
+    margin-top: var(--spacing-sekcja);
+    border-top: 1px solid var(--color-line);
+    padding-block: 3rem 4rem;
+  }
+
+  .stopka__gora {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 2.5rem;
+  }
+
+  .stopka__logo {
+    flex: none;
+  }
+
+  .stopka__kolumny {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.5rem 4rem;
+  }
+
+  .stopka__tytul {
+    font-family: var(--font-body);
+    font-size: var(--text-small);
+    font-weight: 500;
+    color: var(--color-text-2);
+    margin-bottom: 1rem;
+  }
+
+  .stopka__lista {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .stopka__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    text-decoration: none;
+    color: var(--color-text-2);
+    transition: color 150ms var(--ease-wejscie);
+  }
+
+  .stopka__link:hover {
+    color: var(--color-text);
+  }
+
+  .stopka__dol {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-line);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .stopka__dane {
+    font-size: var(--text-small);
+    color: var(--color-text-2);
+  }
+
+  .stopka__meta {
+    font-size: var(--text-small);
+    color: var(--color-text-3);
+  }
+</style>

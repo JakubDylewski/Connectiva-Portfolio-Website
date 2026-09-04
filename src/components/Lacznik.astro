@@ -1,0 +1,102 @@
+---
+/**
+ * Łącznik — sygnatura graficzna strony (SPEC 6.1).
+ *
+ * Dwie kreski w przesunięciu, które kończą się w tym samym punkcie w poziomie,
+ * ale na dwóch poziomach. To jedyny motyw dekoracyjny na stronie; drugiego
+ * nie dodajemy.
+ *
+ * Warianty:
+ *  hero    — szerokość ~60% kontenera, pod H1
+ *  section — 160 px, między nagłówkiem a treścią, statyczny
+ *  inline  — 56 px, marker pozycji w listach
+ *  cta     — podkreślenie przycisku głównego: widoczna tylko dolna kreska,
+ *            górna dorysowuje się w prawo na hover (250 ms)
+ */
+
+interface Props {
+  wariant?: 'hero' | 'section' | 'inline' | 'cta';
+  class?: string;
+}
+
+const { wariant = 'section', class: klasa } = Astro.props;
+
+const gid = `g-lacznik-${crypto.randomUUID().slice(0, 8)}`;
+---
+
+<svg
+  class:list={['lacznik', `lacznik--${wariant}`, klasa]}
+  viewBox="0 0 200 24"
+  preserveAspectRatio="none"
+  aria-hidden="true"
+  focusable="false"
+>
+  <defs>
+    <linearGradient id={gid} gradientUnits="userSpaceOnUse" x1="0" x2="200">
+      <stop offset="0" stop-color="#4898AB" />
+      <stop offset="0.5" stop-color="#6CB68B" />
+      <stop offset="1" stop-color="#8FD46C" />
+    </linearGradient>
+  </defs>
+
+  <path class="l-bottom" d="M0 22 H99" stroke={`url(#${gid})`} vector-effect="non-scaling-stroke" />
+  <path class="l-top" d="M101 2 H200" stroke={`url(#${gid})`} vector-effect="non-scaling-stroke" />
+</svg>
+
+<style>
+  .lacznik {
+    display: block;
+    fill: none;
+    /* Grubość 2 px, na mobile 1.5 px (SPEC 6.1). `non-scaling-stroke`
+       sprawia, że wartość jest w pikselach ekranu, nie w jednostkach viewBoxa. */
+    stroke-width: 1.5;
+    overflow: visible;
+  }
+
+  @media (min-width: 640px) {
+    .lacznik {
+      stroke-width: 2;
+    }
+  }
+
+  .lacznik--hero {
+    width: 60%;
+    max-width: 34rem;
+    height: 24px;
+  }
+
+  .lacznik--section {
+    width: 160px;
+    height: 20px;
+  }
+
+  .lacznik--inline {
+    width: 56px;
+    height: 12px;
+    flex: none;
+  }
+
+  .lacznik--cta {
+    width: 100%;
+    height: 10px;
+  }
+
+  /* Wariant CTA: górna kreska dorysowuje się dopiero na hover elementu
+     nadrzędnego z klasą `.grupa-cta` (SPEC 6.1, 7.4). */
+  .lacznik--cta .l-top {
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 250ms var(--ease-wejscie);
+  }
+
+  :global(.grupa-cta:hover) .lacznik--cta .l-top,
+  :global(.grupa-cta:focus-visible) .lacznik--cta .l-top {
+    transform: scaleX(1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lacznik--cta .l-top {
+      transition: none;
+    }
+  }
+</style>

@@ -1,0 +1,140 @@
+---
+/**
+ * Górna belka (SPEC 7.2) — szkielet Etapu 0, bez ruchu.
+ *
+ * W Etapie 1 dochodzi: klasa `.is-scrolled` po 80 px, linia postępu scrolla
+ * (`--g-brand`, scaleX), zmniejszenie logo do 110 px, menu pełnoekranowe na
+ * mobile z focus trapem. Elementy DOM, których potrzebuje tamten etap
+ * (linia postępu), są już na miejscu — nie porusza ich żaden skrypt.
+ *
+ * Etap 0 nie renderuje odnośników do podstron, które jeszcze nie istnieją.
+ * Lista bierze się z `site.config.ts` i rośnie razem z projektem.
+ */
+import Logo from './Logo.astro';
+import Button from './Button.astro';
+import { nawigacja as nawigacjaZConfig, navCta as ctaZConfig } from '../site.config';
+
+interface Props {
+  /** Podmiana listy linków — używane przez `/styleguide/` do pokazu. */
+  linki?: ReadonlyArray<{ etykieta: string; href: string }>;
+  cta?: { etykieta: string; href: string } | null;
+}
+
+const { linki = nawigacjaZConfig, cta = ctaZConfig } = Astro.props;
+---
+
+<header class="belka" data-belka>
+  <div class="kontener belka__srodek">
+    <a href="/" class="belka__logo" aria-label="Connectiva, strona główna">
+      <Logo szerokosc={132} dekoracyjne />
+    </a>
+
+    {
+      (linki.length > 0 || cta) && (
+        <nav class="belka__nawigacja" aria-label="Główna">
+          {linki.length > 0 && (
+            <ul class="belka__linki">
+              {linki.map((l) => (
+                <li>
+                  <a class="belka__link" href={l.href}>
+                    {l.etykieta}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+          {cta && (
+            <Button wariant="glowny" href={cta.href}>
+              {cta.etykieta}
+            </Button>
+          )}
+        </nav>
+      )
+    }
+  </div>
+
+  {/* Linia postępu scrolla — jedyna gradientowa rzecz w belce poza logo
+      (SPEC 6.2, 10.4). Napędzana dopiero w Etapie 1. */}
+  <div class="belka__postep" aria-hidden="true"><span data-postep></span></div>
+</header>
+
+<style>
+  .belka {
+    /* Etap 0: belka jest w normalnym przepływie. Przypięcie do góry ma sens
+       dopiero razem ze stanem `.is-scrolled` z Etapu 1 (tło rgb(0 0 0 / 0.72)
+       + blur) — bez niego przezroczysta belka nachodzi na treść i nic się
+       przez nią nie da przeczytać. Etap 1 ustawia `position: sticky`. */
+    position: relative;
+    z-index: 50;
+    background-color: transparent;
+  }
+
+  .belka__srodek {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem 1.5rem;
+    flex-wrap: wrap;
+    min-height: 64px;
+    padding-block: 0.75rem;
+  }
+
+  .belka__logo {
+    display: block;
+    border-radius: 2px;
+  }
+
+  /* Minimalna szerokość logo: 112 px w belce mobilnej (SPEC 3.3).
+     Selektor musi być `:global`, bo `svg` przychodzi z komponentu Logo —
+     zakres stylów Astro nie obejmuje elementu głównego dziecka. */
+  .belka__logo :global(svg) {
+    width: 112px;
+    height: auto;
+  }
+
+  @media (min-width: 768px) {
+    .belka__logo :global(svg) {
+      width: 132px;
+    }
+  }
+
+  .belka__nawigacja {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .belka__linki {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .belka__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: var(--text-body);
+    text-decoration: none;
+    color: var(--color-text-2);
+    transition: color 150ms var(--ease-wejscie);
+  }
+
+  .belka__link:hover {
+    color: var(--color-text);
+  }
+
+  .belka__postep {
+    height: 1px;
+    background-color: transparent;
+  }
+
+  .belka__postep span {
+    display: block;
+    height: 100%;
+    background: var(--g-brand);
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+</style>

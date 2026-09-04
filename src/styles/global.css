@@ -1,0 +1,345 @@
+@import 'tailwindcss';
+
+/* ==========================================================================
+   FONTY (SPEC 5)
+   Dwie rodziny zmienne, podzbiory latin + latin-ext (polskie znaki), bez
+   kursyw. Pliki bierzemy wprost z paczek @fontsource-variable — dzięki temu
+   do builda trafiają tylko te dwa podzbiory, a nie cyrylica i wietnamski.
+   ========================================================================== */
+
+/* Newsreader Variable — display (H1, H2, liczby cen) */
+@font-face {
+  font-family: 'Newsreader Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url('../../node_modules/@fontsource-variable/newsreader/files/newsreader-latin-wght-normal.woff2')
+    format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Newsreader Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url('../../node_modules/@fontsource-variable/newsreader/files/newsreader-latin-ext-wght-normal.woff2')
+    format('woff2-variations');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* Hanken Grotesk Variable — treść i UI */
+@font-face {
+  font-family: 'Hanken Grotesk Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('../../node_modules/@fontsource-variable/hanken-grotesk/files/hanken-grotesk-latin-wght-normal.woff2')
+    format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Hanken Grotesk Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('../../node_modules/@fontsource-variable/hanken-grotesk/files/hanken-grotesk-latin-ext-wght-normal.woff2')
+    format('woff2-variations');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* --------------------------------------------------------------------------
+   Metryki fallbacku (SPEC 5: „font-display: swap + metryki fallbacku, żeby CLS
+   był 0"). Wartości policzone z realnych plików fontów przez
+   `npm run wordmark` — nie przepisujemy ich ręcznie.
+   -------------------------------------------------------------------------- */
+@font-face {
+  font-family: 'Newsreader Fallback';
+  src: local('Times New Roman'), local('Tinos'), local('Liberation Serif');
+  size-adjust: 95.25%;
+  ascent-override: 77.17%;
+  descent-override: 27.82%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Hanken Fallback';
+  src: local('Arial'), local('Helvetica Neue'), local('Roboto'),
+    local('Liberation Sans');
+  size-adjust: 95.07%;
+  ascent-override: 105.18%;
+  descent-override: 31.87%;
+  line-gap-override: 0%;
+}
+
+/* ==========================================================================
+   TOKENY (SPEC 4 — paleta, SPEC 5 — typografia, SPEC 7.1 — rytm)
+   ========================================================================== */
+
+@theme {
+  /* --- Paleta ----------------------------------------------------------- */
+  --color-black: #000000; /* tło główne */
+  --color-ink-1: #0e1210; /* panele, karty, tło inputów */
+  --color-ink-2: #171d1a; /* powierzchnie podniesione, hover, focus inputu */
+  --color-line: rgb(242 246 243 / 0.1); /* linie podziału */
+  --color-line-2: rgb(242 246 243 / 0.22); /* obramowania przycisków wtórnych */
+  --color-text: #eef2ef; /* tekst główny — nie czysta biel */
+  --color-text-2: #a6b0aa; /* tekst wtórny */
+  --color-text-3: #6e7873; /* meta; tylko ≥ 14 px */
+  --color-teal: #4898ab; /* początek gradientu */
+  --color-green: #6cb68b; /* środek gradientu = jednolity akcent */
+  --color-lime: #8fd46c; /* koniec gradientu: gradient i focus ring */
+  --color-error: #e08c7c; /* komunikaty błędów w formularzach (SPEC 7.5) */
+  --color-tint-aurelia: #1a1407; /* złoto Aurelii */
+  --color-tint-elara: #1c1210; /* róż/miedź ELARY */
+  --color-tint-halicka: #0a1611; /* zieleń HALICKIEJ */
+
+  /* --- Rodziny ---------------------------------------------------------- */
+  --font-display: 'Newsreader Variable', 'Newsreader Fallback', Georgia,
+    'Times New Roman', serif;
+  --font-body: 'Hanken Grotesk Variable', 'Hanken Fallback', system-ui,
+    -apple-system, 'Segoe UI', Arial, sans-serif;
+
+  /* --- Skala typograficzna (SPEC 5) -------------------------------------
+     clamp liczony liniowo między 375 px a 1280 px szerokości okna.
+     Człon rem-owy zostaje, żeby powiększanie tekstu w przeglądarce działało. */
+  --text-display-1: clamp(2.75rem, 1.403rem + 5.746vw, 6rem); /* 44 → 96 */
+  --text-display-1--line-height: 1.02;
+  --text-display-1--letter-spacing: -0.015em;
+  --text-display-1--font-weight: 400;
+
+  --text-display-2: clamp(2.125rem, 1.348rem + 3.315vw, 4rem); /* 34 → 64 */
+  --text-display-2--line-height: 1.06;
+  --text-display-2--letter-spacing: -0.01em;
+  --text-display-2--font-weight: 400;
+
+  --text-price: clamp(3rem, 1.964rem + 4.42vw, 5.5rem); /* 48 → 88 */
+  --text-price--line-height: 1;
+  --text-price--letter-spacing: 0em;
+  --text-price--font-weight: 300;
+
+  --text-h3: clamp(1.375rem, 1.22rem + 0.663vw, 1.75rem); /* 22 → 28 */
+  --text-h3--line-height: 1.25;
+  --text-h3--font-weight: 500;
+
+  --text-lead: clamp(1.125rem, 1.073rem + 0.221vw, 1.25rem); /* 18 → 20 */
+  --text-lead--line-height: 1.55;
+  --text-lead--font-weight: 400;
+
+  --text-body: clamp(1rem, 0.974rem + 0.111vw, 1.0625rem); /* 16 → 17 */
+  --text-body--line-height: 1.6;
+  --text-body--font-weight: 400;
+
+  --text-small: 0.875rem; /* 14 */
+  --text-small--line-height: 1.5;
+
+  --text-index: 0.875rem; /* 14, licznik „02 / 07" */
+  --text-index--line-height: 1;
+  --text-index--font-weight: 500;
+
+  /* --- Rytm i geometria (SPEC 7.1, 4) ----------------------------------- */
+  --spacing-sekcja: clamp(5.5rem, 2.415rem + 13.15vw, 10rem); /* 88 → 160 */
+  --spacing-margines: clamp(1.25rem, 0.5rem + 3.2vw, 3rem); /* 20 → 48 */
+  --container-tresc: 75rem; /* 1200 px */
+
+  --radius-kontrolka: 6px; /* przyciski i inputy */
+  --radius-panel: 12px; /* panele */
+  --radius-telefon: 44px; /* ramka telefonu */
+
+  /* --- Ruch (SPEC 10.2) -------------------------------------------------- */
+  --ease-wejscie: cubic-bezier(0.16, 1, 0.3, 1); /* odpowiednik expo.out */
+  --ease-przebarwienie: cubic-bezier(0.33, 1, 0.68, 1); /* power2.out */
+}
+
+/* Gradient marki. Jedno źródło prawdy — używany oszczędnie (SPEC 4:
+   maksymalnie trzy wystąpienia na ekran). */
+@theme {
+  --g-brand: linear-gradient(90deg, #4898ab 0%, #6cb68b 50%, #8fd46c 100%);
+}
+
+/* ==========================================================================
+   BAZA
+   ========================================================================== */
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    background-color: var(--color-black);
+    color: var(--color-text);
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    /* Pasek dolny na mobile nie może zasłaniać elementu z fokusem (SPEC 11.3) */
+    scroll-padding-bottom: 6rem;
+    scroll-padding-top: 5rem;
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: var(--text-body);
+    line-height: 1.6;
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    /* Bez poziomego scrolla strony (SPEC 13) */
+    overflow-x: clip;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    margin: 0;
+    font-weight: inherit;
+    text-wrap: balance;
+  }
+
+  h1,
+  h2 {
+    font-family: var(--font-display);
+  }
+
+  h3,
+  h4 {
+    font-family: var(--font-body);
+  }
+
+  p {
+    margin: 0;
+    /* Miara ≤ 72 znaki (SPEC 5). W razie potrzeby nadpisać `max-w-none`. */
+    max-width: 40rem;
+    text-wrap: pretty;
+  }
+
+  ul,
+  ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  img,
+  svg,
+  video {
+    display: block;
+    max-width: 100%;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  /* Focus zawsze widoczny — nigdy `outline: none` bez zamiennika (SPEC 4). */
+  :focus-visible {
+    outline: 2px solid var(--color-lime);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-green);
+    color: var(--color-black);
+  }
+}
+
+/* ==========================================================================
+   WARSTWA KOMPONENTÓW WSPÓLNYCH
+   ========================================================================== */
+
+@layer components {
+  /* Kontener treści: 1200 px + marginesy boczne 20 → 48 px (SPEC 7.1) */
+  .kontener {
+    width: 100%;
+    max-width: var(--container-tresc);
+    margin-inline: auto;
+    padding-inline: var(--spacing-margines);
+  }
+
+  /* Licznik pozycji „02 / 07" (SPEC 5, 7.1) */
+  .index {
+    font-family: var(--font-body);
+    font-size: var(--text-index);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    color: var(--color-text-3);
+  }
+
+  /* Drugi wiersz nagłówka — zasada przesunięcia (SPEC 6.2) */
+  .l2 {
+    display: block;
+    margin-left: clamp(1.25rem, 8vw, 6rem);
+  }
+
+  .l1 {
+    display: block;
+  }
+
+  /* Link w treści (SPEC 4) */
+  .link {
+    color: var(--color-green);
+    text-decoration: underline;
+    text-decoration-color: var(--color-line-2);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.25em;
+    transition: text-decoration-color 150ms var(--ease-wejscie);
+  }
+  .link:hover {
+    text-decoration-color: var(--color-green);
+  }
+
+  /* Skip link (SPEC 11.3) */
+  .skip {
+    position: absolute;
+    left: var(--spacing-margines);
+    top: 0;
+    z-index: 100;
+    transform: translateY(-150%);
+    background-color: var(--color-ink-2);
+    color: var(--color-text);
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-kontrolka);
+    transition: transform 150ms var(--ease-wejscie);
+  }
+  .skip:focus-visible {
+    transform: translateY(0.5rem);
+  }
+}
+
+/* ==========================================================================
+   OGRANICZONY RUCH (SPEC 10.1, 11.3)
+   Warstwa CSS. Odpowiednik po stronie GSAP jest w src/scripts/motion.ts.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

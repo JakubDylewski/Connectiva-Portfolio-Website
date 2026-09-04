@@ -1,0 +1,115 @@
+---
+/**
+ * Nagłówek sekcji (SPEC 7.1).
+ *
+ * Licznik pozycji „02 / 07", H2 złożony ręcznie z dwóch linii (druga wcięta —
+ * zasada przesunięcia, SPEC 6.2), lead ≤ 72 znaki i opcjonalny Łącznik.
+ *
+ * Łamanie H2 jest ręczne i celowe. Jeśli tekst nie mieści się w dwóch
+ * linijkach na 360 px — skracamy tekst, nie zmieniamy zasady.
+ */
+import Lacznik from './Lacznik.astro';
+
+interface Props {
+  /** Numer pozycji, np. „01". Pomiń dla hero i kontaktu. */
+  index?: string;
+  /** Liczba sekcji numerowanych. */
+  total?: string;
+  /** Pierwsza linia H2. */
+  linia1: string;
+  /** Druga linia H2 — wcięta. */
+  linia2: string;
+  /** Lead pod nagłówkiem. */
+  lead?: string;
+  /** Poziom nagłówka. Na stronie jest dokładnie jeden h1 (SPEC 11.3). */
+  poziom?: 'h1' | 'h2';
+  lacznik?: boolean;
+  class?: string;
+}
+
+const {
+  index,
+  total = '07',
+  linia1,
+  linia2,
+  lead,
+  poziom = 'h2',
+  lacznik = false,
+  class: klasa,
+} = Astro.props;
+---
+
+<header class:list={['glowa', klasa]}>
+  {
+    index && (
+      <p class="index glowa__index">
+        {index} / {total}
+      </p>
+    )
+  }
+
+  {
+    poziom === 'h1' ? (
+      <h1 class="glowa__tytul glowa__tytul--h1">
+        <span class="l1">{linia1}</span>
+        <span class="l2">{linia2}</span>
+      </h1>
+    ) : (
+      <h2 class="glowa__tytul">
+        <span class="l1">{linia1}</span>
+        <span class="l2">{linia2}</span>
+      </h2>
+    )
+  }
+
+  {
+    /* Łącznik siedzi w opakowaniu należącym do tego komponentu — styl zakresowy
+       Astro nie sięga do elementu głównego komponentu potomnego. */
+    lacznik && (
+      <div class="glowa__lacznik">
+        <Lacznik wariant="section" />
+      </div>
+    )
+  }
+
+  {lead && <p class="glowa__lead">{lead}</p>}
+</header>
+
+<style>
+  .glowa {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .glowa__index {
+    margin-bottom: 1.5rem;
+    max-width: none;
+  }
+
+  .glowa__tytul {
+    font-family: var(--font-display);
+    font-size: var(--text-display-2);
+    font-weight: 400;
+    line-height: 1.06;
+    letter-spacing: -0.01em;
+  }
+
+  /* H1 hero — większa skala (SPEC 5, display-1) */
+  .glowa__tytul--h1 {
+    font-size: var(--text-display-1);
+    line-height: 1.02;
+    letter-spacing: -0.015em;
+  }
+
+  .glowa__lacznik {
+    margin-top: 2.5rem;
+  }
+
+  .glowa__lead {
+    margin-top: 1.5rem;
+    font-size: var(--text-lead);
+    line-height: 1.55;
+    color: var(--color-text-2);
+  }
+</style>
