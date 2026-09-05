@@ -1,0 +1,40 @@
+---
+/**
+ * /audyt/ — ten sam komponent co sekcja 04 na stronie głównej (SPEC 8.4, 9).
+ *
+ * Osobna strona istnieje po to, żeby dało się wysłać sam audyt w wiadomości
+ * na Instagramie, bez przewijania całej strony głównej.
+ *
+ * `noindex` do Etapu 6, w którym wchodzi warstwa SEO — tak samo jak strona
+ * główna. Wtedy zdejmujemy flagę z obu naraz.
+ */
+import Base from '../layouts/Base.astro';
+import SectionHead from '../components/SectionHead.astro';
+import Audit from '../components/Audit.astro';
+---
+
+<Base
+  tytul="Bezpłatny audyt strony w 60 sekund — Connectiva"
+  opis="Sześć pytań o Twoją stronę. Bez logowania, bez maila. Na końcu zdecydujesz, czy chcesz pełny audyt wideo."
+  noindex
+  pasekMobile
+>
+  <section class="strona-audyt">
+    <div class="kontener">
+      <SectionHead
+        poziom="h1"
+        linia1="Sprawdź swoją stronę"
+        linia2="w 60 sekund."
+        lead="Sześć pytań. Bez logowania, bez maila. Na końcu zdecydujesz, czy chcesz pełny audyt wideo."
+        lacznik
+      />
+      <Audit />
+    </div>
+  </section>
+</Base>
+
+<style>
+  .strona-audyt {
+    padding-block: var(--spacing-sekcja);
+  }
+</style>

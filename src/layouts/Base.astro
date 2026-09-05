@@ -105,6 +105,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
       import { initSegmentChips } from '../scripts/segment';
       import { initAccordions } from '../scripts/accordion';
       import { initCityCheck } from '../scripts/city';
+      import { initAudit } from '../scripts/audit';
+      import { initForms, initPasekPrzyFormularzach } from '../scripts/forms';
 
       // Menu, chipy, akordeony i sprawdzarka muszą działać niezależnie od
       // preferencji ruchu, więc nie czekają na GSAP (SPEC 10.1).
@@ -114,6 +116,9 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
         initSegmentChips();
         initAccordions();
         initCityCheck();
+        initAudit();
+        initForms();
+        initPasekPrzyFormularzach();
         void initMotion();
       }
 

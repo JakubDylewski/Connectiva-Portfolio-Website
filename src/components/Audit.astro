@@ -1,0 +1,549 @@
+---
+/**
+ * Audyt w 60 sekund (SPEC 8.4) — główna konwersja.
+ *
+ * Komponent nie renderuje własnego nagłówka: na stronie głównej robi to
+ * `SectionHead` (h2), a na `/audyt/` ten sam `SectionHead` jako h1.
+ * Dzięki temu na żadnej stronie nie ma dwóch h1 (SPEC 11.3).
+ *
+ * Bez JavaScriptu widać wszystkie sześć pytań naraz i formularz pod nimi —
+ * strona zostaje używalna, traci tylko prowadzenie krok po kroku.
+ */
+import Button from './Button.astro';
+import { site } from '../site.config';
+import { pytania, ETYKIETY_ODPOWIEDZI, DOPISEK, OBIETNICA } from '../data/audyt';
+
+const id = `audyt-${crypto.randomUUID().slice(0, 8)}`;
+
+// Polityka prywatności powstaje w Etapie 6. Linkujemy do niej dopiero wtedy,
+// gdy plik strony istnieje — żeby zgoda nie prowadziła do 404.
+const politykaIstnieje =
+  Object.keys(import.meta.glob('../pages/polityka-prywatnosci.astro')).length > 0;
+
+const uzupelnione = (v: string) => Boolean(v) && !v.startsWith('TODO_');
+const tekstBledu = uzupelnione(site.email)
+  ? `Nie udało się wysłać. Napisz na ${site.email}.`
+  : 'Nie udało się wysłać. Spróbuj jeszcze raz za chwilę.';
+
+const odpowiedzi = Object.entries(ETYKIETY_ODPOWIEDZI) as Array<
+  [keyof typeof ETYKIETY_ODPOWIEDZI, string]
+>;
+---
+
+<div class="audyt" data-audyt>
+  {/* --- postęp ---------------------------------------------------------- */}
+  <div class="audyt__postep">
+    <ol class="audyt__kreski" aria-hidden="true">
+      {pytania.map(() => <li class="audyt__kreska" data-kreska />)}
+    </ol>
+    <p class="audyt__licznik index" data-licznik>pytanie 1 z {pytania.length}</p>
+  </div>
+
+  {/* --- pytania --------------------------------------------------------- */}
+  <div class="audyt__pytania" data-pytania>
+    {
+      pytania.map((p, i) => (
+        <fieldset class="krok" data-krok tabindex="-1">
+          <legend class="krok__pytanie">{p.pytanie}</legend>
+          <div class="krok__odpowiedzi">
+            {odpowiedzi.map(([wartosc, etykieta]) => {
+              const idOdp = `${id}-p${i}-${wartosc}`;
+              return (
+                <div class="odp">
+                  <input
+                    class="odp__input"
+                    type="radio"
+                    id={idOdp}
+                    name={`pytanie-${i + 1}`}
+                    value={wartosc}
+                    data-nr={i}
+                  />
+                  <label class="odp__etykieta" for={idOdp}>
+                    {etykieta}
+                  </label>
+                </div>
+              );
+            })}
+          </div>
+        </fieldset>
+      ))
+    }
+
+    <div class="audyt__nawigacja">
+      <button type="button" class="audyt__wstecz" data-wstecz>Wstecz</button>
+      <Button wariant="wtorny" data-dalej>Dalej</Button>
+    </div>
+  </div>
+
+  {/* --- werdykt --------------------------------------------------------- */}
+  <div
+    class="audyt__werdykt"
+    data-werdykt
+    hidden
+    tabindex="-1"
+    aria-live="polite"
+  >
+    <p class="audyt__werdykt-tekst" data-werdykt-tekst></p>
+
+    <ul class="audyt__braki" data-braki></ul>
+
+    <p class="audyt__dopisek">{DOPISEK}</p>
+
+    <button type="button" class="audyt__popraw" data-popraw>Popraw odpowiedzi</button>
+
+    {/* --- formularz ---------------------------------------------------- */}
+    <form
+      class="audyt__formularz"
+      data-formularz
+      data-klucz={site.web3formsKey}
+      data-tekst-ok="Wysłane. Wideo przyjdzie w 48 h."
+      data-tekst-blad={tekstBledu}
+      data-chowa-pasek
+      novalidate
+    >
+      <input type="hidden" name="subject" value="Audyt w 60 sekund — nowe zgłoszenie" />
+      <input type="hidden" name="from_name" value="Connectiva" />
+      <input type="hidden" name="wynik_audytu" data-wynik-audytu />
+
+      {/* Honeypot — widoczne tylko dla botów (SPEC 7.5) */}
+      <div class="audyt__pulapka" aria-hidden="true">
+        <label for={`${id}-firma`}>Nie wypełniaj tego pola</label>
+        <input id={`${id}-firma`} type="text" name="firma" tabindex="-1" autocomplete="off" data-honeypot />
+      </div>
+
+      <div class="audyt__pola" data-pola>
+        <div class="pole">
+          <label class="pole__etykieta" for={`${id}-url`}>Link do Twojej strony</label>
+          <input
+            class="pole__input"
+            id={`${id}-url`}
+            name="strona"
+            type="text"
+            inputmode="url"
+            autocomplete="url"
+            required
+            data-waliduj="url"
+            aria-describedby={`${id}-url-blad`}
+          />
+          <p class="pole__blad" id={`${id}-url-blad`} aria-live="polite"></p>
+        </div>
+
+        <div class="pole">
+          <label class="pole__etykieta" for={`${id}-kontakt`}>
+            Instagram albo e-mail
+          </label>
+          <input
+            class="pole__input"
+            id={`${id}-kontakt`}
+            name="kontakt"
+            type="text"
+            autocomplete="email"
+            required
+            data-waliduj="kontakt"
+            aria-describedby={`${id}-kontakt-blad`}
+          />
+          <p class="pole__blad" id={`${id}-kontakt-blad`} aria-live="polite"></p>
+        </div>
+
+        <div class="pole">
+          <label class="pole__etykieta" for={`${id}-miasto`}>
+            Miasto <span class="pole__opcjonalne">(opcjonalnie)</span>
+          </label>
+          <input
+            class="pole__input"
+            id={`${id}-miasto`}
+            name="miasto"
+            type="text"
+            autocomplete="address-level2"
+          />
+        </div>
+
+        <div class="pole pole--zgoda">
+          <div class="zgoda">
+            <input
+              class="zgoda__input"
+              id={`${id}-zgoda`}
+              name="zgoda"
+              type="checkbox"
+              required
+              data-waliduj="zgoda"
+              aria-describedby={`${id}-zgoda-blad`}
+            />
+            <label class="zgoda__etykieta" for={`${id}-zgoda`}>
+              Zgadzam się na kontakt w sprawie audytu i&nbsp;na przetwarzanie
+              moich danych.{' '}
+              {politykaIstnieje ? (
+                <a class="link" href="/polityka-prywatnosci/">
+                  Polityka prywatności
+                </a>
+              ) : (
+                <span class="zgoda__todo">
+                  (polityka prywatności dochodzi w&nbsp;Etapie 6)
+                </span>
+              )}
+            </label>
+          </div>
+          <p class="pole__blad" id={`${id}-zgoda-blad`} aria-live="polite"></p>
+        </div>
+
+        <div class="audyt__wyslij">
+          <Button type="submit">Wyślij do audytu</Button>
+          <p class="audyt__obietnica">{OBIETNICA}</p>
+        </div>
+      </div>
+
+      <p class="audyt__stan" data-stan aria-live="polite"></p>
+    </form>
+  </div>
+</div>
+
+<style>
+  .audyt {
+    margin-top: 3rem;
+    max-width: 44rem;
+  }
+
+  /* --- postęp ------------------------------------------------------------ */
+
+  .audyt__kreski {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .audyt__kreska {
+    height: 2px;
+    flex: 1;
+    background-color: var(--color-line-2);
+  }
+
+  .audyt__kreska.jest-wypelniona {
+    background-color: var(--color-text-3);
+  }
+
+  /* Aktywna kreska jest jedyną gradientową rzeczą w tej sekcji (SPEC 8.4) */
+  .audyt__kreska.jest-aktywna {
+    background: var(--g-brand);
+  }
+
+  .audyt__licznik {
+    margin-top: 0.75rem;
+  }
+
+  /* Bez skryptu licznik kłamałby — widać wtedy wszystkie pytania naraz. */
+  .audyt:not([data-tryb='krokowy']) .audyt__postep,
+  .audyt:not([data-tryb='krokowy']) .audyt__nawigacja {
+    display: none;
+  }
+
+  /* --- pytania ----------------------------------------------------------- */
+
+  .krok {
+    border: 0;
+    padding: 0;
+    margin: 2.5rem 0 0;
+    min-width: 0;
+  }
+
+  .krok:focus-visible {
+    outline: 2px solid var(--color-lime);
+    outline-offset: 8px;
+  }
+
+  .krok__pytanie {
+    padding: 0;
+    font-size: var(--text-h3);
+    font-weight: 500;
+    line-height: 1.25;
+    max-width: 34rem;
+  }
+
+  .krok__odpowiedzi {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .odp {
+    position: relative;
+  }
+
+  /* Input schowany wizualnie, ale wciąż fokusowalny — stan niesie etykieta. */
+  .odp__input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    cursor: pointer;
+  }
+
+  .odp__etykieta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    /* Cel dotyku 48 px (SPEC 8.4) */
+    min-height: 48px;
+    min-width: 6rem;
+    padding-inline: 1.25rem;
+    border: 1px solid var(--color-line-2);
+    border-radius: var(--radius-kontrolka);
+    color: var(--color-text-2);
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      background-color 200ms var(--ease-wejscie),
+      border-color 200ms var(--ease-wejscie),
+      color 200ms var(--ease-wejscie);
+  }
+
+  .odp__input:hover + .odp__etykieta {
+    color: var(--color-text);
+    border-color: var(--color-text-3);
+  }
+
+  /* Zaznaczenie niesie tło, obramowanie i kolor tekstu — nie sam kolor
+     (SPEC 11.3). */
+  .odp__input:checked + .odp__etykieta {
+    background-color: var(--color-ink-2);
+    border-color: var(--color-green);
+    color: var(--color-text);
+  }
+
+  .odp__input:focus-visible + .odp__etykieta {
+    outline: 2px solid var(--color-lime);
+    outline-offset: 3px;
+  }
+
+  /* Zmiana pytania: opacity 200 ms (SPEC 10.3) */
+  .audyt[data-tryb='krokowy'] .krok {
+    opacity: 0;
+    transition: opacity 200ms var(--ease-wejscie);
+  }
+
+  .audyt[data-tryb='krokowy'] .krok.jest-widoczny {
+    opacity: 1;
+  }
+
+  .audyt__nawigacja {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .audyt__wstecz,
+  .audyt__popraw {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    background: transparent;
+    border: 0;
+    color: var(--color-text-2);
+    text-decoration: underline;
+    text-decoration-color: var(--color-line-2);
+    text-underline-offset: 0.35em;
+    cursor: pointer;
+  }
+
+  .audyt__wstecz:hover,
+  .audyt__popraw:hover {
+    color: var(--color-text);
+  }
+
+  .audyt__wstecz:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  /* --- werdykt ----------------------------------------------------------- */
+
+  .audyt__werdykt {
+    margin-top: 2.5rem;
+  }
+
+  .audyt__werdykt:focus-visible {
+    outline: 2px solid var(--color-lime);
+    outline-offset: 8px;
+  }
+
+  .audyt__werdykt-tekst {
+    font-family: var(--font-display);
+    font-size: var(--text-display-2);
+    font-weight: 400;
+    line-height: 1.06;
+    letter-spacing: -0.01em;
+    color: var(--color-text);
+    max-width: 34rem;
+  }
+
+  .audyt__braki {
+    margin-top: 2.5rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .audyt__braki:empty {
+    margin-top: 0;
+  }
+
+  /* Pozycje listy braków tworzy JavaScript, więc nie mają atrybutu zakresu,
+     który Astro dokłada do znaczników z szablonu. Selektory muszą być
+     `:global`, zakotwiczone w renderowanym po stronie serwera `.audyt__braki`. */
+  .audyt__braki :global(.audyt__brak) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    padding-block: 1.25rem;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .audyt__braki :global(.audyt__brak-pytanie) {
+    font-weight: 500;
+  }
+
+  .audyt__braki :global(.audyt__brak-skutek) {
+    color: var(--color-text-2);
+  }
+
+  .audyt__dopisek {
+    margin-top: 2rem;
+    font-size: var(--text-small);
+    color: var(--color-text-3);
+  }
+
+  .audyt__popraw {
+    margin-top: 1rem;
+    font-size: var(--text-small);
+  }
+
+  /* --- formularz --------------------------------------------------------- */
+
+  .audyt__formularz {
+    margin-top: 3rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .audyt__pola {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .pole__etykieta {
+    display: block;
+    font-size: var(--text-small);
+    color: var(--color-text-2);
+    margin-bottom: 0.5rem;
+  }
+
+  .pole__opcjonalne {
+    color: var(--color-text-3);
+  }
+
+  .pole__input {
+    width: 100%;
+    max-width: 26rem;
+    height: 48px;
+    padding-inline: 0.875rem;
+    background-color: var(--color-ink-1);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-kontrolka);
+    color: var(--color-text);
+    transition: border-color 150ms var(--ease-wejscie);
+  }
+
+  .pole__input:hover {
+    border-color: var(--color-line-2);
+  }
+
+  .pole__input:focus {
+    border-color: var(--color-green);
+    background-color: var(--color-ink-2);
+  }
+
+  .pole__input[aria-invalid='true'] {
+    border-color: var(--color-error);
+  }
+
+  .pole__blad {
+    margin-top: 0.5rem;
+    font-size: var(--text-small);
+    color: var(--color-error);
+  }
+
+  .pole__blad:empty {
+    margin-top: 0;
+  }
+
+  .zgoda {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .zgoda__input {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    accent-color: var(--color-green);
+  }
+
+  .zgoda__etykieta {
+    font-size: var(--text-small);
+    color: var(--color-text-2);
+    max-width: 34rem;
+  }
+
+  .zgoda__todo {
+    color: var(--color-text-3);
+  }
+
+  .audyt__wyslij {
+    margin-top: 0.5rem;
+  }
+
+  .audyt__obietnica {
+    margin-top: 1.25rem;
+    font-size: var(--text-small);
+    color: var(--color-text-3);
+  }
+
+  .audyt__stan {
+    margin-top: 1.5rem;
+    font-size: var(--text-body);
+    color: var(--color-text-2);
+  }
+
+  .audyt__stan:empty {
+    margin-top: 0;
+  }
+
+  .audyt__formularz[data-stan-wysylki='ok'] .audyt__stan {
+    color: var(--color-text);
+  }
+
+  .audyt__formularz[data-stan-wysylki='blad'] .audyt__stan {
+    color: var(--color-error);
+  }
+
+  /* Honeypot: poza ekranem, poza kolejnością tabulacji (SPEC 7.5) */
+  .audyt__pulapka {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .audyt[data-tryb='krokowy'] .krok,
+    .odp__etykieta {
+      transition: none;
+    }
+  }
+</style>

@@ -14,6 +14,7 @@
  */
 
 import { ZDARZENIE_MENU, type MenuDetail } from './nav';
+import { ZDARZENIE_UKLAD } from './forms';
 import {
   ZDARZENIE_PRZEWIN,
   ZDARZENIE_SEGMENT,
@@ -117,6 +118,13 @@ export async function initMotion(): Promise<void> {
 
   // Geometrię mierzymy raz, po fontach (SPEC 10.2).
   ScrollTrigger.refresh();
+
+  // Wyjątek od „mierzymy raz": gdy sekcja odsłoni coś, czego wcześniej nie
+  // było w układzie (werdykt audytu z formularzem), trzeba przeliczyć —
+  // inaczej pasek dolny nie wie, że formularz jest już na ekranie (SPEC 7.3).
+  const naZmianeUkladu = () => ScrollTrigger.refresh();
+  document.addEventListener(ZDARZENIE_UKLAD, naZmianeUkladu);
+  sprzatanie.push(() => document.removeEventListener(ZDARZENIE_UKLAD, naZmianeUkladu));
 }
 
 export function destroyMotion(): void {
@@ -254,16 +262,9 @@ function pasekDolny(
     });
   }
 
-  // Hook dla Etapów 4 i 6: sekcja z formularzem dostaje `data-chowa-pasek`
-  // i pasek schodzi z drogi, gdy jest widoczna (SPEC 7.3).
-  for (const sekcja of document.querySelectorAll<HTMLElement>('[data-chowa-pasek]')) {
-    ScrollTrigger.create({
-      trigger: sekcja,
-      start: 'top bottom-=120',
-      end: 'bottom top+=120',
-      onToggle: (self) => pasek.classList.toggle('jest-schowany', self.isActive),
-    });
-  }
+  // Chowaniem paska przy formularzach zajmuje się `initPasekPrzyFormularzach`
+  // w `forms.ts` — przez IntersectionObserver, żeby działało również przy
+  // ograniczonym ruchu, gdzie ten kontekst w ogóle nie startuje (SPEC 7.3).
 }
 
 /* -------------------------------------------------------------------------- */

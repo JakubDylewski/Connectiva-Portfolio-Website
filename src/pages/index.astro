@@ -16,6 +16,7 @@ import Projects from '../components/Projects.astro';
 import SectionHead from '../components/SectionHead.astro';
 import Accordion from '../components/Accordion.astro';
 import CityCheck from '../components/CityCheck.astro';
+import Audit from '../components/Audit.astro';
 import { zakres } from '../data/zakres';
 
 /**
@@ -31,14 +32,6 @@ import { zakres } from '../data/zakres';
  * a nie zasadę — te trzy sekcje i tak dostają treść w Etapach 2–3.
  */
 const sekcje = [
-  {
-    id: 'audyt',
-    index: '04',
-    linia1: 'Sprawdź swoją stronę',
-    linia2: 'w 60 sekund.',
-    lead: 'Sześć pytań. Bez logowania, bez maila. Na końcu zdecydujesz, czy chcesz pełny audyt wideo.',
-    etap: 4,
-  },
   {
     id: 'proces',
     index: '05',
@@ -116,6 +109,20 @@ const sekcje = [
     </div>
   </section>
 
+  {/* 04 Audyt w 60 sekund (SPEC 8.4) — główna konwersja */}
+  <section id="audyt" class="sekcja">
+    <div class="kontener">
+      <SectionHead
+        index="04"
+        linia1="Sprawdź swoją stronę"
+        linia2="w 60 sekund."
+        lead="Sześć pytań. Bez logowania, bez maila. Na końcu zdecydujesz, czy chcesz pełny audyt wideo."
+        lacznik
+      />
+      <Audit />
+    </div>
+  </section>
+
   {
     sekcje.map((s) => (
       <section id={s.id} class="sekcja">
@@ -153,7 +160,8 @@ const sekcje = [
 
   /* Sekcje z gotową treścią nie potrzebują sztucznej wysokości. */
   #zakres,
-  #miasto {
+  #miasto,
+  #audyt {
     min-height: 0;
   }
 
