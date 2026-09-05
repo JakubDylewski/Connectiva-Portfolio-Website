@@ -17,6 +17,8 @@ import SectionHead from '../components/SectionHead.astro';
 import Accordion from '../components/Accordion.astro';
 import CityCheck from '../components/CityCheck.astro';
 import Audit from '../components/Audit.astro';
+import Process from '../components/Process.astro';
+import Pricing from '../components/Pricing.astro';
 import { zakres } from '../data/zakres';
 
 /**
@@ -32,24 +34,6 @@ import { zakres } from '../data/zakres';
  * a nie zasadę — te trzy sekcje i tak dostają treść w Etapach 2–3.
  */
 const sekcje = [
-  {
-    id: 'proces',
-    index: '05',
-    linia1: 'Cztery tygodnie.',
-    linia2: 'Pięć kroków.',
-    lead: 'Termin liczy się od dnia, w którym mamy Twoje teksty źródłowe i zdjęcia. Bez niespodzianek po drodze.',
-    etap: 5,
-  },
-  {
-    id: 'cennik',
-    index: '06',
-    linia1: '8 000–10 000 zł.',
-    // Cudzysłowy jako escape'y — polskie znaki cudzysłowu w stringach JS
-    // potrafiły wywalić build (SPEC 5, lekcja z ELARY).
-    linia2: 'Tyle, nie \u201Eod\u201D.',
-    lead: 'Jedna cena widełkowa, znana przed startem. Po rozmowie dostajesz kwotę końcową i to ona jest w umowie.',
-    etap: 5,
-  },
   {
     id: 'pytania',
     index: '07',
@@ -123,6 +107,23 @@ const sekcje = [
     </div>
   </section>
 
+  {/* 05 Proces (SPEC 8.5) — pin 2 z 2 na desktopie */}
+  <Process />
+
+  {/* 06 Cena (SPEC 8.6) */}
+  <section id="cennik" class="sekcja">
+    <div class="kontener">
+      <SectionHead
+        index="06"
+        linia1="8 000–10 000 zł."
+        linia2={'Tyle, nie „od”.'}
+        lead="Jedna cena widełkowa, znana przed startem. Po rozmowie dostajesz kwotę końcową i to ona jest w umowie."
+        lacznik
+      />
+      <Pricing />
+    </div>
+  </section>
+
   {
     sekcje.map((s) => (
       <section id={s.id} class="sekcja">
@@ -161,7 +162,8 @@ const sekcje = [
   /* Sekcje z gotową treścią nie potrzebują sztucznej wysokości. */
   #zakres,
   #miasto,
-  #audyt {
+  #audyt,
+  #cennik {
     min-height: 0;
   }
 

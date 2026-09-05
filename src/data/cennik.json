@@ -1,0 +1,41 @@
+{
+  "baza": 8000,
+  "gorna": 10000,
+  "waluta": "zł",
+  "zawiera": [
+    "stronę główną i do 6 podstron usługowych",
+    "jeden moduł systemu pozyskiwania klientek",
+    "rezerwację online, zintegrowaną z Twoim systemem",
+    "5 stron lokalnego SEO",
+    "wizytówkę Google spiętą ze stroną",
+    "RODO i polityki",
+    "godzinę szkolenia",
+    "30 dni poprawek",
+    "hosting na Cloudflare, 0 zł miesięcznie, na zawsze"
+  ],
+  "przelaczniki": [
+    { "id": "podstrony", "etykieta": "+6 podstron usługowych (do 12)", "kwota": 600 },
+    { "id": "seo", "etykieta": "+10 stron lokalnego SEO (do 15)", "kwota": 500 },
+    {
+      "id": "modul",
+      "etykieta": "Drugi moduł systemu (np. cennik z filtrem i diagnoza skóry)",
+      "kwota": 600
+    },
+    {
+      "id": "art14",
+      "etykieta": "Teksty dla kliniki lekarskiej zgodne z art. 14",
+      "kwota": 300
+    }
+  ],
+  "platnosc": "W trzech częściach: 30% na start, 40% po akceptacji projektu, 30% po publikacji. Faktura na każdą część.",
+  "opieka": {
+    "kwota": 249,
+    "opis": "aktualizacje, kopie zapasowe, monitoring, do dwóch godzin zmian w treści. Bez zobowiązania, wypowiedzenie w każdej chwili. Bez opieki strona działa dalej — jest Twoja."
+  },
+  "nieMaWCenie": [
+    "honorarium fotografa",
+    "abonament systemu rezerwacji (Booksy, Fresha, Estetify)",
+    "reklamy i ich obsługa",
+    "teksty specjalistyczne pisane od zera przez lekarza"
+  ]
+}

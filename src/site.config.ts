@@ -41,6 +41,13 @@ export const site = {
   /** Web3Forms. TODO Jakub przed publikacją (SPEC 0). */
   web3formsKey: 'TODO_WEB3FORMS_KEY',
 
+  /**
+   * Czy ceny w cenniku są netto, czy brutto — zależy od tego, czy JDG jest
+   * podatnikiem VAT. Decyzja otwarta nr 2 (SPEC 16), jeszcze niepodjęta.
+   * Dopóki jest `null`, cennik nie twierdzi ani jednego, ani drugiego.
+   */
+  cenyVat: null as 'netto' | 'brutto' | null,
+
   /** Miasta, od których zaczynamy (SPEC 8.3, 11.2 areaServed). */
   obszar: ['Gdańsk', 'Gdynia', 'Sopot', 'Toruń'],
 } as const;

@@ -83,14 +83,16 @@ export async function initMotion(): Promise<void> {
     const mm = gsap.matchMedia();
 
     mm.add(DESKTOP, () => {
-      // Pin 1 z 2 dozwolonych (SPEC 10.2). Etap 5 dokłada drugi — Proces.
+      // Dwa piny i ani jednego więcej (SPEC 10.2).
+      projektyDesktop(gsap, ScrollTrigger); // pin 1 z 2
+      procesDesktop(gsap); // pin 2 z 2
       // Etap 8: magnetyzm przycisków.
-      projektyDesktop(gsap, ScrollTrigger);
     });
 
     mm.add(MOBILE, () => {
       pasekDolny(ScrollTrigger);
       projektyMobile(gsap, ScrollTrigger);
+      procesMobile(gsap);
     });
 
     mm.add(REDUCE, () => {
@@ -509,6 +511,140 @@ function projektyMobile(gsap: Gsap, ScrollTrigger: ST): void {
 
   podepnijChipy(bloki, (i) => bloki[i]);
   odswiezPoZrzutach(ScrollTrigger, zrzuty);
+}
+
+/* -------------------------------------------------------------------------- */
+/* 05 Proces (SPEC 8.5)                                                       */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Desktop: PIN 2 Z 2. Pięć kroków jedzie w poziomie, a nad nimi rysuje się
+ * linia-schodki.
+ *
+ * Rysowanie idzie przez `stroke-dashoffset`, czyli jedyne odstępstwo od
+ * reguły „tylko transform i opacity" (SPEC 10.2). SPEC 8.5 prosi o to wprost
+ * i sam je uzasadnia: jedna ścieżka, niski koszt. Nic więcej w pętli scrolla
+ * tak nie animujemy.
+ */
+function procesDesktop(gsap: Gsap): void {
+  const sekcja = document.querySelector<HTMLElement>('[data-proces]');
+  if (!sekcja || sekcja.dataset.motion === 'off') return;
+
+  const scena = sekcja.querySelector<HTMLElement>('[data-scena-proces]');
+  const tor = sekcja.querySelector<HTMLElement>('[data-tor]');
+  const svg = sekcja.querySelector<SVGSVGElement>('[data-schodki]');
+  const sciezka = sekcja.querySelector<SVGPathElement>('[data-sciezka]');
+  const karty = [...sekcja.querySelectorAll<HTMLElement>('[data-krok-p]')];
+  if (!scena || !tor) return;
+
+  /** O ile tor musi pojechać w lewo, żeby pokazać ostatni krok. */
+  const przesuw = () => Math.max(0, tor.scrollWidth - scena.clientWidth);
+
+  /**
+   * Buduje linię-schodki z realnych pozycji kart: bieg przez kartę, przeskok
+   * o poziom wyżej na jej prawej krawędzi (SPEC 8.5, motyw z logo).
+   * Współrzędne w pikselach, więc `viewBox` odpowiada 1:1 rozmiarowi elementu.
+   */
+  function zbudujSchodki(): number {
+    if (!svg || !sciezka || karty.length === 0) return 0;
+
+    const szer = tor!.scrollWidth;
+    const wys = Number(svg.dataset.wysokosc ?? '120');
+    const dol = wys - 10;
+    const skok = (dol - 10) / Math.max(1, karty.length - 1);
+    const lewaToru = tor!.getBoundingClientRect().left;
+
+    let d = '';
+    karty.forEach((karta, i) => {
+      const r = karta.getBoundingClientRect();
+      const od = Math.round(r.left - lewaToru);
+      const doX = Math.round(r.right - lewaToru);
+      const y = Math.round(dol - i * skok);
+      d += i === 0 ? `M${od} ${y}` : ` V${y}`;
+      d += ` H${doX}`;
+    });
+
+    svg.setAttribute('viewBox', `0 0 ${szer} ${wys}`);
+    svg.setAttribute('width', String(szer));
+    sciezka.setAttribute('d', d);
+    return sciezka.getTotalLength();
+  }
+
+  // Długość ścieżki trzymamy w zmiennej, żeby tween mógł ją czytać funkcją —
+  // po zmianie szerokości okna schodki są innej długości.
+  let dlugosc = 0;
+  const przeliczSchodki = () => {
+    dlugosc = zbudujSchodki();
+    if (sciezka) gsap.set(sciezka, { strokeDasharray: dlugosc });
+  };
+  przeliczSchodki();
+
+  const tl = gsap.timeline({
+    defaults: { ease: 'none' },
+    scrollTrigger: {
+      trigger: scena,
+      start: 'top top',
+      end: () => `+=${Math.max(window.innerHeight, przesuw())}`,
+      pin: scena,
+      scrub: 0.8,
+      invalidateOnRefresh: true,
+      onRefreshInit: przeliczSchodki,
+      onEnter: () => {
+        tor.style.willChange = 'transform';
+      },
+      onEnterBack: () => {
+        tor.style.willChange = 'transform';
+      },
+      onLeave: () => {
+        tor.style.willChange = '';
+      },
+      onLeaveBack: () => {
+        tor.style.willChange = '';
+      },
+    },
+  });
+
+  tl.fromTo(tor, { x: 0 }, { x: () => -przesuw(), duration: 1 }, 0);
+
+  if (sciezka) {
+    tl.fromTo(
+      sciezka,
+      { strokeDashoffset: () => dlugosc },
+      { strokeDashoffset: 0, duration: 1 },
+      0,
+    );
+  }
+
+  sprzatanie.push(() => {
+    tor.style.willChange = '';
+  });
+}
+
+/** Mobile: pionowa linia po lewej rysowana `scaleY`, bez pinowania (SPEC 8.5). */
+function procesMobile(gsap: Gsap): void {
+  const sekcja = document.querySelector<HTMLElement>('[data-proces]');
+  if (!sekcja || sekcja.dataset.motion === 'off') return;
+
+  for (const krok of sekcja.querySelectorAll<HTMLElement>('[data-krok-p]')) {
+    const linia = krok.querySelector<HTMLElement>('[data-linia-pionowa]');
+    if (!linia) continue;
+
+    gsap.fromTo(
+      linia,
+      { scaleY: 0 },
+      {
+        scaleY: 1,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: krok,
+          start: 'top bottom-=120',
+          end: 'bottom center',
+          scrub: 0.8,
+          invalidateOnRefresh: true,
+        },
+      },
+    );
+  }
 }
 
 /* -------------------------------------------------------------------------- */

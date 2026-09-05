@@ -1,0 +1,242 @@
+---
+/**
+ * 05 Proces (SPEC 8.5) — interakcja 7.
+ *
+ *  desktop (≥ 1024 px, ruch włączony) — sekcja przypięta, PIN 2 Z 2. To jest
+ *    ostatni dozwolony pin na całej stronie (SPEC 10.2). Pięć kroków jedzie
+ *    w poziomej ścieżce sterowanej scrubem, nad nimi linia-schodki: jedna
+ *    ścieżka SVG przeskakująca o poziom wyżej przy każdym kroku, rysowana
+ *    `stroke-dashoffset`.
+ *
+ *  mobile i ograniczony ruch — pionowa lista, pionowa linia po lewej rysowana
+ *    `scaleY`, bez pinowania.
+ *
+ * Linia-schodki to jedyne miejsce na stronie, gdzie animujemy coś innego niż
+ * `transform` i `opacity`. SPEC 8.5 prosi o to wprost i sam uzasadnia: jedna
+ * ścieżka, niski koszt. Poza tym wyjątkiem reguła z 10.2 obowiązuje.
+ */
+import SectionHead from './SectionHead.astro';
+import { kroki } from '../data/proces';
+
+interface Props {
+  /** `off` wyłącza scrub i zostawia listę statyczną. */
+  motion?: 'off';
+}
+
+const { motion } = Astro.props;
+
+/**
+ * Ścieżkę schodków rysuje `motion.ts` na podstawie zmierzonych pozycji kart —
+ * dzięki temu każdy przeskok wypada dokładnie na krawędzi swojego kroku,
+ * a układ współrzędnych SVG jest 1:1 z pikselami.
+ *
+ * Bez tego trzeba by rozciągać viewBox (`preserveAspectRatio="none"`), a wtedy
+ * przy `non-scaling-stroke` przeglądarka liczy kreskowanie w przestrzeni
+ * ekranu: wzór `stroke-dasharray` zaczyna się powtarzać i linia rozpada się
+ * na kawałki zamiast rysować od początku do końca.
+ *
+ * Schodki pojawiają się tylko w układzie poziomym, czyli wtedy, gdy skrypt
+ * i tak działa. Na wąskim ekranie i przy wyłączonym ruchu jest zamiast nich
+ * pionowa linia przy każdym kroku.
+ */
+const WYS_SCHODKOW = 120;
+---
+
+<section
+  id="proces"
+  class:list={['proces', motion === 'off' && 'proces--bez-ruchu']}
+  data-proces
+  data-motion={motion}
+>
+  <div class="kontener">
+    <SectionHead
+      index="05"
+      linia1="Cztery tygodnie."
+      linia2="Pięć kroków."
+      lead="Termin liczy się od dnia, w którym mamy Twoje teksty źródłowe i zdjęcia. Bez niespodzianek po drodze."
+      lacznik
+    />
+  </div>
+
+  <div class="proces__scena" data-scena-proces>
+    <div class="proces__okno">
+      <div class="proces__tor" data-tor>
+        {/* --- linia-schodki, tylko desktop --------------------------------- */}
+        <svg
+          class="proces__schodki"
+          height={WYS_SCHODKOW}
+          aria-hidden="true"
+          focusable="false"
+          data-schodki
+          data-wysokosc={WYS_SCHODKOW}
+        >
+          <defs>
+            <linearGradient id="g-proces" gradientUnits="objectBoundingBox" x1="0" x2="1">
+              <stop offset="0" stop-color="#4898AB" />
+              <stop offset="0.5" stop-color="#6CB68B" />
+              <stop offset="1" stop-color="#8FD46C" />
+            </linearGradient>
+          </defs>
+          <path class="proces__sciezka" fill="none" stroke="url(#g-proces)" data-sciezka />
+        </svg>
+
+        <ol class="proces__kroki">
+          {
+            kroki.map((k) => (
+              <li class="krok-p" data-krok-p>
+                {/* Pionowa linia po lewej — wariant mobilny (SPEC 8.5) */}
+                <span class="krok-p__linia" aria-hidden="true">
+                  <span class="krok-p__linia-wypelnienie" data-linia-pionowa />
+                </span>
+
+                <div class="krok-p__tresc">
+                  <p class="krok-p__meta index">
+                    krok {k.numer} z {kroki.length}
+                  </p>
+                  <h3 class="krok-p__tytul">{k.tytul}</h3>
+                  <p class="krok-p__kiedy">{k.kiedy}</p>
+                  <p class="krok-p__opis">{k.tresc}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .proces {
+    padding-block: var(--spacing-sekcja);
+    scroll-margin-top: 5rem;
+  }
+
+  .proces__scena {
+    margin-top: 4rem;
+  }
+
+  /* Schodki są rysunkiem poziomej ścieżki — na wąskim ekranie ich nie ma. */
+  .proces__schodki {
+    display: none;
+  }
+
+  /* --- mobile i ograniczony ruch ---------------------------------------- */
+
+  .proces__okno {
+    width: 100%;
+    max-width: var(--container-tresc);
+    margin-inline: auto;
+    padding-inline: var(--spacing-margines);
+  }
+
+  .proces__kroki {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .krok-p {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 1.5rem;
+  }
+
+  .krok-p__linia {
+    display: block;
+    position: relative;
+    width: 2px;
+    background-color: var(--color-line);
+  }
+
+  /* Rysowana `scaleY` od góry (SPEC 8.5) */
+  .krok-p__linia-wypelnienie {
+    position: absolute;
+    inset: 0;
+    background: var(--g-brand);
+    transform: scaleY(0);
+    transform-origin: top center;
+  }
+
+  .krok-p__tresc {
+    padding-bottom: 3rem;
+  }
+
+  .krok-p:last-child .krok-p__tresc {
+    padding-bottom: 0;
+  }
+
+  .krok-p__meta {
+    margin-bottom: 0.75rem;
+  }
+
+  .krok-p__tytul {
+    font-size: var(--text-h3);
+    font-weight: 500;
+    line-height: 1.25;
+  }
+
+  .krok-p__kiedy {
+    margin-top: 0.25rem;
+    font-size: var(--text-small);
+    color: var(--color-text-3);
+  }
+
+  .krok-p__opis {
+    margin-top: 1rem;
+    color: var(--color-text-2);
+    max-width: 34rem;
+  }
+
+  /* --- desktop z ruchem: pozioma ścieżka --------------------------------- */
+
+  @media (min-width: 1024px) {
+    :global(html:not([data-ruch='off'])) .proces:not(.proces--bez-ruchu) .proces__scena {
+      /* Sekcja jest przypięta, więc scena wypełnia ekran. */
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+    }
+
+    :global(html:not([data-ruch='off'])) .proces:not(.proces--bez-ruchu) .proces__okno {
+      max-width: none;
+      overflow: hidden;
+      padding-inline: 0;
+    }
+
+    :global(html:not([data-ruch='off'])) .proces:not(.proces--bez-ruchu) .proces__tor {
+      display: block;
+      width: max-content;
+      padding-inline: var(--spacing-margines);
+    }
+
+    /* Szerokość i `viewBox` ustawia `motion.ts` po zmierzeniu kart —
+       układ współrzędnych jest wtedy 1:1 z pikselami. */
+    :global(html:not([data-ruch='off'])) .proces:not(.proces--bez-ruchu) .proces__schodki {
+      display: block;
+      margin-bottom: 2.5rem;
+      overflow: visible;
+      stroke-width: 2;
+      stroke-linecap: butt;
+    }
+
+    :global(html:not([data-ruch='off'])) .proces:not(.proces--bez-ruchu) .proces__kroki {
+      flex-direction: row;
+      gap: clamp(2rem, 4vw, 4rem);
+    }
+
+    :global(html:not([data-ruch='off'])) .proces:not(.proces--bez-ruchu) .krok-p {
+      display: block;
+      width: clamp(18rem, 24vw, 24rem);
+      flex: none;
+    }
+
+    /* Pionową linię zastępują schodki nad ścieżką. */
+    :global(html:not([data-ruch='off'])) .proces:not(.proces--bez-ruchu) .krok-p__linia {
+      display: none;
+    }
+
+    :global(html:not([data-ruch='off'])) .proces:not(.proces--bez-ruchu) .krok-p__tresc {
+      padding-bottom: 0;
+    }
+  }
+</style>
