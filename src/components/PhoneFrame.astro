@@ -1,0 +1,49 @@
+---
+/**
+ * Ramka telefonu (SPEC 7.6).
+ *
+ * Proporcja 390 : 844, radius 44 px, obwódka 8 px, wnętrze przycięte.
+ * Bez notcha, bez dynamic island, bez paska statusu — nie udajemy konkretnego
+ * telefonu, to ma być neutralny ekran.
+ *
+ * Zawartość idzie do slotu, bo w układzie desktopowym w jednej ramce leżą
+ * trzy zrzuty, które się przenikają (SPEC 8.1).
+ */
+
+interface Props {
+  class?: string;
+}
+
+const { class: klasa } = Astro.props;
+---
+
+<div class:list={['telefon', klasa]}>
+  <div class="telefon__ekran">
+    <slot />
+  </div>
+</div>
+
+<style>
+  .telefon {
+    aspect-ratio: 390 / 844;
+    width: 100%;
+    border-radius: var(--radius-telefon);
+    /* Obwódka 8 px (SPEC 7.6) */
+    border: 8px solid #1a1f1c;
+    background-color: var(--color-ink-2);
+    /* Bez cieni — głębię robi różnica powierzchni i linie (SPEC 4) */
+  }
+
+  .telefon__ekran {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    /* Wewnętrzny promień: 44 − 8 */
+    border-radius: 36px;
+    background-color: var(--color-ink-2);
+  }
+
+  /* W układzie desktopowym trzy ramki leżą na sobie i widoczna ma być tylko
+     obwódka pierwszej — ukrywa je Projects.astro, bo to on wie o układzie. */
+</style>

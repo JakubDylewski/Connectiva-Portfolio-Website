@@ -96,9 +96,11 @@ export function initSegmentChips(): () => void {
       ustawSegment(chip.dataset.segment as Segment, true);
 
       // Świadome dotknięcie przewija do sekcji Projekty (SPEC 8.0).
-      // Sterowanie aktywnym projektem dochodzi w Etapie 2.
+      // Gdy sekcja jest na stronie, przewijaniem zajmuje się warstwa ruchu —
+      // ona wie, w którym miejscu leży panel danego segmentu, i celuje
+      // dokładniej niż sam początek sekcji.
       const cel = grupa.dataset.przewin;
-      if (cel) przewinDo(cel);
+      if (cel && !document.querySelector('[data-projekty]')) przewinDo(cel);
     };
 
     const naKlawisz = (e: KeyboardEvent) => {

@@ -14,12 +14,36 @@
  */
 
 import { ZDARZENIE_MENU, type MenuDetail } from './nav';
-import { ZDARZENIE_PRZEWIN, type PrzewinDetail } from './segment';
+import {
+  ZDARZENIE_PRZEWIN,
+  ZDARZENIE_SEGMENT,
+  type PrzewinDetail,
+  type SegmentDetail,
+} from './segment';
 
 type Sprzatanie = () => void;
 
 let sprzatanie: Sprzatanie[] = [];
 let uruchomione = false;
+
+/**
+ * Aktywna instancja Lenis — potrzebna tam, gdzie przewijamy programowo
+ * (chipy segmentu). `null`, gdy ruch jest ograniczony i Lenis nie wstał.
+ */
+type LenisInstancja = InstanceType<typeof import('lenis').default>;
+let lenisInstancja: LenisInstancja | null = null;
+
+/** Przewija do elementu albo do pozycji w pikselach — przez Lenis, gdy działa. */
+function przewinDoCelu(cel: number | HTMLElement): void {
+  if (lenisInstancja) {
+    lenisInstancja.scrollTo(cel, {
+      offset: typeof cel === 'number' ? 0 : ODSUNIECIE_KOTWICY,
+    });
+    return;
+  }
+  if (typeof cel === 'number') window.scrollTo({ top: cel });
+  else cel.scrollIntoView({ block: 'start' });
+}
 
 /** Konteksty z SPEC 10.1. */
 const DESKTOP = '(prefers-reduced-motion: no-preference) and (min-width: 1024px)';
@@ -58,13 +82,14 @@ export async function initMotion(): Promise<void> {
     const mm = gsap.matchMedia();
 
     mm.add(DESKTOP, () => {
-      // Etap 2: pin sekcji Projekty (pin 1/2).
-      // Etap 5: pin sekcji Proces (pin 2/2).
+      // Pin 1 z 2 dozwolonych (SPEC 10.2). Etap 5 dokłada drugi — Proces.
       // Etap 8: magnetyzm przycisków.
+      projektyDesktop(gsap, ScrollTrigger);
     });
 
     mm.add(MOBILE, () => {
       pasekDolny(ScrollTrigger);
+      projektyMobile(gsap, ScrollTrigger);
     });
 
     mm.add(REDUCE, () => {
@@ -119,6 +144,7 @@ async function wlaczLenis(
   // natywne, Lenis tylko raportuje pozycję (SPEC 10.1).
   const lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
 
+  lenisInstancja = lenis;
   lenis.on('scroll', ScrollTrigger.update);
   const tick = (t: number) => lenis.raf(t * 1000);
   gsap.ticker.add(tick);
@@ -166,6 +192,7 @@ async function wlaczLenis(
     gsap.ticker.remove(tick);
     gsap.ticker.lagSmoothing(500, 33);
     lenis.destroy();
+    lenisInstancja = null;
   });
 }
 
@@ -237,6 +264,246 @@ function pasekDolny(
       onToggle: (self) => pasek.classList.toggle('jest-schowany', self.isActive),
     });
   }
+}
+
+/* -------------------------------------------------------------------------- */
+/* 01 Projekty (SPEC 8.1, 10.6)                                               */
+/* -------------------------------------------------------------------------- */
+
+type Gsap = typeof import('gsap').gsap;
+type ST = typeof import('gsap/ScrollTrigger').ScrollTrigger;
+
+interface CzesciProjektow {
+  sekcja: HTMLElement;
+  scena: HTMLElement;
+  bloki: HTMLElement[];
+  teksty: HTMLElement[];
+  zrzuty: HTMLImageElement[];
+}
+
+/** Zbiera elementy sekcji. `null`, gdy sekcji nie ma albo ruch jest wyłączony. */
+function czesciProjektow(): CzesciProjektow | null {
+  const sekcja = document.querySelector<HTMLElement>('[data-projekty]');
+  if (!sekcja || sekcja.dataset.motion === 'off') return null;
+
+  const scena = sekcja.querySelector<HTMLElement>('[data-scena]');
+  const bloki = [...sekcja.querySelectorAll<HTMLElement>('[data-blok]')];
+  const teksty = [...sekcja.querySelectorAll<HTMLElement>('[data-tekst]')];
+  const zrzuty = [...sekcja.querySelectorAll<HTMLImageElement>('[data-zrzut]')];
+
+  if (!scena || bloki.length === 0 || zrzuty.length !== bloki.length) return null;
+  return { sekcja, scena, bloki, teksty, zrzuty };
+}
+
+/** O ile zrzut może się przesunąć w pionie w obrębie ekranu telefonu. */
+function przesuwZrzutu(img: HTMLImageElement, limit = Infinity): number {
+  const ekran = img.parentElement;
+  if (!ekran) return 0;
+  return Math.min(limit, Math.max(0, img.offsetHeight - ekran.clientHeight));
+}
+
+/**
+ * Przebarwienie tła (SPEC 10.6). `null` gasi wszystkie warstwy — czerń wraca.
+ * Tylko `opacity`, więc zmiana idzie przez kompozytor.
+ */
+function zrobPrzebarwiacz(gsap: Gsap) {
+  const warstwy = [...document.querySelectorAll<HTMLElement>('[data-tint]')];
+  let aktywna: number | null = null;
+
+  return (i: number | null) => {
+    if (i === aktywna) return;
+    aktywna = i;
+    warstwy.forEach((w, j) => {
+      gsap.to(w, {
+        opacity: i === j ? 1 : 0,
+        duration: 0.6,
+        ease: 'power2.out',
+        overwrite: 'auto',
+      });
+    });
+  };
+}
+
+/**
+ * `will-change` tylko na warstwie, która jest właśnie scrubowana (SPEC 10.2).
+ */
+function przelacznikWillChange(elementy: HTMLElement[]) {
+  return (wlacz: boolean) => {
+    for (const el of elementy) el.style.willChange = wlacz ? 'transform' : '';
+  };
+}
+
+/**
+ * Geometria mierzona raz, po zdekodowaniu zrzutów (SPEC 10.2).
+ *
+ * Nie blokujemy tym tworzenia triggerów: zrzuty mają `loading="lazy"`, więc
+ * czekanie na `decode()` przed startem potrafiłoby nie skończyć się nigdy.
+ * Wysokość układu i tak jest znana wcześniej, bo `img` ma jawne `width`
+ * i `height` — dekodowanie zmienia tylko to, kiedy piksele są gotowe.
+ */
+function odswiezPoZrzutach(ScrollTrigger: ST, zrzuty: HTMLImageElement[]): void {
+  const gotowe = zrzuty.map(
+    (img) =>
+      new Promise<void>((koniec) => {
+        const dekoduj = () => void img.decode().catch(() => {}).then(() => koniec());
+        if (img.complete) dekoduj();
+        else {
+          img.addEventListener('load', dekoduj, { once: true });
+          img.addEventListener('error', () => koniec(), { once: true });
+        }
+      }),
+  );
+  void Promise.all(gotowe).then(() => ScrollTrigger.refresh());
+}
+
+/** Przewinięcie do projektu po dotknięciu chipa segmentu (SPEC 8.0). */
+function podepnijChipy(
+  bloki: HTMLElement[],
+  doPozycji: (i: number) => number | HTMLElement,
+): void {
+  const naSegment = (e: Event) => {
+    const { segment, zDotkniecia } = (e as CustomEvent<SegmentDetail>).detail;
+    if (!zDotkniecia) return;
+    const i = bloki.findIndex((b) => b.dataset.segmentKlucz === segment);
+    if (i < 0) return;
+    przewinDoCelu(doPozycji(i));
+  };
+  document.addEventListener(ZDARZENIE_SEGMENT, naSegment);
+  sprzatanie.push(() => document.removeEventListener(ZDARZENIE_SEGMENT, naSegment));
+}
+
+/** Układ desktopowy: sekcja przypięta, scrub steruje wszystkim (SPEC 8.1). */
+function projektyDesktop(gsap: Gsap, ScrollTrigger: ST): void {
+  const czesci = czesciProjektow();
+  if (!czesci) return;
+  const { scena, bloki, teksty, zrzuty } = czesci;
+
+  const przebarw = zrobPrzebarwiacz(gsap);
+  const willChange = przelacznikWillChange(zrzuty);
+  let ostatniIndeks = -1;
+
+  const tl = gsap.timeline({
+    defaults: { ease: 'none' },
+    scrollTrigger: {
+      trigger: scena,
+      start: 'top top',
+      // Jedna jednostka osi czasu = jeden panel (SPEC 8.1: `end: +=300%`).
+      end: '+=300%',
+      pin: scena,
+      scrub: 0.8,
+      invalidateOnRefresh: true,
+      onEnter: () => willChange(true),
+      onEnterBack: () => willChange(true),
+      onLeave: () => {
+        willChange(false);
+        przebarw(null);
+      },
+      onLeaveBack: () => {
+        willChange(false);
+        przebarw(null);
+      },
+      onUpdate: (self) => {
+        const i = Math.min(bloki.length - 1, Math.floor(self.progress * bloki.length));
+        if (i !== ostatniIndeks) {
+          ostatniIndeks = i;
+          przebarw(i);
+        }
+      },
+    },
+  });
+
+  bloki.forEach((_, i) => {
+    // Przewijanie zrzutu wewnątrz ekranu przez cały czas trwania panelu.
+    tl.fromTo(
+      zrzuty[i],
+      { y: 0 },
+      { y: () => -przesuwZrzutu(zrzuty[i]), duration: 1 },
+      i,
+    );
+
+    if (i === 0) return;
+
+    const kiedy = i - 0.18;
+
+    // Zrzuty przenikają się — dwa obrazy na sobie czytają się jak roztopienie.
+    tl.to(zrzuty[i - 1], { opacity: 0, duration: 0.26 }, kiedy);
+    tl.to(zrzuty[i], { opacity: 1, duration: 0.26 }, kiedy);
+
+    // Teksty po kolei: najpierw znika poprzedni, dopiero potem wchodzi nowy.
+    // Przy przenikaniu obie nazwy i oba akapity są przez chwilę czytelne
+    // jednocześnie i robi się z tego bałagan.
+    tl.to(teksty[i - 1], { opacity: 0, duration: 0.11 }, kiedy);
+    tl.to(teksty[i], { opacity: 1, duration: 0.11 }, kiedy + 0.13);
+  });
+
+  const st = tl.scrollTrigger;
+  podepnijChipy(bloki, (i) => {
+    if (!st) return bloki[i];
+    // Środek okna danego panelu na osi przewijania.
+    return st.start + ((i + 0.4) / bloki.length) * (st.end - st.start);
+  });
+
+  odswiezPoZrzutach(ScrollTrigger, zrzuty);
+  sprzatanie.push(() => willChange(false));
+}
+
+/** Układ mobilny: bez pinowania, każdy blok scrubuje własny zrzut (SPEC 8.1). */
+function projektyMobile(gsap: Gsap, ScrollTrigger: ST): void {
+  const czesci = czesciProjektow();
+  if (!czesci) return;
+  const { sekcja, bloki, zrzuty } = czesci;
+
+  const przebarw = zrobPrzebarwiacz(gsap);
+
+  bloki.forEach((blok, i) => {
+    const img = zrzuty[i];
+    const willChange = przelacznikWillChange([img]);
+
+    gsap.fromTo(
+      img,
+      { y: 0 },
+      {
+        // Ruch ograniczony do 1600 px (SPEC 8.1) — na telefonie dłuższy scrub
+        // zaczyna szarpać, a i tak nikt tego nie ogląda w całości.
+        y: () => -przesuwZrzutu(img, 1600),
+        ease: 'none',
+        scrollTrigger: {
+          trigger: blok,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 0.8,
+          invalidateOnRefresh: true,
+          onEnter: () => willChange(true),
+          onEnterBack: () => willChange(true),
+          onLeave: () => willChange(false),
+          onLeaveBack: () => willChange(false),
+        },
+      },
+    );
+
+    // Przebarwienie na blok (SPEC 10.6).
+    ScrollTrigger.create({
+      trigger: blok,
+      start: 'top center',
+      end: 'bottom center',
+      onEnter: () => przebarw(i),
+      onEnterBack: () => przebarw(i),
+    });
+
+    sprzatanie.push(() => willChange(false));
+  });
+
+  // Po wyjściu z sekcji wraca czerń.
+  ScrollTrigger.create({
+    trigger: sekcja,
+    start: 'top bottom',
+    end: 'bottom top',
+    onLeave: () => przebarw(null),
+    onLeaveBack: () => przebarw(null),
+  });
+
+  podepnijChipy(bloki, (i) => bloki[i]);
+  odswiezPoZrzutach(ScrollTrigger, zrzuty);
 }
 
 /* -------------------------------------------------------------------------- */

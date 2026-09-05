@@ -1,0 +1,48 @@
+---
+/**
+ * Warstwy przebarwienia sekcji Projekty (SPEC 10.6).
+ *
+ * Trzy stałe warstwy pod treścią, każda w barwie jednego projektu. Sterujemy
+ * wyłącznie `opacity`, więc zmiana idzie przez kompozytor i nie wymusza
+ * przemalowania całej strony (SPEC 10.2).
+ *
+ * Po wyjściu z sekcji wszystkie schodzą do zera i wraca czerń.
+ * Na podstronie projektu (Etap 7) warstwa danego projektu zostaje na stałe —
+ * służy do tego prop `stale`.
+ */
+import { projekty } from '../data/projekty';
+
+interface Props {
+  /** Slug projektu, którego warstwa ma być widoczna od razu i na stałe. */
+  stale?: string;
+}
+
+const { stale } = Astro.props;
+---
+
+<div class="tinty" aria-hidden="true">
+  {
+    projekty.map((p) => (
+      <div
+        class="tint"
+        data-tint={p.slug}
+        style={`background-color: ${p.tint}; opacity: ${stale === p.slug ? 1 : 0}`}
+      />
+    ))
+  }
+</div>
+
+<style>
+  .tinty {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .tint {
+    position: absolute;
+    inset: 0;
+    /* `opacity` ustawiane inline i animowane przez GSAP — nic więcej. */
+  }
+</style>

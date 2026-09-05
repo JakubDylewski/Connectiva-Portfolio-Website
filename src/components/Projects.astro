@@ -1,0 +1,191 @@
+---
+/**
+ * 01 Projekty (SPEC 8.1) — interakcja 2 i 3.
+ *
+ * Jeden zestaw znaczników obsługuje oba układy:
+ *
+ *  desktop (≥ 1024 px, ruch włączony) — sekcja przypięta (pin 1 z 2). Trzy
+ *    bloki leżą w tej samej komórce siatki: teksty przenikają się w lewej
+ *    kolumnie, a trzy zrzuty w prawej wyglądają jak jeden telefon, w którym
+ *    zmienia się ekran. Obwódkę rysuje tylko pierwsza ramka.
+ *
+ *  mobile i ograniczony ruch — trzy bloki jeden pod drugim, telefon pod
+ *    tekstem, przesunięty w prawo. Bez pinowania.
+ *
+ * Układ nałożony włącza się tylko wtedy, gdy ruch jest dozwolony
+ * (`html` bez `data-ruch="off"`) i sekcja nie ma `data-motion="off"` —
+ * inaczej trzy bloki nachodziłyby na siebie bez niczego, co je rozdziela.
+ */
+import SectionHead from './SectionHead.astro';
+import ProjectPanel from './ProjectPanel.astro';
+import PhoneFrame from './PhoneFrame.astro';
+import TintLayers from './TintLayers.astro';
+import { projekty } from '../data/projekty';
+
+interface Props {
+  /** `off` wyłącza scrub i zostawia statyczne zrzuty (SPEC 8.1). */
+  motion?: 'off';
+}
+
+const { motion } = Astro.props;
+---
+
+<TintLayers />
+
+<section
+  id="projekty"
+  class:list={['projekty', motion === 'off' && 'projekty--bez-ruchu']}
+  data-projekty
+  data-motion={motion}
+>
+  <div class="kontener">
+    <SectionHead
+      index="01"
+      linia1="Trzy segmenty rynku."
+      linia2="Trzy projekty pokazowe."
+      lead="Trzy pełne strony dla fikcyjnych marek — po jednej na każdy typ gabinetu — żebyś zobaczyła produkt, zanim go zamówisz. Każdą otworzysz w przeglądarce jak prawdziwą."
+    />
+  </div>
+
+  <div class="projekty__scena" data-scena>
+    <div class="kontener projekty__bloki">
+      {
+        projekty.map((p, i) => (
+          <div class="blok" data-blok={i} data-segment-klucz={p.segmentKlucz}>
+            <div class="blok__tekst" data-tekst={i}>
+              <ProjectPanel projekt={p} indeks={i} />
+            </div>
+
+            <div class="blok__telefon">
+              <PhoneFrame>
+                <img
+                  class="zrzut"
+                  data-zrzut={i}
+                  src={p.zrzutMobile.src}
+                  width={p.zrzutMobile.width / 2}
+                  height={p.zrzutMobile.height / 2}
+                  alt={p.altMobile}
+                  decoding="async"
+                  loading="lazy"
+                />
+              </PhoneFrame>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .projekty {
+    padding-block: var(--spacing-sekcja);
+    scroll-margin-top: 5rem;
+  }
+
+  .projekty__scena {
+    margin-top: 4rem;
+  }
+
+  .zrzut {
+    width: 100%;
+    height: auto;
+    /* Zrzut jest wyższy od ekranu — nadmiar przycina ramka, a scrub
+       przesuwa obraz w pionie (SPEC 8.1). */
+    will-change: auto;
+  }
+
+  /* --- mobile i ograniczony ruch ---------------------------------------- */
+
+  .blok + .blok {
+    margin-top: clamp(4rem, 2rem + 8vw, 7rem);
+  }
+
+  .blok__telefon {
+    /* 68% szerokości ekranu, nie kontenera (SPEC 8.1) — stąd `vw`.
+       Przesunięty w prawo, poza oś tekstu (SPEC 6.2). */
+    width: 68vw;
+    max-width: 100%;
+    margin-left: auto;
+    margin-top: 2.5rem;
+  }
+
+  /* --- desktop z ruchem: bloki leżą na sobie ----------------------------- */
+
+  @media (min-width: 1024px) {
+    :global(html:not([data-ruch='off'])) .projekty:not(.projekty--bez-ruchu) .projekty__bloki {
+      display: grid;
+      /* Sekcja jest przypięta, więc scena wypełnia ekran. */
+      min-height: 100vh;
+      align-content: center;
+    }
+
+    :global(html:not([data-ruch='off'])) .projekty:not(.projekty--bez-ruchu) .blok {
+      grid-area: 1 / 1;
+      display: grid;
+      grid-template-columns: 1fr 42%;
+      gap: clamp(2rem, 4vw, 5rem);
+      align-items: center;
+      margin-top: 0;
+    }
+
+    :global(html:not([data-ruch='off'])) .projekty:not(.projekty--bez-ruchu) .blok__telefon {
+      width: 100%;
+      margin: 0;
+      /* Telefon przesunięty względem osi tekstu (SPEC 6.2) */
+      transform: translateY(clamp(1rem, 2vw, 2rem));
+    }
+
+    /* Sekcja jest przypięta, więc telefon musi się zmieścić w ekranie w całości
+       — inaczej przy szerokiej kolumnie ucina mu się góra i dół. Wysokość
+       prowadzi, szerokość dolicza `aspect-ratio` z PhoneFrame. */
+    :global(html:not([data-ruch='off']))
+      .projekty:not(.projekty--bez-ruchu)
+      .blok__telefon
+      :global(.telefon) {
+      /* Celowo bez `min(72vh, 100%)`: rodzic ma wysokość `auto`, więc procent
+         jest nieokreślony i przeglądarka wyrzuca całą deklarację. */
+      height: 72vh;
+      width: auto;
+      max-width: 100%;
+      /* Dosunięty do prawej krawędzi kolumny */
+      margin-left: auto;
+    }
+
+    /* Obwódkę i tło ekranu rysuje tylko pierwsza ramka — pozostałe dwie
+       leżą dokładnie na niej i dokładałyby drugą krawędź. */
+    :global(html:not([data-ruch='off']))
+      .projekty:not(.projekty--bez-ruchu)
+      .blok:not([data-blok='0'])
+      .blok__telefon
+      :global(.telefon) {
+      border-color: transparent;
+      background-color: transparent;
+    }
+
+    :global(html:not([data-ruch='off']))
+      .projekty:not(.projekty--bez-ruchu)
+      .blok:not([data-blok='0'])
+      .blok__telefon
+      :global(.telefon__ekran) {
+      background-color: transparent;
+    }
+
+    /* Panele 2 i 3 startują niewidoczne; odsłania je scrub. Gdyby skrypt nie
+       wstał, `data-ruch` przechodzi na `off` i cały ten blok reguł przestaje
+       obowiązywać — treść wraca do układu pionowego. */
+    :global(html:not([data-ruch='off']))
+      .projekty:not(.projekty--bez-ruchu)
+      .blok:not([data-blok='0'])
+      .blok__tekst {
+      opacity: 0;
+    }
+
+    :global(html:not([data-ruch='off']))
+      .projekty:not(.projekty--bez-ruchu)
+      .blok:not([data-blok='0'])
+      .zrzut {
+      opacity: 0;
+    }
+  }
+</style>

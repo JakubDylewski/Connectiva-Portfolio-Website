@@ -1,0 +1,178 @@
+---
+/**
+ * Panel tekstowy jednego projektu pokazowego (SPEC 8.1).
+ *
+ * Etykieta „Projekt pokazowy (marka fikcyjna)" jest obowiązkowa i nie ma
+ * przełącznika, którym dałoby się ją zdjąć (SPEC 15).
+ *
+ * Wyniki Lighthouse pokazujemy dopiero razem z datą pomiaru — dopóki
+ * `lighthouseDate` jest pusta, nie ma ich na stronie.
+ */
+import Lacznik from './Lacznik.astro';
+import { ETYKIETA_POKAZOWA, type Projekt } from '../data/projekty';
+
+interface Props {
+  projekt: Projekt;
+  indeks: number;
+}
+
+const { projekt, indeks } = Astro.props;
+
+const dataPL = projekt.lighthouseDate
+  ? new Date(projekt.lighthouseDate).toLocaleDateString('pl-PL', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })
+  : null;
+---
+
+<article class="panel" data-panel={indeks} aria-label={projekt.nazwa}>
+  <p class="panel__etykieta">{ETYKIETA_POKAZOWA}</p>
+
+  <h3 class="panel__nazwa">{projekt.nazwa}</h3>
+  <p class="panel__segment">{projekt.segment}</p>
+
+  <Lacznik wariant="section" class="panel__lacznik" />
+
+  <p class="panel__problem">{projekt.problem}</p>
+  <p class="panel__rozwiazanie">{projekt.rozwiazanie}</p>
+
+  <ul class="panel__liczby">
+    {projekt.liczby.map((l) => <li>{l}</li>)}
+    {dataPL && projekt.lighthouse.map((l) => <li>{l}</li>)}
+  </ul>
+
+  {
+    dataPL ? (
+      <p class="panel__pomiar">Pomiar z {dataPL}.</p>
+    ) : (
+      /* Bez daty pomiaru nie podajemy wyników — SPEC 15. */
+      null
+    )
+  }
+
+  <div class="panel__linki">
+    <a class="panel__link" href={projekt.caseStudy}>Zobacz case study</a>
+    <a
+      class="panel__link panel__link--demo"
+      href={projekt.demo}
+      target="_blank"
+      rel="noopener"
+    >
+      Otwórz demo
+      <span class="panel__host">{projekt.demoEtykieta}</span>
+      <span class="panel__czytnik"> (otwiera się w nowej karcie)</span>
+    </a>
+  </div>
+</article>
+
+<style>
+  .panel {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .panel__etykieta {
+    font-size: var(--text-small);
+    color: var(--color-text-3);
+    max-width: none;
+  }
+
+  .panel__nazwa {
+    margin-top: 1rem;
+    font-family: var(--font-display);
+    font-size: var(--text-display-2);
+    font-weight: 400;
+    line-height: 1.06;
+    letter-spacing: -0.01em;
+  }
+
+  .panel__segment {
+    margin-top: 0.5rem;
+    font-size: var(--text-small);
+    color: var(--color-text-2);
+  }
+
+  .panel__lacznik {
+    margin-block: 2rem;
+  }
+
+  .panel__problem {
+    font-size: var(--text-lead);
+    line-height: 1.55;
+  }
+
+  .panel__rozwiazanie {
+    margin-top: 1rem;
+    color: var(--color-text-2);
+  }
+
+  .panel__liczby {
+    margin-top: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.5rem;
+    font-size: var(--text-small);
+    color: var(--color-text-2);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Meta rozdzielamy przecinkami, nie kreskami ani kropkami środkowymi
+     (SPEC 5). Przecinek zostaje na końcu wiersza — separator wiodący
+     wyglądałby po zawinięciu jak błąd. */
+  .panel__liczby li:not(:last-child)::after {
+    content: ',';
+  }
+
+  .panel__pomiar {
+    margin-top: 0.75rem;
+    font-size: var(--text-small);
+    color: var(--color-text-3);
+  }
+
+  .panel__linki {
+    margin-top: 2.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 1rem 2rem;
+  }
+
+  .panel__link {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 44px;
+    text-decoration: underline;
+    text-decoration-color: var(--color-line-2);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.35em;
+    transition: text-decoration-color 150ms var(--ease-wejscie);
+  }
+
+  .panel__link:hover {
+    text-decoration-color: var(--color-green);
+  }
+
+  /* Adres dema pod linkiem — widać, dokąd prowadzi, zanim się kliknie. */
+  .panel__host {
+    font-size: var(--text-small);
+    color: var(--color-text-3);
+    text-decoration: none;
+    margin-top: 0.25rem;
+  }
+
+  .panel__czytnik {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>
