@@ -1,10 +1,11 @@
 /**
  * Sprawdzarka wyłączności miasta (SPEC 8.3, interakcja 5).
  *
- * WYŁĄCZNOŚĆ JEST PER SEGMENT (SPEC 16, decyzja nr 1): w jednym mieście
- * pracujemy z jednym salonem beauty, jednym gabinetem kosmetologii i jedną
- * kliniką — trzy niezależne sloty. Gdyby decyzja się zmieniła na „per miasto",
- * zmienia się tutaj `statusMiasta` i lead sekcji w `CityCheck.astro`.
+ * WYŁĄCZNOŚĆ JEST PER SEGMENT — decyzja potwierdzona 5 września 2026
+ * (SPEC 16, punkt 1). W jednym mieście pracujemy z jednym salonem beauty,
+ * jednym gabinetem kosmetologii i jedną kliniką lekarską: trzy niezależne
+ * sloty, każdy z własnym statusem w `miasta.json`. Zajęty salon w Gdyni nie
+ * zamyka tam ani kosmetologii, ani kliniki.
  *
  * UCZCIWOŚĆ (SPEC 15): sprawdzarka pokazuje stan faktyczny z `miasta.json`.
  * Miasto spoza pliku jest naprawdę wolne, więc odpowiadamy „wolne”.

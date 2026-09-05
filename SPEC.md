@@ -597,7 +597,7 @@ Każdy etap kończy się: `npm run build` bez błędów, podsumowaniem zmian, li
 
 ## 16. Decyzje otwarte (do potwierdzenia przez Jakuba przed Etapem 3–6)
 
-1. **Wyłączność: per miasto czy per segment w mieście?** Specyfikacja zakłada „per segment" (salon / kosmetologia / klinika = trzy sloty na miasto). „Per miasto" zamyka Gdańsk po pierwszym kliencie i kłóci się z celem 4–10 klientów miesięcznie.
+1. ~~**Wyłączność: per miasto czy per segment w mieście?**~~ **ROZSTRZYGNIĘTE 5 września 2026: per segment.** W jednym mieście pracujemy z jednym salonem beauty, jednym gabinetem kosmetologii i jedną kliniką lekarską — trzy niezależne sloty. `miasta.json` trzyma status osobno dla każdego z trzech segmentów. Lead sekcji 8.3 zostaje bez zmian.
 2. **Dane rejestrowe:** nazwa firmy, NIP, adres do stopki i polityki. Czy JDG jest podatnikiem VAT (ceny netto czy brutto)?
 3. **Głos:** czy „my" w ogóle ma się pojawiać, czy wszystko bezosobowo i w drugiej osobie.
 4. **Edycja treści przez klientkę:** panel (Keystatic / Decap na Cloudflare Pages) czy zmiany wyłącznie w ramach opieki? Od tego zależy odpowiedź FAQ nr 3 i zakres „godziny szkolenia".
