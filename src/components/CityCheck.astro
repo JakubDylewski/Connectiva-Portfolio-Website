@@ -1,0 +1,144 @@
+---
+/**
+ * Sprawdzarka wyłączności miasta (SPEC 8.3, interakcja 5).
+ *
+ * Pole „Miasto" + trzy chipy segmentu (te same co w hero, zsynchronizowane
+ * przez `data-segment` na `<html>`) + przycisk „Sprawdź". Wynik pojawia się
+ * pod spodem, bez przeładowania, w obszarze `aria-live="polite"` (SPEC 11.3).
+ *
+ * Logika i treść wyniku siedzą w `src/scripts/city.ts` — tam też stoi
+ * decyzja o wyłączności per segment.
+ */
+import SegmentChips from './SegmentChips.astro';
+import Button from './Button.astro';
+
+const idMiasto = `miasto-${crypto.randomUUID().slice(0, 8)}`;
+---
+
+<div class="sprawdzarka">
+  <form data-sprawdzarka novalidate>
+    <div class="sprawdzarka__pola">
+      <div class="pole">
+        <label class="pole__etykieta" for={idMiasto}>Miasto</label>
+        <input
+          class="pole__input"
+          id={idMiasto}
+          name="miasto"
+          type="text"
+          autocomplete="address-level2"
+          enterkeyhint="go"
+          data-miasto
+        />
+      </div>
+
+      <SegmentChips etykieta="Typ gabinetu" />
+    </div>
+
+    <div class="sprawdzarka__akcja">
+      <Button type="submit">Sprawdź</Button>
+    </div>
+
+    {/* Wynik czytany przez czytnik ekranu (SPEC 11.3, DoD Etapu 3) */}
+    <p class="sprawdzarka__wynik" data-wynik aria-live="polite"></p>
+  </form>
+
+  <p class="sprawdzarka__stopka">
+    Zaczynamy od Trójmiasta i&nbsp;Torunia. Pracujemy zdalnie z&nbsp;całą Polską.
+  </p>
+</div>
+
+<style>
+  .sprawdzarka {
+    margin-top: 3rem;
+  }
+
+  .sprawdzarka__pola {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  /* Etykieta widoczna nad polem, nigdy sam placeholder (SPEC 7.5) */
+  .pole__etykieta {
+    display: block;
+    font-size: var(--text-small);
+    color: var(--color-text-2);
+    margin-bottom: 0.5rem;
+  }
+
+  .pole__input {
+    width: 100%;
+    max-width: 22rem;
+    height: 48px;
+    padding-inline: 0.875rem;
+    background-color: var(--color-ink-1);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-kontrolka);
+    color: var(--color-text);
+    transition: border-color 150ms var(--ease-wejscie);
+  }
+
+  .pole__input:hover {
+    border-color: var(--color-line-2);
+  }
+
+  .pole__input:focus {
+    border-color: var(--color-green);
+    background-color: var(--color-ink-2);
+  }
+
+  .sprawdzarka__akcja {
+    margin-top: 2rem;
+    /* Miejsce na Łącznik pod przyciskiem głównym */
+    padding-bottom: 0.75rem;
+  }
+
+  .sprawdzarka__wynik {
+    margin-top: 1.5rem;
+    font-size: var(--text-lead);
+    line-height: 1.55;
+    color: var(--color-text-2);
+    /* Wejście: opacity + y 8, 200 ms (SPEC 10.3). Pusty wynik nie zajmuje
+       miejsca, więc nie ma skoku układu. */
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+      opacity 200ms var(--ease-wejscie),
+      transform 200ms var(--ease-wejscie);
+  }
+
+  .sprawdzarka__wynik:empty {
+    margin-top: 0;
+  }
+
+  .sprawdzarka__wynik.jest-widoczny {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .sprawdzarka__wynik :global(strong) {
+    color: var(--color-text);
+    font-weight: 500;
+  }
+
+  .sprawdzarka__stopka {
+    margin-top: 2.5rem;
+    font-size: var(--text-small);
+    color: var(--color-text-3);
+  }
+
+  @media (min-width: 768px) {
+    .sprawdzarka__pola {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      gap: 2.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sprawdzarka__wynik {
+      transition: none;
+    }
+  }
+</style>

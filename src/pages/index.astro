@@ -14,6 +14,9 @@ import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
 import Projects from '../components/Projects.astro';
 import SectionHead from '../components/SectionHead.astro';
+import Accordion from '../components/Accordion.astro';
+import CityCheck from '../components/CityCheck.astro';
+import { zakres } from '../data/zakres';
 
 /**
  * Sekcje strony głównej w kolejności ze SPEC 8. Licznik „NN / 07".
@@ -28,22 +31,6 @@ import SectionHead from '../components/SectionHead.astro';
  * a nie zasadę — te trzy sekcje i tak dostają treść w Etapach 2–3.
  */
 const sekcje = [
-  {
-    id: 'zakres',
-    index: '02',
-    linia1: 'Jeden produkt.',
-    linia2: 'Wszystko, co zapełnia kalendarz.',
-    lead: 'Nie sprzedajemy pakietów. Jest jedna strona, zrobiona do końca — od projektu po pierwsze rezerwacje.',
-    etap: 3,
-  },
-  {
-    id: 'miasto',
-    index: '03',
-    linia1: 'Jedna marka na miasto.',
-    linia2: 'Sprawdź, czy Twoje jest wolne.',
-    lead: 'Nie zrobimy strony Twojej konkurencji z tej samej ulicy. W każdym mieście pracujemy z jednym salonem beauty, jednym gabinetem kosmetologii i jedną kliniką.',
-    etap: 3,
-  },
   {
     id: 'audyt',
     index: '04',
@@ -101,6 +88,34 @@ const sekcje = [
 
   <Projects />
 
+  {/* 02 Co dostajesz (SPEC 8.2) */}
+  <section id="zakres" class="sekcja">
+    <div class="kontener">
+      <SectionHead
+        index="02"
+        linia1="Jeden produkt."
+        linia2="Wszystko, co zapełnia kalendarz."
+        lead="Nie sprzedajemy pakietów. Jest jedna strona, zrobiona do końca — od projektu po pierwsze rezerwacje."
+        lacznik
+      />
+      <Accordion pozycje={zakres} class="sekcja__akordeon" />
+    </div>
+  </section>
+
+  {/* 03 Jedna marka na miasto (SPEC 8.3) */}
+  <section id="miasto" class="sekcja">
+    <div class="kontener">
+      <SectionHead
+        index="03"
+        linia1="Jedna marka na miasto."
+        linia2="Sprawdź, czy Twoje jest wolne."
+        lead="Nie zrobimy strony Twojej konkurencji z tej samej ulicy. W każdym mieście pracujemy z jednym salonem beauty, jednym gabinetem kosmetologii i jedną kliniką."
+        lacznik
+      />
+      <CityCheck />
+    </div>
+  </section>
+
   {
     sekcje.map((s) => (
       <section id={s.id} class="sekcja">
@@ -134,5 +149,15 @@ const sekcje = [
     margin-top: 2.5rem;
     font-size: var(--text-small);
     color: var(--color-text-3);
+  }
+
+  /* Sekcje z gotową treścią nie potrzebują sztucznej wysokości. */
+  #zakres,
+  #miasto {
+    min-height: 0;
+  }
+
+  .sekcja__akordeon {
+    margin-top: 3rem;
   }
 </style>

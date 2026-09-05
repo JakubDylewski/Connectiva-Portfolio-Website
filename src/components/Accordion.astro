@@ -1,0 +1,272 @@
+---
+/**
+ * Akordeon (SPEC 7.7).
+ *
+ * Nagłówek to `button[aria-expanded][aria-controls]` na całej szerokości,
+ * minimum 56 px. Po lewej marker Łącznika — nie numer, bo to nie jest
+ * kolejność. Po prawej plus, który po otwarciu obraca się o 45°.
+ *
+ * Rozwijanie idzie przez `grid-template-rows: 0fr → 1fr`, nigdy przez
+ * animację `height` (lekcja z ELARY, SPEC 7.7). Robi to CSS, nie GSAP —
+ * dzięki temu akordeon działa też przy ograniczonym ruchu, gdzie przejście
+ * skraca się do zera i pozycja przełącza się natychmiast (SPEC 10.1).
+ *
+ * Bez kart z cieniem: pozycje rozdzielają linie, tło reaguje na hover.
+ */
+import Lacznik from './Lacznik.astro';
+
+export interface PozycjaAkordeonu {
+  tytul: string;
+  tresc: string;
+  /** Krótkie etykiety korzyści — na desktopie po prawej stronie nagłówka. */
+  tagi?: string[];
+}
+
+interface Props {
+  pozycje: PozycjaAkordeonu[];
+  /** Poziom nagłówka pozycji — na stronie głównej h2 zajmuje SectionHead. */
+  poziom?: 'h3' | 'h4';
+  class?: string;
+}
+
+const { pozycje, poziom = 'h3', class: klasa } = Astro.props;
+
+const grupa = `ak-${crypto.randomUUID().slice(0, 8)}`;
+---
+
+<div class:list={['akordeon', klasa]} data-akordeon>
+  {
+    pozycje.map((p, i) => {
+      const idBtn = `${grupa}-${i}-btn`;
+      const idPanel = `${grupa}-${i}-panel`;
+      return (
+        <div class="poz" data-poz>
+          {poziom === 'h3' ? (
+            <h3 class="poz__glowa">
+              <button
+                type="button"
+                class="poz__przycisk"
+                id={idBtn}
+                aria-expanded="false"
+                aria-controls={idPanel}
+                data-przycisk
+              >
+                <span class="poz__marker">
+                  <Lacznik wariant="inline" />
+                </span>
+                <span class="poz__tytul">{p.tytul}</span>
+                <span class="poz__plus" aria-hidden="true">
+                  <svg viewBox="0 0 16 16" focusable="false">
+                    <path d="M8 1 V15 M1 8 H15" />
+                  </svg>
+                </span>
+              </button>
+            </h3>
+          ) : (
+            <h4 class="poz__glowa">
+              <button
+                type="button"
+                class="poz__przycisk"
+                id={idBtn}
+                aria-expanded="false"
+                aria-controls={idPanel}
+                data-przycisk
+              >
+                <span class="poz__marker">
+                  <Lacznik wariant="inline" />
+                </span>
+                <span class="poz__tytul">{p.tytul}</span>
+                <span class="poz__plus" aria-hidden="true">
+                  <svg viewBox="0 0 16 16" focusable="false">
+                    <path d="M8 1 V15 M1 8 H15" />
+                  </svg>
+                </span>
+              </button>
+            </h4>
+          )}
+
+          {p.tagi && p.tagi.length > 0 && (
+            <ul class="poz__tagi">
+              {p.tagi.map((t) => (
+                <li>{t}</li>
+              ))}
+            </ul>
+          )}
+
+          <div class="poz__panel" id={idPanel} role="region" aria-labelledby={idBtn}>
+            <div class="poz__wnetrze">
+              <p class="poz__tresc">{p.tresc}</p>
+            </div>
+          </div>
+        </div>
+      );
+    })
+  }
+</div>
+
+<style>
+  .akordeon {
+    border-top: 1px solid var(--color-line);
+  }
+
+  .poz {
+    display: grid;
+    grid-template-columns: 1fr;
+    border-bottom: 1px solid var(--color-line);
+    transition: background-color 150ms var(--ease-wejscie);
+  }
+
+  .poz:hover {
+    background-color: var(--color-ink-1);
+  }
+
+  .poz__glowa {
+    margin: 0;
+    font: inherit;
+  }
+
+  .poz__przycisk {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    /* Minimum 56 px (SPEC 7.7) */
+    min-height: 56px;
+    padding: 1rem 0;
+    background: transparent;
+    border: 0;
+    text-align: left;
+    cursor: pointer;
+    color: inherit;
+  }
+
+  .poz__marker {
+    flex: none;
+    display: flex;
+    align-items: center;
+  }
+
+  .poz__tytul {
+    flex: 1;
+    font-size: var(--text-h3);
+    font-weight: 500;
+    line-height: 1.25;
+  }
+
+  .poz__plus {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    /* Plus obraca się o 45° po otwarciu i staje się krzyżykiem (SPEC 7.7).
+       Tylko `transform` — zero kosztu układu (SPEC 10.2). */
+    transition: transform 320ms var(--ease-wejscie);
+  }
+
+  .poz.jest-otwarta .poz__plus {
+    transform: rotate(45deg);
+  }
+
+  .poz__plus svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: var(--color-text-2);
+    stroke-width: 1.5;
+  }
+
+  .poz.jest-otwarta .poz__plus svg {
+    stroke: var(--color-text);
+  }
+
+  /* --- tagi -------------------------------------------------------------- */
+
+  .poz__tagi {
+    display: none;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.5rem;
+    font-size: var(--text-small);
+    color: var(--color-text-3);
+    padding-bottom: 1rem;
+  }
+
+  .poz__tagi li:not(:last-child)::after {
+    /* Meta rozdzielamy przecinkami (SPEC 5) */
+    content: ',';
+  }
+
+  /* Na wąskim ekranie tagi pokazują się dopiero po otwarciu pozycji —
+     inaczej zamknięta lista sześciu punktów robi się dwa razy dłuższa. */
+  .poz.jest-otwarta .poz__tagi {
+    display: flex;
+  }
+
+  /* --- panel ------------------------------------------------------------- */
+
+  .poz__panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 320ms var(--ease-wejscie);
+  }
+
+  .poz.jest-otwarta .poz__panel {
+    grid-template-rows: 1fr;
+  }
+
+  .poz__wnetrze {
+    min-height: 0;
+    overflow: hidden;
+    /* Zamknięta treść wypada z kolejności tabulacji i z drzewa dostępności. */
+    visibility: hidden;
+    transition: visibility 0s linear 320ms;
+  }
+
+  .poz.jest-otwarta .poz__wnetrze {
+    visibility: visible;
+    transition: visibility 0s;
+  }
+
+  /* Odstępy siedzą wewnątrz, żeby zwijały się razem z panelem. */
+  .poz__tresc {
+    padding-bottom: 1.5rem;
+    color: var(--color-text-2);
+  }
+
+  @media (min-width: 1024px) {
+    .poz {
+      grid-template-columns: 1fr minmax(0, 17rem);
+      column-gap: 2.5rem;
+    }
+
+    .poz__glowa {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    /* Po prawej stronie nagłówka, widoczne także przy zamkniętej pozycji —
+       da się je przeskanować bez otwierania (SPEC 8.2). */
+    .poz__tagi {
+      display: flex;
+      grid-column: 2;
+      grid-row: 1;
+      align-self: center;
+      justify-content: flex-end;
+      padding-bottom: 0;
+    }
+
+    .poz__panel {
+      grid-column: 1;
+      grid-row: 2;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .poz__panel,
+    .poz__plus,
+    .poz__wnetrze {
+      transition: none;
+    }
+  }
+</style>

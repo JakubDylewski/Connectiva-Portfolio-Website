@@ -362,8 +362,12 @@ function podepnijChipy(
   doPozycji: (i: number) => number | HTMLElement,
 ): void {
   const naSegment = (e: Event) => {
-    const { segment, zDotkniecia } = (e as CustomEvent<SegmentDetail>).detail;
-    if (!zDotkniecia) return;
+    const { segment, zDotkniecia, prowadziDoProjektow } = (
+      e as CustomEvent<SegmentDetail>
+    ).detail;
+    // Do projektów prowadzą tylko chipy z hero. Te w sprawdzarce miast
+    // zmieniają segment w miejscu — przewinięcie wyrwałoby z formularza.
+    if (!zDotkniecia || !prowadziDoProjektow) return;
     const i = bloki.findIndex((b) => b.dataset.segmentKlucz === segment);
     if (i < 0) return;
     przewinDoCelu(doPozycji(i));

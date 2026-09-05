@@ -103,12 +103,17 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
       import { initMotion } from '../scripts/motion';
       import { initNav } from '../scripts/nav';
       import { initSegmentChips } from '../scripts/segment';
+      import { initAccordions } from '../scripts/accordion';
+      import { initCityCheck } from '../scripts/city';
 
-      // Menu i chipy muszą działać niezależnie od preferencji ruchu, więc
-      // nie czekają na GSAP. Etap 8 przełoży to na `astro:page-load`.
+      // Menu, chipy, akordeony i sprawdzarka muszą działać niezależnie od
+      // preferencji ruchu, więc nie czekają na GSAP (SPEC 10.1).
+      // Etap 8 przełoży to na `astro:page-load`.
       function start() {
         initNav();
         initSegmentChips();
+        initAccordions();
+        initCityCheck();
         void initMotion();
       }
 

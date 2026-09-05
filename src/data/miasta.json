@@ -1,0 +1,6 @@
+{
+  "gdansk": { "nazwa": "Gdańsk", "salon": "wolne", "kosmetologia": "wolne", "klinika": "wolne" },
+  "gdynia": { "nazwa": "Gdynia", "salon": "wolne", "kosmetologia": "wolne", "klinika": "wolne" },
+  "sopot": { "nazwa": "Sopot", "salon": "wolne", "kosmetologia": "wolne", "klinika": "wolne" },
+  "torun": { "nazwa": "Toruń", "salon": "wolne", "kosmetologia": "wolne", "klinika": "wolne" }
+}

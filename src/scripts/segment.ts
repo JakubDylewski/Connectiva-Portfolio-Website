@@ -27,14 +27,24 @@ export interface SegmentDetail {
   segment: Segment;
   /** `true`, gdy zmiana wyszła od użytkowniczki (a nie z synchronizacji). */
   zDotkniecia: boolean;
+  /**
+   * `true` tylko dla grupy chipów, która ma prowadzić do sekcji Projekty
+   * (hero). Chipy w sprawdzarce miast zmieniają segment, ale nie mają prawa
+   * wyrwać użytkowniczki ze środka formularza.
+   */
+  prowadziDoProjektow: boolean;
 }
 
 /** Zapisuje segment na `<html>` i rozgłasza zmianę. */
-export function ustawSegment(segment: Segment, zDotkniecia = false): void {
+export function ustawSegment(
+  segment: Segment,
+  zDotkniecia = false,
+  prowadziDoProjektow = false,
+): void {
   document.documentElement.dataset.segment = segment;
   document.dispatchEvent(
     new CustomEvent<SegmentDetail>(ZDARZENIE_SEGMENT, {
-      detail: { segment, zDotkniecia },
+      detail: { segment, zDotkniecia, prowadziDoProjektow },
     }),
   );
 }
@@ -93,7 +103,8 @@ export function initSegmentChips(): () => void {
         '[data-segment]',
       );
       if (!chip) return;
-      ustawSegment(chip.dataset.segment as Segment, true);
+      const prowadzi = Boolean(grupa.dataset.przewin);
+      ustawSegment(chip.dataset.segment as Segment, true, prowadzi);
 
       // Świadome dotknięcie przewija do sekcji Projekty (SPEC 8.0).
       // Gdy sekcja jest na stronie, przewijaniem zajmuje się warstwa ruchu —
@@ -122,7 +133,7 @@ export function initSegmentChips(): () => void {
       e.preventDefault();
       // Strzałki zmieniają zaznaczenie, ale nie przewijają strony — przewinięcie
       // zostaje reakcją na świadome dotknięcie (kliknięcie, Enter, spacja).
-      ustawSegment(chipy[cel].dataset.segment as Segment, false);
+      ustawSegment(chipy[cel].dataset.segment as Segment, false, false);
       chipy[cel].focus();
     };
 
