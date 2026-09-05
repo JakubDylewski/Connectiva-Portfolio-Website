@@ -18,6 +18,13 @@ interface Props {
 
 const { projekt, indeks } = Astro.props;
 
+// Case studies (`/projekty/[slug]/`) powstają w Etapie 7. Do tego czasu nie
+// wystawiamy linku — od Etapu 6 strona jest indeksowalna, więc martwy
+// odnośnik to trzy realne 404 do zaindeksowania. Link włączy się sam, gdy
+// plik trasy się pojawi.
+const caseStudyIstnieje =
+  Object.keys(import.meta.glob('../pages/projekty/*.astro')).length > 0;
+
 const dataPL = projekt.lighthouseDate
   ? new Date(projekt.lighthouseDate).toLocaleDateString('pl-PL', {
       day: 'numeric',
@@ -53,7 +60,13 @@ const dataPL = projekt.lighthouseDate
   }
 
   <div class="panel__linki">
-    <a class="panel__link" href={projekt.caseStudy}>Zobacz case study</a>
+    {
+      caseStudyIstnieje && (
+        <a class="panel__link" href={projekt.caseStudy}>
+          Zobacz case study
+        </a>
+      )
+    }
     <a
       class="panel__link panel__link--demo"
       href={projekt.demo}

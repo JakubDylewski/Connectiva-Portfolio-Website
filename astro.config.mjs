@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
+import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
@@ -14,6 +15,13 @@ export default defineConfig({
   build: {
     format: 'directory',
   },
+
+  integrations: [
+    sitemap({
+      // Strona robocza i 404 nie należą do mapy strony (SPEC 9, 11.2).
+      filter: (strona) => !strona.includes('/styleguide/') && !strona.includes('/404'),
+    }),
+  ],
 
   vite: {
     plugins: [tailwindcss()],

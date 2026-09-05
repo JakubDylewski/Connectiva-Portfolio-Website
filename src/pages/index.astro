@@ -2,13 +2,12 @@
 /**
  * Strona główna (SPEC 8).
  *
- * Etap 1: hero, obie belki i silnik ruchu. Pozostałe sekcje są na razie
- * placeholderami — mają prawdziwy nagłówek, licznik pozycji i lead ze
- * specyfikacji, żeby scroll miał długość i żeby dało się ocenić rytm strony.
- * Treść dochodzi etapami (SPEC 14).
+ * Kolejność sekcji i licznik „NN / 07" wprost ze SPEC 8: hero → 01 Projekty
+ * → 02 Co dostajesz → 03 Jedna marka na miasto → 04 Audyt → 05 Proces
+ * → 06 Cena → 07 Pytania → Kontakt (bez numeru).
  *
- * Strona zostaje `noindex` do Etapu 6, w którym wchodzi warstwa SEO. Póki
- * połowa sekcji jest pusta, nie ma czego wpuszczać do wyszukiwarki.
+ * Od Etapu 6 strona jest indeksowalna — warstwa SEO (canonical, sitemap,
+ * dane strukturalne) jest już na miejscu.
  */
 import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
@@ -19,6 +18,8 @@ import CityCheck from '../components/CityCheck.astro';
 import Audit from '../components/Audit.astro';
 import Process from '../components/Process.astro';
 import Pricing from '../components/Pricing.astro';
+import Faq from '../components/Faq.astro';
+import Contact from '../components/Contact.astro';
 import { zakres } from '../data/zakres';
 
 /**
@@ -33,31 +34,10 @@ import { zakres } from '../data/zakres';
  * Pozostałe pięć mieści się w dwóch. Zgodnie ze SPEC 6.2 skraca się tekst,
  * a nie zasadę — te trzy sekcje i tak dostają treść w Etapach 2–3.
  */
-const sekcje = [
-  {
-    id: 'pytania',
-    index: '07',
-    // SPEC 8.7 nie podaje nagłówka tej sekcji — propozycja do potwierdzenia
-    // przez Jakuba, trzyma wzór „liczba + liczba" z sekcji Proces.
-    linia1: 'Osiem pytań.',
-    linia2: 'Osiem odpowiedzi.',
-    lead: 'Wszystko, o co pytają najczęściej: termin, rezerwacja, prawa do strony, faktury i zakaz reklamy w klinikach.',
-    etap: 6,
-  },
-  {
-    id: 'kontakt',
-    index: undefined,
-    linia1: 'Zacznijmy',
-    linia2: 'od Twojej strony.',
-    lead: 'Odpowiedź w ciągu 24 godzin w dni robocze.',
-    etap: 6,
-  },
-];
 ---
 
 <Base
   tytul="Strony dla salonów beauty i klinik medycyny estetycznej — Connectiva"
-  noindex
   pasekMobile
   sekwencjaOtwarcia
 >
@@ -124,48 +104,41 @@ const sekcje = [
     </div>
   </section>
 
-  {
-    sekcje.map((s) => (
-      <section id={s.id} class="sekcja">
-        <div class="kontener">
-          <SectionHead
-            index={s.index}
-            linia1={s.linia1}
-            linia2={s.linia2}
-            lead={s.lead}
-            lacznik
-          />
-          <p class="sekcja__placeholder">
-            Treść tej sekcji dochodzi w Etapie {s.etap}.
-          </p>
-        </div>
-      </section>
-    ))
-  }
+  {/* 07 Pytania (SPEC 8.7) */}
+  <section id="pytania" class="sekcja">
+    <div class="kontener">
+      <SectionHead
+        index="07"
+        linia1="Osiem pytań."
+        linia2="Osiem odpowiedzi."
+        lead="Wszystko, o co pytają najczęściej: termin, rezerwacja, prawa do strony, faktury i zakaz reklamy w klinikach."
+        lacznik
+      />
+      <Faq />
+    </div>
+  </section>
+
+  {/* Kontakt (SPEC 8.8) — bez numeru */}
+  <section id="kontakt" class="sekcja">
+    <div class="kontener">
+      <SectionHead
+        linia1="Zacznijmy"
+        linia2="od Twojej strony."
+        lead="Napisz, a odezwiemy się w ciągu 24 godzin w dni robocze."
+        lacznik
+      />
+      <Contact />
+    </div>
+  </section>
 </Base>
 
 <style>
   .sekcja {
     padding-block: var(--spacing-sekcja);
-    /* Placeholderom dajemy wysokość, żeby dało się ocenić rytm przewijania
-       i żeby paski nawigacji miały na czym pracować. Znika razem z treścią. */
-    min-height: 70vh;
     scroll-margin-top: 5rem;
   }
 
-  .sekcja__placeholder {
-    margin-top: 2.5rem;
-    font-size: var(--text-small);
-    color: var(--color-text-3);
-  }
 
-  /* Sekcje z gotową treścią nie potrzebują sztucznej wysokości. */
-  #zakres,
-  #miasto,
-  #audyt,
-  #cennik {
-    min-height: 0;
-  }
 
   .sekcja__akordeon {
     margin-top: 3rem;

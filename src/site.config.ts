@@ -60,15 +60,17 @@ export const site = {
  * Nie wystawiamy odnośników do stron, których nie ma.
  */
 export const nawigacja: ReadonlyArray<{ etykieta: string; href: string }> = [
-  { etykieta: 'Projekty', href: '#projekty' },
-  { etykieta: 'Cennik', href: '#cennik' },
-  { etykieta: 'Kontakt', href: '#kontakt' },
+  // Projekty nie mają własnej podstrony — prowadzimy do sekcji na stronie
+  // głównej. Case studies dochodzą w Etapie 7.
+  { etykieta: 'Projekty', href: '/#projekty' },
+  { etykieta: 'Cennik', href: '/cennik/' },
+  { etykieta: 'Kontakt', href: '/kontakt/' },
 ];
 
-/** Przycisk główny w belce. Etap 4 przełącza go na `/audyt/`. */
+/** Przycisk główny w belce (SPEC 7.2). */
 export const navCta: { etykieta: string; href: string } | null = {
   etykieta: 'Bezpłatny audyt',
-  href: '#audyt',
+  href: '/audyt/',
 };
 
 /**
@@ -78,4 +80,27 @@ export const navCta: { etykieta: string; href: string } | null = {
 export const stopkaKolumny: ReadonlyArray<{
   tytul: string;
   linki: ReadonlyArray<{ etykieta: string; href: string }>;
-}> = [];
+}> = [
+  {
+    tytul: 'Projekty',
+    // Etap 7 zamieni tę pozycję na trzy case studies: /projekty/aurelia/,
+    // /projekty/elara/, /projekty/halicka/. Dopóki tych stron nie ma,
+    // nie wystawiamy odnośników prowadzących w pustkę.
+    linki: [{ etykieta: 'Projekty pokazowe', href: '/#projekty' }],
+  },
+  {
+    tytul: 'Oferta',
+    linki: [
+      { etykieta: 'Cennik', href: '/cennik/' },
+      { etykieta: 'Bezpłatny audyt', href: '/audyt/' },
+      { etykieta: 'Proces', href: '/#proces' },
+    ],
+  },
+  {
+    tytul: 'Kontakt',
+    linki: [
+      { etykieta: 'Napisz', href: '/kontakt/' },
+      { etykieta: 'Polityka prywatności', href: '/polityka-prywatnosci/' },
+    ],
+  },
+];

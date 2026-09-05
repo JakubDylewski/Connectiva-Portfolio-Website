@@ -1,0 +1,49 @@
+---
+/**
+ * /404 (SPEC 9).
+ *
+ * Krótko, bez żartów, z dwoma wyjściami: projekty albo kontakt.
+ * Strona błędu nie trafia do wyszukiwarek.
+ */
+import Base from '../layouts/Base.astro';
+import SectionHead from '../components/SectionHead.astro';
+import Button from '../components/Button.astro';
+---
+
+<Base
+  tytul="Tej strony nie ma — Connectiva"
+  opis="Pod tym adresem nic nie ma. Zobacz projekty pokazowe albo napisz."
+  noindex
+>
+  <section class="nieznaleziona">
+    <div class="kontener">
+      <SectionHead
+        poziom="h1"
+        linia1="Tej strony"
+        linia2="nie ma."
+        lead="Zobacz projekty albo napisz."
+        lacznik
+      />
+
+      <div class="nieznaleziona__akcje">
+        <Button wariant="glowny" href="/#projekty">Zobacz projekty</Button>
+        <Button wariant="wtorny" href="/kontakt/" przesuniety>Napisz</Button>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nieznaleziona {
+    padding-block: var(--spacing-sekcja);
+  }
+
+  .nieznaleziona__akcje {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-top: 3rem;
+    padding-bottom: 0.75rem;
+  }
+</style>

@@ -1,0 +1,209 @@
+---
+/**
+ * /polityka-prywatnosci/ (SPEC 9, 11.2).
+ *
+ * DO PRZECZYTANIA PRZEZ JAKUBA PRZED PUBLIKACJĄ.
+ * To jest rzetelny opis tego, co strona faktycznie robi z danymi — nie jest
+ * to porada prawna i nie zastępuje sprawdzenia przez prawnika. Dokument
+ * opisuje stan faktyczny: dwa formularze, Web3Forms jako procesor, Cloudflare
+ * Web Analytics bez ciasteczek. Jeśli cokolwiek z tego się zmieni (na przykład
+ * dojdzie Meta Pixel), trzeba tu wrócić — i wtedy potrzebny będzie także baner
+ * zgody, którego dziś świadomie nie ma (SPEC 0).
+ *
+ * Dane administratora są w `site.config.ts` jako pola TODO.
+ */
+import Base from '../layouts/Base.astro';
+import SectionHead from '../components/SectionHead.astro';
+import { site } from '../site.config';
+
+const uzupelnione = (v: string) => Boolean(v) && !v.startsWith('TODO_');
+const daneGotowe =
+  uzupelnione(site.firma.nazwa) && uzupelnione(site.firma.nip) && uzupelnione(site.firma.adres);
+const mailOk = uzupelnione(site.email);
+---
+
+<Base
+  tytul="Polityka prywatności — Connectiva"
+  opis="Jakie dane zbieramy przez formularze, komu je powierzamy i jakie masz prawa."
+>
+  <section class="polityka">
+    <div class="kontener">
+      <SectionHead
+        poziom="h1"
+        linia1="Polityka"
+        linia2="prywatności."
+        lead="Krótko i konkretnie: co zbieramy, po co, komu powierzamy i jak to usunąć."
+        lacznik
+      />
+
+      <div class="polityka__tresc">
+        <h2>Kto jest administratorem danych</h2>
+        {
+          daneGotowe ? (
+            <p>
+              Administratorem danych jest {site.firma.nazwa}, NIP {site.firma.nip},{' '}
+              {site.firma.adres}.
+            </p>
+          ) : (
+            <p class="polityka__todo">
+              Dane administratora (nazwa firmy, NIP, adres) trzeba uzupełnić
+              w&nbsp;src/site.config.ts przed publikacją. Bez nich ta polityka
+              jest niekompletna.
+            </p>
+          )
+        }
+        {
+          mailOk ? (
+            <p>
+              W sprawach dotyczących danych napisz na{' '}
+              <a class="link" href={`mailto:${site.email}`}>
+                {site.email}
+              </a>
+              .
+            </p>
+          ) : (
+            <p class="polityka__todo">
+              Adres kontaktowy do spraw danych trzeba uzupełnić przed publikacją.
+            </p>
+          )
+        }
+
+        <h2>Jakie dane zbieramy</h2>
+        <p>
+          Tylko to, co sama wpiszesz w&nbsp;jednym z&nbsp;dwóch formularzy na tej
+          stronie.
+        </p>
+        <ul>
+          <li>
+            Formularz audytu: adres Twojej strony, e-mail albo nazwa na
+            Instagramie, opcjonalnie miasto oraz odpowiedzi na sześć pytań
+            audytu.
+          </li>
+          <li>
+            Formularz kontaktowy: imię, nazwa salonu i&nbsp;miasto, link do strony
+            lub Instagrama, opcjonalnie treść wiadomości.
+          </li>
+        </ul>
+        <p>
+          Strona nie zakłada kont, nie prosi o&nbsp;hasła i&nbsp;nie zbiera
+          danych o&nbsp;zdrowiu. Sprawdzarka wolnych miast i&nbsp;konfigurator ceny
+          działają w&nbsp;całości w&nbsp;Twojej przeglądarce — nic z&nbsp;nich do
+          nas nie trafia.
+        </p>
+
+        <h2>Po co i&nbsp;na jakiej podstawie</h2>
+        <p>
+          Dane z&nbsp;formularzy służą wyłącznie do tego, żeby się z&nbsp;Tobą
+          skontaktować i&nbsp;przygotować to, o&nbsp;co prosisz — audyt albo
+          odpowiedź na wiadomość. Podstawą jest Twoja zgoda, którą zaznaczasz
+          przy wysyłce (art. 6 ust. 1 lit. a&nbsp;RODO), a&nbsp;w&nbsp;zakresie
+          dalszej rozmowy o&nbsp;współpracy — nasz uzasadniony interes (art. 6
+          ust. 1 lit. f&nbsp;RODO).
+        </p>
+
+        <h2>Komu powierzamy dane</h2>
+        <ul>
+          <li>
+            <strong>Web3Forms</strong> — usługa, która przyjmuje formularz
+            i&nbsp;przesyła jego treść na naszą skrzynkę. Przez nią przechodzi
+            wszystko, co wpiszesz w&nbsp;formularzu.
+          </li>
+          <li>
+            <strong>Cloudflare</strong> — hosting strony. Cloudflare przetwarza
+            techniczne dane połączenia (adres IP, typ przeglądarki), tak jak
+            każdy serwer, który wysyła Ci stronę.
+          </li>
+        </ul>
+
+        <h2>Ciasteczka i&nbsp;statystyki</h2>
+        <p>
+          Ta strona nie używa ciasteczek śledzących ani reklamowych i&nbsp;dlatego
+          nie ma na niej banera zgody. Korzystamy z&nbsp;Cloudflare Web Analytics,
+          które liczy odsłony bez ciasteczek i&nbsp;bez profilowania — nie da się
+          na tej podstawie rozpoznać konkretnej osoby.
+        </p>
+
+        <h2>Jak długo trzymamy dane</h2>
+        <p>
+          Wiadomości z&nbsp;formularzy trzymamy tak długo, jak trwa rozmowa
+          o&nbsp;współpracy, a&nbsp;potem przez czas wymagany przepisami
+          podatkowymi, jeśli doszło do umowy. Jeśli nie doszło — usuwamy je na
+          Twoją prośbę albo gdy staną się niepotrzebne.
+        </p>
+
+        <h2>Twoje prawa</h2>
+        <p>
+          Masz prawo dostać kopię swoich danych, poprawić je, usunąć, ograniczyć
+          ich przetwarzanie, przenieść je do kogoś innego oraz wycofać zgodę
+          w&nbsp;dowolnym momencie — wycofanie nie wpływa na to, co zrobiliśmy
+          wcześniej. Masz też prawo złożyć skargę do Prezesa Urzędu Ochrony
+          Danych Osobowych.
+        </p>
+
+        <h2>Zmiany</h2>
+        <p>
+          Jeśli zaczniemy używać czegoś nowego, co dotyka Twoich danych,
+          zaktualizujemy ten dokument, zanim to uruchomimy.
+        </p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .polityka {
+    padding-block: var(--spacing-sekcja);
+  }
+
+  .polityka__tresc {
+    margin-top: 3rem;
+    max-width: 40rem;
+  }
+
+  .polityka__tresc h2 {
+    font-size: var(--text-h3);
+    font-family: var(--font-body);
+    font-weight: 500;
+    margin-top: 3rem;
+  }
+
+  .polityka__tresc h2:first-child {
+    margin-top: 0;
+  }
+
+  .polityka__tresc p {
+    margin-top: 1rem;
+    color: var(--color-text-2);
+  }
+
+  .polityka__tresc ul {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    color: var(--color-text-2);
+  }
+
+  .polityka__tresc li {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .polityka__tresc li::before {
+    content: '';
+    flex: none;
+    width: 12px;
+    height: 1px;
+    margin-top: 0.8em;
+    background-color: var(--color-line-2);
+  }
+
+  .polityka__tresc strong {
+    color: var(--color-text);
+    font-weight: 500;
+  }
+
+  .polityka__todo {
+    color: var(--color-text-3);
+  }
+</style>

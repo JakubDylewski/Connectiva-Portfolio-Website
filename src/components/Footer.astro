@@ -15,6 +15,11 @@ import Logo from './Logo.astro';
 import { site, stopkaKolumny } from '../site.config';
 
 const rok = new Date().getFullYear();
+
+/** Pola TODO z konfiguracji nie trafiają na stronę. */
+const uzupelnione = (v: string) => Boolean(v) && !v.startsWith('TODO_');
+const mailOk = uzupelnione(site.email);
+const instaOk = uzupelnione(site.instagram.nazwa) && uzupelnione(site.instagram.url);
 ---
 
 <footer class="stopka">
@@ -51,6 +56,24 @@ const rok = new Date().getFullYear();
       <p class="stopka__dane">
         {site.firma.nazwa}, NIP {site.firma.nip}, {site.firma.adres}
       </p>
+
+      {
+        (mailOk || instaOk) && (
+          <p class="stopka__kanaly">
+            {mailOk && (
+              <a class="link" href={`mailto:${site.email}`}>
+                {site.email}
+              </a>
+            )}
+            {mailOk && instaOk && <span aria-hidden="true">, </span>}
+            {instaOk && (
+              <a class="link" href={site.instagram.url} target="_blank" rel="noopener">
+                {site.instagram.nazwa}
+              </a>
+            )}
+          </p>
+        )
+      }
 
       <p class="stopka__meta">
         Strona zbudowana w Astro, hostowana na Cloudflare. Ruch: GSAP.
@@ -128,7 +151,8 @@ const rok = new Date().getFullYear();
     gap: 1rem;
   }
 
-  .stopka__dane {
+  .stopka__dane,
+  .stopka__kanaly {
     font-size: var(--text-small);
     color: var(--color-text-2);
   }

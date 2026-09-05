@@ -1,0 +1,60 @@
+---
+/**
+ * /kontakt/ (SPEC 8.8, 9).
+ *
+ * Ta sama sekcja co na stronie głównej plus sprawdzarka wolnych miast
+ * z Etapu 3 — żeby dało się sprawdzić miasto i od razu napisać.
+ */
+import Base from '../layouts/Base.astro';
+import SectionHead from '../components/SectionHead.astro';
+import Contact from '../components/Contact.astro';
+import CityCheck from '../components/CityCheck.astro';
+---
+
+<Base
+  tytul="Kontakt — Connectiva"
+  opis="Napisz, jeśli chcesz stronę, która zapełnia kalendarz. Odpowiedź w ciągu 24 godzin w dni robocze."
+  pasekMobile
+>
+  <section class="strona-kontakt">
+    <div class="kontener">
+      <SectionHead
+        poziom="h1"
+        linia1="Zacznijmy"
+        linia2="od Twojej strony."
+        lead="Napisz, a odezwiemy się w ciągu 24 godzin w dni robocze."
+        lacznik
+      />
+
+      <Contact />
+    </div>
+  </section>
+
+  <section class="strona-kontakt__miasto">
+    <div class="kontener">
+      <h2 class="strona-kontakt__naglowek">
+        <span class="l1">Jedna marka na miasto.</span>
+        <span class="l2">Sprawdź, czy Twoje jest wolne.</span>
+      </h2>
+      <CityCheck />
+    </div>
+  </section>
+</Base>
+
+<style>
+  .strona-kontakt {
+    padding-block: var(--spacing-sekcja) 0;
+  }
+
+  .strona-kontakt__miasto {
+    padding-block: var(--spacing-sekcja);
+  }
+
+  .strona-kontakt__naglowek {
+    font-family: var(--font-display);
+    font-size: var(--text-display-2);
+    font-weight: 400;
+    line-height: 1.06;
+    letter-spacing: -0.01em;
+  }
+</style>

@@ -1,0 +1,254 @@
+---
+/**
+ * Formularz kontaktowy (SPEC 8.8).
+ *
+ * Wysyłka, walidacja i stany inline idą przez wspólne `src/scripts/forms.ts`
+ * z Etapu 4 — ten sam honeypot, te same komunikaty pod polami, ta sama
+ * blokada, gdy klucz Web3Forms jest jeszcze pustym TODO.
+ */
+import Button from './Button.astro';
+import { site } from '../site.config';
+
+const id = `kontakt-${crypto.randomUUID().slice(0, 8)}`;
+
+const politykaIstnieje =
+  Object.keys(import.meta.glob('../pages/polityka-prywatnosci.astro')).length > 0;
+
+const uzupelnione = (v: string) => Boolean(v) && !v.startsWith('TODO_');
+const tekstBledu = uzupelnione(site.email)
+  ? `Nie udało się wysłać. Napisz na ${site.email}.`
+  : 'Nie udało się wysłać. Spróbuj jeszcze raz za chwilę.';
+---
+
+<form
+  class="kform"
+  data-formularz
+  data-klucz={site.web3formsKey}
+  data-tekst-ok="Wysłane. Odezwiemy się w ciągu 24 godzin w dni robocze."
+  data-tekst-blad={tekstBledu}
+  data-chowa-pasek
+  novalidate
+>
+  <input type="hidden" name="subject" value="Kontakt ze strony — nowa wiadomość" />
+  <input type="hidden" name="from_name" value="Connectiva" />
+
+  {/* Honeypot — widoczny tylko dla botów (SPEC 7.5) */}
+  <div class="kform__pulapka" aria-hidden="true">
+    <label for={`${id}-firma`}>Nie wypełniaj tego pola</label>
+    <input
+      id={`${id}-firma`}
+      type="text"
+      name="firma"
+      tabindex="-1"
+      autocomplete="off"
+      data-honeypot
+    />
+  </div>
+
+  <div class="kform__pola" data-pola>
+    <div class="pole">
+      <label class="pole__etykieta" for={`${id}-imie`}>Imię</label>
+      <input
+        class="pole__input"
+        id={`${id}-imie`}
+        name="imie"
+        type="text"
+        autocomplete="given-name"
+        required
+        data-waliduj="wymagane"
+        aria-describedby={`${id}-imie-blad`}
+      />
+      <p class="pole__blad" id={`${id}-imie-blad`} aria-live="polite"></p>
+    </div>
+
+    <div class="pole">
+      <label class="pole__etykieta" for={`${id}-salon`}>Salon i&nbsp;miasto</label>
+      <input
+        class="pole__input"
+        id={`${id}-salon`}
+        name="salon"
+        type="text"
+        required
+        data-waliduj="wymagane"
+        aria-describedby={`${id}-salon-blad`}
+      />
+      <p class="pole__blad" id={`${id}-salon-blad`} aria-live="polite"></p>
+    </div>
+
+    <div class="pole">
+      <label class="pole__etykieta" for={`${id}-link`}>
+        Link do strony lub Instagrama
+      </label>
+      <input
+        class="pole__input"
+        id={`${id}-link`}
+        name="link"
+        type="text"
+        autocomplete="url"
+        required
+        data-waliduj="kontakt"
+        aria-describedby={`${id}-link-blad`}
+      />
+      <p class="pole__blad" id={`${id}-link-blad`} aria-live="polite"></p>
+    </div>
+
+    <div class="pole">
+      <label class="pole__etykieta" for={`${id}-wiadomosc`}>
+        Wiadomość <span class="pole__opcjonalne">(opcjonalnie)</span>
+      </label>
+      <textarea
+        class="pole__input pole__input--obszar"
+        id={`${id}-wiadomosc`}
+        name="wiadomosc"
+        rows="4"></textarea>
+    </div>
+
+    <div class="pole">
+      <div class="zgoda">
+        <input
+          class="zgoda__input"
+          id={`${id}-zgoda`}
+          name="zgoda"
+          type="checkbox"
+          required
+          data-waliduj="zgoda"
+          aria-describedby={`${id}-zgoda-blad`}
+        />
+        <label class="zgoda__etykieta" for={`${id}-zgoda`}>
+          Zgadzam się na kontakt i&nbsp;na przetwarzanie moich danych.{' '}
+          {
+            politykaIstnieje ? (
+              <a class="link" href="/polityka-prywatnosci/">
+                Polityka prywatności
+              </a>
+            ) : (
+              <span class="zgoda__todo">(polityka prywatności dochodzi wkrótce)</span>
+            )
+          }
+        </label>
+      </div>
+      <p class="pole__blad" id={`${id}-zgoda-blad`} aria-live="polite"></p>
+    </div>
+
+    <div class="kform__wyslij">
+      <Button type="submit">Wyślij</Button>
+    </div>
+  </div>
+
+  <p class="kform__stan" data-stan aria-live="polite"></p>
+</form>
+
+<style>
+  .kform__pola {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .pole__etykieta {
+    display: block;
+    font-size: var(--text-small);
+    color: var(--color-text-2);
+    margin-bottom: 0.5rem;
+  }
+
+  .pole__opcjonalne {
+    color: var(--color-text-3);
+  }
+
+  .pole__input {
+    width: 100%;
+    max-width: 26rem;
+    height: 48px;
+    padding-inline: 0.875rem;
+    background-color: var(--color-ink-1);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-kontrolka);
+    color: var(--color-text);
+    transition: border-color 150ms var(--ease-wejscie);
+  }
+
+  .pole__input--obszar {
+    height: auto;
+    padding-block: 0.75rem;
+    resize: vertical;
+    line-height: 1.5;
+  }
+
+  .pole__input:hover {
+    border-color: var(--color-line-2);
+  }
+
+  .pole__input:focus {
+    border-color: var(--color-green);
+    background-color: var(--color-ink-2);
+  }
+
+  .pole__input[aria-invalid='true'] {
+    border-color: var(--color-error);
+  }
+
+  .pole__blad {
+    margin-top: 0.5rem;
+    font-size: var(--text-small);
+    color: var(--color-error);
+  }
+
+  .pole__blad:empty {
+    margin-top: 0;
+  }
+
+  .zgoda {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .zgoda__input {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    accent-color: var(--color-green);
+  }
+
+  .zgoda__etykieta {
+    font-size: var(--text-small);
+    color: var(--color-text-2);
+    max-width: 34rem;
+  }
+
+  .zgoda__todo {
+    color: var(--color-text-3);
+  }
+
+  .kform__wyslij {
+    margin-top: 0.5rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .kform__stan {
+    margin-top: 1.5rem;
+    color: var(--color-text-2);
+  }
+
+  .kform__stan:empty {
+    margin-top: 0;
+  }
+
+  .kform[data-stan-wysylki='ok'] .kform__stan {
+    color: var(--color-text);
+  }
+
+  .kform[data-stan-wysylki='blad'] .kform__stan {
+    color: var(--color-error);
+  }
+
+  .kform__pulapka {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+</style>

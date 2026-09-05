@@ -1,0 +1,39 @@
+---
+/**
+ * 07 Pytania (SPEC 8.7) — akordeon plus dane strukturalne `FAQPage`.
+ *
+ * Pytania i odpowiedzi w JSON-LD są dokładnie tymi samymi ciągami, które widać
+ * na stronie. Google karze za rozjazd między treścią widoczną a strukturalną,
+ * a poza tym to po prostu byłoby kłamstwo (SPEC 15).
+ */
+import Accordion from './Accordion.astro';
+import { faq } from '../data/faq';
+
+const strukturalne = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faq.map((p) => ({
+    '@type': 'Question',
+    name: p.tytul,
+    acceptedAnswer: { '@type': 'Answer', text: p.tresc },
+  })),
+};
+---
+
+{/* Opakowanie należy do tego komponentu — zakres stylów Astro nie sięga
+    do elementu głównego komponentu potomnego. */}
+<div class="faq">
+  <Accordion pozycje={faq} />
+</div>
+
+<script
+  type="application/ld+json"
+  is:inline
+  set:html={JSON.stringify(strukturalne)}
+/>
+
+<style>
+  .faq {
+    margin-top: 3rem;
+  }
+</style>
