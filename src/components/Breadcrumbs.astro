@@ -1,0 +1,103 @@
+---
+/**
+ * Okruszki nawigacyjne (SPEC 9.1): „Projekty › Nazwa" + JSON-LD
+ * `BreadcrumbList` (SPEC 11.2).
+ *
+ * Ostatni okruch to strona bieżąca — bez `href`, z `aria-current="page"`.
+ * W danych strukturalnych zostaje wtedy sama nazwa, bez `item` — tak, jak
+ * chce tego dokumentacja wyszukiwarek dla końcowego elementu listy.
+ */
+import { site } from '../site.config';
+
+export interface Okruch {
+  etykieta: string;
+  /** Bez `href` = strona bieżąca (ostatni okruch). */
+  href?: string;
+}
+
+interface Props {
+  okruchy: Okruch[];
+  class?: string;
+}
+
+const { okruchy, class: klasa } = Astro.props;
+const bazowy = Astro.site ?? new URL(site.url);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: okruchy.map((o, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: o.etykieta,
+    ...(o.href ? { item: new URL(o.href, bazowy).href } : {}),
+  })),
+};
+---
+
+<nav class:list={['okruszki', klasa]} aria-label="Ścieżka nawigacji">
+  <ol class="okruszki__lista">
+    {
+      okruchy.map((o, i) => (
+        <li class="okruszki__pozycja">
+          {i > 0 && (
+            <span class="okruszki__separator" aria-hidden="true">
+              ›
+            </span>
+          )}
+          {o.href ? (
+            <a class="okruszki__link" href={o.href}>
+              {o.etykieta}
+            </a>
+          ) : (
+            <span class="okruszki__biezaca" aria-current="page">
+              {o.etykieta}
+            </span>
+          )}
+        </li>
+      ))
+    }
+  </ol>
+</nav>
+
+<script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
+
+<style>
+  .okruszki__lista {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--text-small);
+    color: var(--color-text-3);
+  }
+
+  .okruszki__pozycja {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* Cel dotyku ≥ 44 px w pionie (SPEC 7.4) bez rozpychania układu. */
+  .okruszki__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--color-text-2);
+    text-decoration: underline;
+    text-decoration-color: var(--color-line-2);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.35em;
+    transition: text-decoration-color 150ms var(--ease-wejscie);
+  }
+
+  .okruszki__link:hover {
+    text-decoration-color: var(--color-green);
+  }
+
+  .okruszki__biezaca {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+</style>

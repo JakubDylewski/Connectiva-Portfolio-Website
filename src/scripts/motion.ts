@@ -86,6 +86,7 @@ export async function initMotion(): Promise<void> {
       // Dwa piny i ani jednego więcej (SPEC 10.2).
       projektyDesktop(gsap, ScrollTrigger); // pin 1 z 2
       procesDesktop(gsap); // pin 2 z 2
+      paralaksCaseStudy(gsap); // podstrony projektów (SPEC 9.1)
       // Etap 8: magnetyzm przycisków.
     });
 
@@ -511,6 +512,45 @@ function projektyMobile(gsap: Gsap, ScrollTrigger: ST): void {
 
   podepnijChipy(bloki, (i) => bloki[i]);
   odswiezPoZrzutach(ScrollTrigger, zrzuty);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Case study (SPEC 9.1, Etap 7): lekki paralaks zrzutu mobile                */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Czysta dekoracja na podstronie projektu — telefon płynie odrobinę wolniej
+ * niż reszta strony. Tylko desktop, tylko transform (SPEC 10.2). Zakres
+ * od +4 do −4 yPercent mieści się w limicie ≤ 8 ze SPEC 9.1; tekst strony
+ * się nie rusza.
+ */
+function paralaksCaseStudy(gsap: Gsap): void {
+  const cel = document.querySelector<HTMLElement>('[data-paralaks]');
+  if (!cel) return;
+
+  const willChange = przelacznikWillChange([cel]);
+
+  gsap.fromTo(
+    cel,
+    { yPercent: 4 },
+    {
+      yPercent: -4,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: cel,
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: 0.8,
+        invalidateOnRefresh: true,
+        onEnter: () => willChange(true),
+        onEnterBack: () => willChange(true),
+        onLeave: () => willChange(false),
+        onLeaveBack: () => willChange(false),
+      },
+    },
+  );
+
+  sprzatanie.push(() => willChange(false));
 }
 
 /* -------------------------------------------------------------------------- */

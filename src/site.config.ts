@@ -83,10 +83,11 @@ export const stopkaKolumny: ReadonlyArray<{
 }> = [
   {
     tytul: 'Projekty',
-    // Etap 7 zamieni tę pozycję na trzy case studies: /projekty/aurelia/,
-    // /projekty/elara/, /projekty/halicka/. Dopóki tych stron nie ma,
-    // nie wystawiamy odnośników prowadzących w pustkę.
-    linki: [{ etykieta: 'Projekty pokazowe', href: '/#projekty' }],
+    linki: [
+      { etykieta: 'Klinika Aurelia', href: '/projekty/aurelia/' },
+      { etykieta: 'ELARA Instytut Urody', href: '/projekty/elara/' },
+      { etykieta: 'HALICKA Kosmetologia Estetyczna', href: '/projekty/halicka/' },
+    ],
   },
   {
     tytul: 'Oferta',
