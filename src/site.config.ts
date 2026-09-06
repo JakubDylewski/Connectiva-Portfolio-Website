@@ -12,10 +12,10 @@ export const site = {
   jezyk: 'pl',
 
   /** Domyślny tytuł i opis — wzór z SPEC 11.2. */
-  tytul: 'Strony dla salonów beauty i klinik medycyny estetycznej — Connectiva',
+  tytul: 'Strony dla salonów beauty i\u00A0klinik medycyny estetycznej — Connectiva',
   opis:
-    'Strony i systemy pozyskiwania klientek dla salonów beauty, gabinetów ' +
-    'kosmetologii i klinik medycyny estetycznej. Jedna marka na miasto. ' +
+    'Strony i\u00A0systemy pozyskiwania klientek dla salonów beauty, gabinetów ' +
+    'kosmetologii i\u00A0klinik medycyny estetycznej. Jedna marka na miasto. ' +
     'Cena znana przed pierwszą rozmową.',
 
   /** Kontakt. TODO Jakub — decyzja otwarta nr 2 (SPEC 16). */

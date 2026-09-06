@@ -21,7 +21,7 @@ export const kroki: KrokProcesu[] = [
     tytul: 'Rozmowa',
     kiedy: '30 minut',
     tresc:
-      'Online albo na żywo w Trójmieście. Cel, klientki, konkurencja, systemy, których używasz. Po rozmowie dostajesz cenę końcową, nie „od”.',
+      'Online albo na żywo w\u00A0Trójmieście. Cel, klientki, konkurencja, systemy, których używasz. Po rozmowie dostajesz cenę końcową, nie „od”.',
   },
   {
     numer: '2',
@@ -33,7 +33,7 @@ export const kroki: KrokProcesu[] = [
     numer: '3',
     tytul: 'Projekt',
     kiedy: 'tydzień 2',
-    tresc: 'Ekrany główne na telefonie i na desktopie. Dwie rundy uwag.',
+    tresc: 'Ekrany główne na telefonie i\u00A0na desktopie. Dwie rundy uwag.',
   },
   {
     numer: '4',
@@ -44,9 +44,9 @@ export const kroki: KrokProcesu[] = [
   },
   {
     numer: '5',
-    tytul: 'Start i opieka',
+    tytul: 'Start i\u00A0opieka',
     kiedy: 'publikacja',
     tresc:
-      'Publikacja, godzina szkolenia z edycji treści, 30 dni poprawek w cenie.',
+      'Publikacja, godzina szkolenia z\u00A0edycji treści, 30 dni poprawek w\u00A0cenie.',
   },
 ];

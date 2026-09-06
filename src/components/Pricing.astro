@@ -64,14 +64,16 @@ const vat = site.cenyVat;
 
   <div class="cennik__kolumny">
     <div class="cennik__blok">
-      <h3 class="cennik__tytul">W cenie bazowej</h3>
+      {/* Celowo `p`, nie nagłówek (wzór ze stopki, SPEC 11.3): na `/cennik/`
+          konfigurator stoi zaraz po h1 i h3 łamałoby kolejność nagłówków. */}
+      <p class="cennik__tytul">W&nbsp;cenie bazowej</p>
       <ul class="cennik__lista">
         {cennik.zawiera.map((p) => <li>{p}</li>)}
       </ul>
     </div>
 
     <div class="cennik__blok">
-      <h3 class="cennik__tytul">Co podnosi cenę</h3>
+      <p class="cennik__tytul">Co podnosi cenę</p>
       <ul class="cennik__opcje">
         {
           cennik.przelaczniki.map((p) => (
@@ -99,12 +101,12 @@ const vat = site.cenyVat;
 
   <div class="cennik__doly">
     <div class="cennik__blok">
-      <h3 class="cennik__tytul">Płatność</h3>
+      <p class="cennik__tytul">Płatność</p>
       <p class="cennik__tekst">{cennik.platnosc}</p>
     </div>
 
     <div class="cennik__blok">
-      <h3 class="cennik__tytul">Opieka, osobno i&nbsp;opcjonalnie</h3>
+      <p class="cennik__tytul">Opieka, osobno i&nbsp;opcjonalnie</p>
       <p class="cennik__tekst">
         <strong class="cennik__opieka">
           {zl(cennik.opieka.kwota)}{NBSP}{cennik.waluta} miesięcznie:
@@ -114,7 +116,7 @@ const vat = site.cenyVat;
     </div>
 
     <div class="cennik__blok">
-      <h3 class="cennik__tytul">Nie ma w&nbsp;cenie</h3>
+      <p class="cennik__tytul">Nie ma w&nbsp;cenie</p>
       <ul class="cennik__lista cennik__lista--brak">
         {cennik.nieMaWCenie.map((p) => <li>{p}</li>)}
       </ul>

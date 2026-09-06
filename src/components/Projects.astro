@@ -43,7 +43,7 @@ const { motion } = Astro.props;
       index="01"
       linia1="Trzy segmenty rynku."
       linia2="Trzy projekty pokazowe."
-      lead="Trzy pełne strony dla fikcyjnych marek — po jednej na każdy typ gabinetu — żebyś zobaczyła produkt, zanim go zamówisz. Każdą otworzysz w przeglądarce jak prawdziwą."
+      lead={'Trzy pełne strony dla fikcyjnych marek — po jednej na każdy typ gabinetu — żebyś zobaczyła produkt, zanim go zamówisz. Każdą otworzysz w przeglądarce jak prawdziwą.'}
     />
   </div>
 
@@ -67,6 +67,7 @@ const { motion } = Astro.props;
                   alt={p.altMobile}
                   decoding="async"
                   loading="lazy"
+                  fetchpriority="low"
                 />
               </PhoneFrame>
             </div>

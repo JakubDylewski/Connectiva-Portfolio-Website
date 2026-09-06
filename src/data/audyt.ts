@@ -32,52 +32,52 @@ export const pytania: PytanieAudytu[] = [
     pytanie:
       'Czy klientka może umówić wizytę bezpośrednio na Twojej stronie, bez przechodzenia do aplikacji zewnętrznej?',
     konsekwencjaNie:
-      'Każda rezerwacja przez aplikację zewnętrzną to prowizja i klientka, która widzi obok Twoją konkurencję.',
+      'Każda rezerwacja przez aplikację zewnętrzną to prowizja i\u00A0klientka, która widzi obok Twoją konkurencję.',
     konsekwencjaNieWiem:
-      'Sprawdzimy, dokąd prowadzi przycisk rezerwacji i co się po drodze dzieje z klientką.',
+      'Sprawdzimy, dokąd prowadzi przycisk rezerwacji i\u00A0co się po drodze dzieje z\u00A0klientką.',
   },
   {
     klucz: 'trzy dotknięcia do rezerwacji',
     pytanie:
-      'Czy na telefonie da się dojść do rezerwacji w maksymalnie trzech dotknięciach?',
+      'Czy na telefonie da się dojść do rezerwacji w\u00A0maksymalnie trzech dotknięciach?',
     konsekwencjaNie:
       'Im dłuższa droga do terminu, tym więcej klientek odpada po drodze. Rezerwacja powinna być na wyciągnięcie kciuka.',
     konsekwencjaNieWiem:
-      'Przejdziemy tę drogę na prawdziwym telefonie i policzymy dotknięcia.',
+      'Przejdziemy tę drogę na prawdziwym telefonie i\u00A0policzymy dotknięcia.',
   },
   {
     klucz: 'cennik na stronie',
-    pytanie: 'Czy pełny cennik jest na stronie i da się go przeszukać?',
+    pytanie: 'Czy pełny cennik jest na stronie i\u00A0da się go przeszukać?',
     konsekwencjaNie:
-      'Klientka, która nie znajdzie ceny, zwykle nie dzwoni, żeby o nią zapytać. Po prostu szuka dalej.',
+      'Klientka, która nie znajdzie ceny, zwykle nie dzwoni, żeby o\u00A0nią zapytać. Po prostu szuka dalej.',
     konsekwencjaNieWiem:
-      'Sprawdzimy, czy cennik jest kompletny i czy da się go przeszukać z telefonu.',
+      'Sprawdzimy, czy cennik jest kompletny i\u00A0czy da się go przeszukać z\u00A0telefonu.',
   },
   {
-    klucz: 'widoczność w Google',
+    klucz: 'widoczność w\u00A0Google',
     pytanie:
-      'Czy Twoja strona pojawia się w Google po wpisaniu usługi i Twojego miasta?',
+      'Czy Twoja strona pojawia się w\u00A0Google po wpisaniu usługi i\u00A0Twojego miasta?',
     konsekwencjaNie:
-      'Klientki szukają usługi razem z nazwą miasta. Jeśli nie ma Cię w tych wynikach, trafiają do kogoś innego.',
+      'Klientki szukają usługi razem z\u00A0nazwą miasta. Jeśli nie ma Cię w\u00A0tych wynikach, trafiają do kogoś innego.',
     konsekwencjaNieWiem:
-      'Sprawdzimy Twoją widoczność na frazy z Twojego miasta i porównamy ją z konkurencją.',
+      'Sprawdzimy Twoją widoczność na frazy z\u00A0Twojego miasta i\u00A0porównamy ją z\u00A0konkurencją.',
   },
   {
     klucz: 'własne zdjęcia',
     pytanie:
-      'Czy zdjęcia na stronie są Twoje — wnętrze, zespół, prace — a nie ze stocku?',
+      'Czy zdjęcia na stronie są Twoje — wnętrze, zespół, prace — a\u00A0nie ze stocku?',
     konsekwencjaNie:
       'Zdjęcia ze stocku widać od razu. Klientka nie wie, jak wygląda Twój gabinet, więc nie wie, czy chce tam wejść.',
     konsekwencjaNieWiem:
-      'Przejrzymy zdjęcia i powiemy, które warto wymienić w pierwszej kolejności.',
+      'Przejrzymy zdjęcia i\u00A0powiemy, które warto wymienić w\u00A0pierwszej kolejności.',
   },
   {
     klucz: 'czas otwarcia',
-    pytanie: 'Czy strona otwiera się na telefonie w mniej niż trzy sekundy?',
+    pytanie: 'Czy strona otwiera się na telefonie w\u00A0mniej niż trzy sekundy?',
     konsekwencjaNie:
-      'Wolna strona kosztuje najwięcej tam, gdzie boli najbardziej: przy pierwszym wejściu z Google albo z reklamy.',
+      'Wolna strona kosztuje najwięcej tam, gdzie boli najbardziej: przy pierwszym wejściu z\u00A0Google albo z\u00A0reklamy.',
     konsekwencjaNieWiem:
-      'Zmierzymy czas otwarcia na telefonie i pokażemy, co go wydłuża.',
+      'Zmierzymy czas otwarcia na telefonie i\u00A0pokażemy, co go wydłuża.',
   },
 ];
 
@@ -92,15 +92,15 @@ export const werdykty: Werdykt[] = [
   {
     od: 6,
     tekst:
-      'Twoja strona robi robotę. Jeśli chcesz, sprawdzimy, czy da się z niej wycisnąć więcej.',
+      'Twoja strona robi robotę. Jeśli chcesz, sprawdzimy, czy da się z\u00A0niej wycisnąć więcej.',
   },
   {
     od: 4,
-    tekst: 'Solidna baza i kilka dziur, przez które uciekają rezerwacje.',
+    tekst: 'Solidna baza i\u00A0kilka dziur, przez które uciekają rezerwacje.',
   },
   {
     od: 2,
-    tekst: 'Strona jest, ale nie sprzedaje. Klientki oglądają i wychodzą.',
+    tekst: 'Strona jest, ale nie sprzedaje. Klientki oglądają i\u00A0wychodzą.',
   },
   {
     od: 0,
@@ -119,7 +119,7 @@ export const DOPISEK =
 
 /** Obietnica pod przyciskiem wysyłki (SPEC 8.4). */
 export const OBIETNICA =
-  'Dostaniesz 3-minutowe wideo z konkretami w 48 godzin. Bez zobowiązań.';
+  'Dostaniesz 3-minutowe wideo z\u00A0konkretami w\u00A048 godzin. Bez zobowiązań.';
 
 export const ETYKIETY_ODPOWIEDZI: Record<Odpowiedz, string> = {
   tak: 'Tak',

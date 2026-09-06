@@ -36,7 +36,7 @@ const odpowiedzi = Object.entries(ETYKIETY_ODPOWIEDZI) as Array<
     <ol class="audyt__kreski" aria-hidden="true">
       {pytania.map(() => <li class="audyt__kreska" data-kreska />)}
     </ol>
-    <p class="audyt__licznik index" data-licznik>pytanie 1 z {pytania.length}</p>
+    <p class="audyt__licznik index" data-licznik>pytanie 1 z&nbsp;{pytania.length}</p>
   </div>
 
   {/* --- pytania --------------------------------------------------------- */}
@@ -96,7 +96,7 @@ const odpowiedzi = Object.entries(ETYKIETY_ODPOWIEDZI) as Array<
       class="audyt__formularz"
       data-formularz
       data-klucz={site.web3formsKey}
-      data-tekst-ok="Wysłane. Wideo przyjdzie w 48 h."
+      data-tekst-ok={'Wysłane. Wideo przyjdzie w 48 h.'}
       data-tekst-blad={tekstBledu}
       data-chowa-pasek
       novalidate

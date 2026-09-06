@@ -78,9 +78,9 @@ export const projekty: Projekt[] = [
     segment: 'Klinika medycyny estetycznej (lekarska)',
     segmentKlucz: 'klinika',
     problem:
-      'Pacjentka nie wie, który zabieg rozwiąże jej problem — i nie wolno jej niczego „reklamować”.',
+      'Pacjentka nie wie, który zabieg rozwiąże jej problem — i\u00A0nie wolno jej niczego „reklamować”.',
     rozwiazanie:
-      'Moduł „Dobierz zabieg”: od problemu do konsultacji, językiem informacyjnym zgodnym z art. 14.',
+      'Moduł „Dobierz zabieg”: od problemu do konsultacji, językiem informacyjnym zgodnym z\u00A0art. 14.',
     liczby: ['36 podstron', '12 zabiegów', '15 stron lokalnego SEO'],
     lighthouse: ['Lighthouse 95–100'],
     lighthouseDate: null,
@@ -95,29 +95,29 @@ export const projekty: Projekt[] = [
     altDesktop:
       'Strona główna projektu pokazowego Klinika Aurelia na desktopie',
     wyzwanie:
-      'Pacjentka przychodzi z problemem — zmarszczki, utrata objętości, ' +
-      'zmiany skórne — a nie z nazwą zabiegu. Klinika jest podmiotem ' +
+      'Pacjentka przychodzi z\u00A0problemem — zmarszczki, utrata objętości, ' +
+      'zmiany skórne — a\u00A0nie z\u00A0nazwą zabiegu. Klinika jest podmiotem ' +
       'leczniczym, więc nie może swoich świadczeń reklamować. Strona musi ' +
       'doprowadzić do konsultacji samą informacją.',
     zbudowalismy: [
-      'Moduł „Dobierz zabieg”: pacjentka zaznacza problem, a strona prowadzi ją do właściwego zabiegu i konsultacji.',
-      '12 podstron zabiegowych w trzech kategoriach: twarz, usta, skóra.',
-      'Język informacyjny pisany pod art. 14 ustawy o działalności leczniczej: zakres świadczeń i przebieg zabiegów zamiast obietnic i promocji.',
+      'Moduł „Dobierz zabieg”: pacjentka zaznacza problem, a\u00A0strona prowadzi ją do właściwego zabiegu i\u00A0konsultacji.',
+      '12 podstron zabiegowych w\u00A0trzech kategoriach: twarz, usta, skóra.',
+      'Język informacyjny pisany pod art. 14 ustawy o\u00A0działalności leczniczej: zakres świadczeń i\u00A0przebieg zabiegów zamiast obietnic i\u00A0promocji.',
       'Ścieżka „Pierwsza wizyta” — pacjentka wie, jak wygląda konsultacja, zanim ją zarezerwuje.',
-      'Jawny cennik z konsultacją odliczaną od ceny zabiegu.',
+      'Jawny cennik z\u00A0konsultacją odliczaną od ceny zabiegu.',
       '15 stron lokalnego SEO na frazy „zabieg + miasto”.',
-      '36 podstron w jednej spójnej strukturze — do sprawdzenia w sitemapie dema.',
+      '36 podstron w\u00A0jednej spójnej strukturze — do sprawdzenia w\u00A0sitemapie dema.',
     ],
     dlaKogo:
-      'Ten układ jest wzorem dla kliniki medycyny estetycznej i każdego ' +
+      'Ten układ jest wzorem dla kliniki medycyny estetycznej i\u00A0każdego ' +
       'podmiotu leczniczego, który musi budować zaufanie informacją, ' +
-      'a nie reklamą.',
+      'a\u00A0nie reklamą.',
     seoTytul:
       'Klinika Aurelia — projekt pokazowy strony kliniki medycyny estetycznej — Connectiva',
     seoOpis:
       'Projekt pokazowy strony kliniki medycyny estetycznej: moduł ' +
       '„Dobierz zabieg”, 12 podstron zabiegowych, teksty pisane pod art. 14. ' +
-      'Marka fikcyjna, demo otwiera się w przeglądarce.',
+      'Marka fikcyjna, demo otwiera się w\u00A0przeglądarce.',
   },
   {
     slug: 'elara',
@@ -125,9 +125,9 @@ export const projekty: Projekt[] = [
     segment: 'Salon beauty',
     segmentKlucz: 'salon',
     problem:
-      'Pięćdziesiąt usług i klientka, która chce znaleźć swoją w trzy sekundy.',
+      'Pięćdziesiąt usług i\u00A0klientka, która chce znaleźć swoją w\u00A0trzy sekundy.',
     rozwiazanie:
-      'Cennik z filtrem na żywo, vouchery i pakiety, rezerwacja z kontekstem wybranej usługi.',
+      'Cennik z\u00A0filtrem na żywo, vouchery i\u00A0pakiety, rezerwacja z\u00A0kontekstem wybranej usługi.',
     liczby: ['27 podstron', '6 kategorii', '10 stron lokalnego SEO'],
     lighthouse: ['Lighthouse 98–100'],
     lighthouseDate: null,
@@ -142,28 +142,28 @@ export const projekty: Projekt[] = [
     altDesktop:
       'Strona główna projektu pokazowego ELARA Instytut Urody na desktopie',
     wyzwanie:
-      'Kilkadziesiąt usług w sześciu kategoriach i klientka, która ogląda ' +
-      'na telefonie w wolnej chwili. Jeśli nie znajdzie swojej usługi ' +
-      'w trzy sekundy, wychodzi. Cennik, vouchery i rezerwacja muszą ' +
-      'pracować razem, a nie obok siebie.',
+      'Kilkadziesiąt usług w\u00A0sześciu kategoriach i\u00A0klientka, która ogląda ' +
+      'na telefonie w\u00A0wolnej chwili. Jeśli nie znajdzie swojej usługi ' +
+      'w\u00A0trzy sekundy, wychodzi. Cennik, vouchery i\u00A0rezerwacja muszą ' +
+      'pracować razem, a\u00A0nie obok siebie.',
     zbudowalismy: [
-      'Cennik z filtrem na żywo: klientka zawęża listę usług do swojej w trzy sekundy.',
-      '6 kategorii usług — od pielęgnacji twarzy po makijaż — każda z własną stroną.',
-      'Vouchery podarunkowe z osobną podstroną: prezent do kupienia bez telefonu do salonu.',
-      'Promocje miesiąca łączące zabiegi w pakiety.',
-      'Rezerwacja z kontekstem: link niesie parametry wybranej usługi, więc formularz wie, z czym klientka przychodzi.',
+      'Cennik z\u00A0filtrem na żywo: klientka zawęża listę usług do swojej w\u00A0trzy sekundy.',
+      '6 kategorii usług — od pielęgnacji twarzy po makijaż — każda z\u00A0własną stroną.',
+      'Vouchery podarunkowe z\u00A0osobną podstroną: prezent do kupienia bez telefonu do salonu.',
+      'Promocje miesiąca łączące zabiegi w\u00A0pakiety.',
+      'Rezerwacja z\u00A0kontekstem: link niesie parametry wybranej usługi, więc formularz wie, z\u00A0czym klientka przychodzi.',
       '10 stron lokalnego SEO na frazy „usługa + miasto”.',
-      '27 podstron w jednej spójnej strukturze — do sprawdzenia w sitemapie dema.',
+      '27 podstron w\u00A0jednej spójnej strukturze — do sprawdzenia w\u00A0sitemapie dema.',
     ],
     dlaKogo:
-      'Ten układ jest wzorem dla salonu beauty z długą kartą usług, ' +
-      'w którym klientka ma znaleźć swoją w trzy sekundy.',
+      'Ten układ jest wzorem dla salonu beauty z\u00A0długą kartą usług, ' +
+      'w\u00A0którym klientka ma znaleźć swoją w\u00A0trzy sekundy.',
     seoTytul:
       'ELARA Instytut Urody — projekt pokazowy strony salonu beauty — Connectiva',
     seoOpis:
-      'Projekt pokazowy strony salonu beauty: cennik z filtrem na żywo, ' +
-      '6 kategorii usług, vouchery i rezerwacja z kontekstem wybranej usługi. ' +
-      'Marka fikcyjna, demo otwiera się w przeglądarce.',
+      'Projekt pokazowy strony salonu beauty: cennik z\u00A0filtrem na żywo, ' +
+      '6 kategorii usług, vouchery i\u00A0rezerwacja z\u00A0kontekstem wybranej usługi. ' +
+      'Marka fikcyjna, demo otwiera się w\u00A0przeglądarce.',
   },
   {
     slug: 'halicka',
@@ -171,9 +171,9 @@ export const projekty: Projekt[] = [
     segment: 'Gabinet kosmetologii, marka osobista',
     segmentKlucz: 'kosmetologia',
     problem:
-      'Kosmetolożka sprzedaje programy w seriach, a nie pojedyncze zabiegi.',
+      'Kosmetolożka sprzedaje programy w\u00A0seriach, a\u00A0nie pojedyncze zabiegi.',
     rozwiazanie:
-      '„Karta Twojej Skóry”: 7 pytań, raport i lead z pełnym profilem; programy z osią czasu wizyt.',
+      '„Karta Twojej Skóry”: 7 pytań, raport i\u00A0lead z\u00A0pełnym profilem; programy z\u00A0osią czasu wizyt.',
     liczby: ['29 podstron', '15 stron lokalnego SEO'],
     lighthouse: ['Lighthouse 95–100', 'dostępność 100'],
     lighthouseDate: null,
@@ -189,27 +189,27 @@ export const projekty: Projekt[] = [
       'Strona główna projektu pokazowego HALICKA Kosmetologia Estetyczna na desktopie',
     wyzwanie:
       'Kosmetolożka pracuje seriami: program kuracji to kilka wizyt ' +
-      'w zaplanowanym rytmie, a nie jedno spotkanie. Strona nastawiona na ' +
+      'w\u00A0zaplanowanym rytmie, a\u00A0nie jedno spotkanie. Strona nastawiona na ' +
       'pojedynczą rezerwację tego nie sprzeda. Trzeba pokazać przebieg ' +
-      'w czasie i zebrać zgłoszenie z pełnym profilem skóry.',
+      'w\u00A0czasie i\u00A0zebrać zgłoszenie z\u00A0pełnym profilem skóry.',
     zbudowalismy: [
-      '„Karta Twojej Skóry”: 7 pytań, minuta wypełniania, na końcu profil skóry i priorytety kuracji.',
-      'Lead z pełnym profilem: zgłoszenie trafia do kosmetolożki razem z odpowiedziami, a nie jako sam numer telefonu.',
-      'Programy kuracji z osią czasu wizyt: liczba spotkań i rytm rozpisane z góry.',
+      '„Karta Twojej Skóry”: 7 pytań, minuta wypełniania, na końcu profil skóry i\u00A0priorytety kuracji.',
+      'Lead z\u00A0pełnym profilem: zgłoszenie trafia do kosmetolożki razem z\u00A0odpowiedziami, a\u00A0nie jako sam numer telefonu.',
+      'Programy kuracji z\u00A0osią czasu wizyt: liczba spotkań i\u00A0rytm rozpisane z\u00A0góry.',
       'Diagnoza skóry odliczana od ceny programu — niski próg wejścia.',
-      'Nabór do programów z realnym limitem miejsc, aktualizowanym ręcznie.',
+      'Nabór do programów z\u00A0realnym limitem miejsc, aktualizowanym ręcznie.',
       '15 stron lokalnego SEO na frazy „zabieg + miasto”.',
-      '29 podstron zbudowanych wokół marki osobistej — do sprawdzenia w sitemapie dema.',
+      '29 podstron zbudowanych wokół marki osobistej — do sprawdzenia w\u00A0sitemapie dema.',
     ],
     dlaKogo:
-      'Ten układ jest wzorem dla gabinetu kosmetologii i marki osobistej, ' +
-      'która sprzedaje programy kuracji, a nie pojedyncze wizyty.',
+      'Ten układ jest wzorem dla gabinetu kosmetologii i\u00A0marki osobistej, ' +
+      'która sprzedaje programy kuracji, a\u00A0nie pojedyncze wizyty.',
     seoTytul:
       'HALICKA Kosmetologia Estetyczna — projekt pokazowy strony gabinetu kosmetologii — Connectiva',
     seoOpis:
       'Projekt pokazowy strony gabinetu kosmetologii: „Karta Twojej Skóry” ' +
-      'z raportem, programy kuracji z osią czasu wizyt i lokalne SEO. ' +
-      'Marka fikcyjna, demo otwiera się w przeglądarce.',
+      'z\u00A0raportem, programy kuracji z\u00A0osią czasu wizyt i\u00A0lokalne SEO. ' +
+      'Marka fikcyjna, demo otwiera się w\u00A0przeglądarce.',
   },
 ];
 

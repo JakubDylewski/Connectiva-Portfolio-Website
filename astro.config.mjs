@@ -14,6 +14,12 @@ export default defineConfig({
 
   build: {
     format: 'directory',
+    // Etap 9 (audyt wydajności): style lądują w HTML-u zamiast w pięciu
+    // małych, blokujących renderowanie plikach CSS. Na wolnym łączu mobilnym
+    // to zauważalnie szybszy pierwszy rysunek, a adresy fontów są widoczne
+    // od razu w dokumencie. Koszt: brak cache'owania CSS między stronami —
+    // przy tej skali strony pomijalny.
+    inlineStylesheets: 'always',
   },
 
   integrations: [

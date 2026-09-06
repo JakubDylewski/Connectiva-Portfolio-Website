@@ -17,9 +17,14 @@ interface Props {
   kontaktHref?: string;
 }
 
-// Etap 4 przełącza na `/audyt/`, Etap 6 na `/kontakt/` — dziś te podstrony
-// jeszcze nie istnieją, więc celujemy w kotwice na stronie głównej.
-const { audytHref = '#audyt', kontaktHref = '#kontakt' } = Astro.props;
+// Na stronie głównej celujemy w kotwice sekcji (płynne przewinięcie zamiast
+// przeładowania); na podstronach kotwic nie ma, więc pasek prowadzi na
+// `/audyt/` i `/kontakt/` (audyt Etapu 9 — wcześniej martwe `#audyt`).
+const naGlownej = Astro.url.pathname === '/';
+const {
+  audytHref = naGlownej ? '#audyt' : '/audyt/',
+  kontaktHref = naGlownej ? '#kontakt' : '/kontakt/',
+} = Astro.props;
 ---
 
 <div class="pasek" data-pasek>

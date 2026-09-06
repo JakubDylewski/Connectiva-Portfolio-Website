@@ -80,6 +80,12 @@ const instaOk = uzupelnione(site.instagram.nazwa) && uzupelnione(site.instagram.
   }
 
   .kontakt__termin strong {
+    /* Zawsze we własnej linii. Bez tego zdanie balansowało na granicy
+       łamania: fallback mieścił je w jednej linii, docelowy Hanken w dwóch,
+       i podmiana fontu przesuwała cały formularz (CLS 0,109 — audyt
+       Etapu 9). Stały układ etykieta / wartość ucina problem niezależnie
+       od tego, jaki termin siedzi w site.config.ts. */
+    display: block;
     color: var(--color-text);
     font-weight: 500;
   }

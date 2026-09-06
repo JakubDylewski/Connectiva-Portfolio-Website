@@ -3,12 +3,12 @@
   "gorna": 10000,
   "waluta": "zł",
   "zawiera": [
-    "stronę główną i do 6 podstron usługowych",
+    "stronę główną i\u00A0do 6 podstron usługowych",
     "jeden moduł systemu pozyskiwania klientek",
-    "rezerwację online, zintegrowaną z Twoim systemem",
+    "rezerwację online, zintegrowaną z\u00A0Twoim systemem",
     "5 stron lokalnego SEO",
     "wizytówkę Google spiętą ze stroną",
-    "RODO i polityki",
+    "RODO i\u00A0polityki",
     "godzinę szkolenia",
     "30 dni poprawek",
     "hosting na Cloudflare, 0 zł miesięcznie, na zawsze"
@@ -18,24 +18,24 @@
     { "id": "seo", "etykieta": "+10 stron lokalnego SEO (do 15)", "kwota": 500 },
     {
       "id": "modul",
-      "etykieta": "Drugi moduł systemu (np. cennik z filtrem i diagnoza skóry)",
+      "etykieta": "Drugi moduł systemu (np. cennik z\u00A0filtrem i\u00A0diagnoza skóry)",
       "kwota": 600
     },
     {
       "id": "art14",
-      "etykieta": "Teksty dla kliniki lekarskiej zgodne z art. 14",
+      "etykieta": "Teksty dla kliniki lekarskiej zgodne z\u00A0art. 14",
       "kwota": 300
     }
   ],
-  "platnosc": "W trzech częściach: 30% na start, 40% po akceptacji projektu, 30% po publikacji. Faktura na każdą część.",
+  "platnosc": "W\u00A0trzech częściach: 30% na start, 40% po akceptacji projektu, 30% po publikacji. Faktura na każdą część.",
   "opieka": {
     "kwota": 249,
-    "opis": "aktualizacje, kopie zapasowe, monitoring, do dwóch godzin zmian w treści. Bez zobowiązania, wypowiedzenie w każdej chwili. Bez opieki strona działa dalej — jest Twoja."
+    "opis": "aktualizacje, kopie zapasowe, monitoring, do dwóch godzin zmian w\u00A0treści. Bez zobowiązania, wypowiedzenie w\u00A0każdej chwili. Bez opieki strona działa dalej — jest Twoja."
   },
   "nieMaWCenie": [
     "honorarium fotografa",
     "abonament systemu rezerwacji (Booksy, Fresha, Estetify)",
-    "reklamy i ich obsługa",
+    "reklamy i\u00A0ich obsługa",
     "teksty specjalistyczne pisane od zera przez lekarza"
   ]
 }

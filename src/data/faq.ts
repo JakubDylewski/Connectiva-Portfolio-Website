@@ -16,15 +16,15 @@ export const faq: PytanieFaq[] = [
   {
     tytul: 'Ile trwa realizacja?',
     tresc:
-      'Cztery tygodnie od dnia, w którym mamy teksty źródłowe i zdjęcia. ' +
+      'Cztery tygodnie od dnia, w\u00A0którym mamy teksty źródłowe i\u00A0zdjęcia. ' +
       'Przy większym zakresie (12 podstron, 15 stron SEO) pięć.',
   },
   {
-    tytul: 'Mam Booksy. Muszę z niego rezygnować?',
+    tytul: 'Mam Booksy. Muszę z\u00A0niego rezygnować?',
     tresc:
-      'Nie. Wpinamy kalendarz Booksy w Twoją stronę, więc rezerwacje ze strony ' +
+      'Nie. Wpinamy kalendarz Booksy w\u00A0Twoją stronę, więc rezerwacje ze strony ' +
       'trafiają do Twojego kalendarza. Marketplace Booksy działa dalej na swoich ' +
-      'zasadach — Ty decydujesz, z czego korzystasz.',
+      'zasadach — Ty decydujesz, z\u00A0czego korzystasz.',
   },
   {
     // DO POTWIERDZENIA (SPEC 16, decyzja otwarta nr 4): czy klientka dostaje
@@ -34,40 +34,40 @@ export const faq: PytanieFaq[] = [
     // z nim zakres „godziny szkolenia" w cenniku.
     tytul: 'Będę mogła sama zmieniać treści?',
     tresc:
-      'Cennik, godziny, zespół i aktualności zmieniasz sama po godzinnym ' +
-      'szkoleniu albo zgłaszasz zmiany nam w ramach opieki — wykonujemy je ' +
-      'w ciągu jednego dnia roboczego.',
+      'Cennik, godziny, zespół i\u00A0aktualności zmieniasz sama po godzinnym ' +
+      'szkoleniu albo zgłaszasz zmiany nam w\u00A0ramach opieki — wykonujemy je ' +
+      'w\u00A0ciągu jednego dnia roboczego.',
   },
   {
     tytul: 'Dostanę fakturę?',
-    tresc: 'Tak, na każdą z trzech części płatności.',
+    tresc: 'Tak, na każdą z\u00A0trzech części płatności.',
     oCene: true,
   },
   {
     tytul: 'Do kogo należy strona?',
     tresc:
-      'Do Ciebie: kod, treści, domena, zdjęcia z sesji. Możesz ją przenieść ' +
-      'w każdej chwili, bez naszej zgody.',
+      'Do Ciebie: kod, treści, domena, zdjęcia z\u00A0sesji. Możesz ją przenieść ' +
+      'w\u00A0każdej chwili, bez naszej zgody.',
   },
   {
     tytul: 'Jestem lekarzem. Strona nie złamie zakazu reklamy?',
     tresc:
       'Strony dla podmiotów leczniczych piszemy językiem informacyjnym: zakres ' +
       'świadczeń, kwalifikacje, przebieg zabiegu, przeciwwskazania. Bez ocen, ' +
-      'promocji i przed/po. Przy wątpliwościach rekomendujemy konsultację ' +
+      'promocji i\u00A0przed/po. Przy wątpliwościach rekomendujemy konsultację ' +
       'prawną — praktyka izb bywa aktualizowana.',
   },
   {
     tytul: 'Moje miasto jest zajęte. Co wtedy?',
     tresc:
-      'Nie zrobimy drugiej strony w tym samym segmencie w tym samym mieście. ' +
+      'Nie zrobimy drugiej strony w\u00A0tym samym segmencie w\u00A0tym samym mieście. ' +
       'Możemy zaproponować sąsiednie miasto albo wpisać Cię na listę na wypadek ' +
       'zakończenia współpracy.',
   },
   {
-    tytul: 'Prowadzicie reklamy i social media?',
+    tytul: 'Prowadzicie reklamy i\u00A0social media?',
     tresc:
-      'Nie. Budujemy stronę i system, do którego reklamy mają prowadzić. ' +
+      'Nie. Budujemy stronę i\u00A0system, do którego reklamy mają prowadzić. ' +
       'Przy kampanii możemy przygotować dedykowane lądowisko.',
   },
 ];

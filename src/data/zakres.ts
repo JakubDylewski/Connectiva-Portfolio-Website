@@ -11,25 +11,25 @@ import type { PozycjaAkordeonu } from '../components/Accordion.astro';
 export const zakres: PozycjaAkordeonu[] = [
   {
     tytul: 'Projekt szyty pod Twoją markę',
-    tagi: ['własna paleta i typografia', 'Twoje zdjęcia lub sesja', 'zero szablonów'],
+    tagi: ['własna paleta i\u00A0typografia', 'Twoje zdjęcia lub sesja', 'zero szablonów'],
     tresc:
-      'Nie dostajesz motywu z podmienionym logo. Strona ma własny charakter, ' +
-      'dopasowany do wnętrza, cen i klientek, które chcesz przyciągać.',
+      'Nie dostajesz motywu z\u00A0podmienionym logo. Strona ma własny charakter, ' +
+      'dopasowany do wnętrza, cen i\u00A0klientek, które chcesz przyciągać.',
   },
   {
     tytul: 'System pozyskiwania klientek',
-    tagi: ['dobór zabiegu', 'cennik z filtrem', 'diagnoza skóry'],
+    tagi: ['dobór zabiegu', 'cennik z\u00A0filtrem', 'diagnoza skóry'],
     tresc:
-      'Element, który zamienia oglądanie w decyzję: pacjentka wybiera problem ' +
-      'i trafia na właściwy zabieg, klientka salonu znajduje usługę w trzy ' +
-      'sekundy, kosmetolożka zbiera leady z pełnym profilem skóry.',
+      'Element, który zamienia oglądanie w\u00A0decyzję: pacjentka wybiera problem ' +
+      'i\u00A0trafia na właściwy zabieg, klientka salonu znajduje usługę w\u00A0trzy ' +
+      'sekundy, kosmetolożka zbiera leady z\u00A0pełnym profilem skóry.',
   },
   {
     tytul: 'Rezerwacja online bez prowizji',
     tagi: ['Booksy', 'Fresha', 'Estetify', 'Calendly'],
     tresc:
-      'Wpinamy w stronę kalendarz systemu, którego używasz albo który wybierzemy ' +
-      'razem. Rezerwacje z Twojej strony trafiają prosto do Twojego kalendarza, ' +
+      'Wpinamy w\u00A0stronę kalendarz systemu, którego używasz albo który wybierzemy ' +
+      'razem. Rezerwacje z\u00A0Twojej strony trafiają prosto do Twojego kalendarza, ' +
       'bez prowizji marketplace’u. Nie budujemy własnego kalendarza — to kosztuje ' +
       'więcej, niż daje.',
   },
@@ -38,7 +38,7 @@ export const zakres: PozycjaAkordeonu[] = [
     tagi: ['strony miasto + usługa', 'wizytówka Google', 'dane strukturalne'],
     tresc:
       'Osobne strony na frazy, których szukają klientki („manicure hybrydowy ' +
-      'Gdynia”, „mezoterapia Toruń”), wizytówka Google spięta ze stroną i dane, ' +
+      'Gdynia”, „mezoterapia Toruń”), wizytówka Google spięta ze stroną i\u00A0dane, ' +
       'które Google rozumie bez zgadywania.',
   },
   {
@@ -47,15 +47,15 @@ export const zakres: PozycjaAkordeonu[] = [
     tresc:
       'Klinika lekarska nie może reklamować świadczeń — dostaje stronę ' +
       'informacyjną, która buduje autorytet bez ryzyka. Gabinet kosmetologiczny ' +
-      'może więcej, ale bez obietnic leczenia. Zdjęcia przed/po tylko z pisemną ' +
+      'może więcej, ale bez obietnic leczenia. Zdjęcia przed/po tylko z\u00A0pisemną ' +
       'zgodą klientki.',
   },
   {
-    tytul: 'Szybkość, dostępność i własność',
+    tytul: 'Szybkość, dostępność i\u00A0własność',
     tagi: ['Lighthouse 95+', 'hosting Cloudflare', 'pełne prawa'],
     tresc:
-      'Strona otwiera się w ułamku sekundy na telefonie, spełnia wymagania ' +
-      'dostępności i jest Twoja: kod, domena, treści. Żadnych ukrytych ' +
+      'Strona otwiera się w\u00A0ułamku sekundy na telefonie, spełnia wymagania ' +
+      'dostępności i\u00A0jest Twoja: kod, domena, treści. Żadnych ukrytych ' +
       'abonamentów — opieka jest opcją, nie warunkiem.',
   },
 ];

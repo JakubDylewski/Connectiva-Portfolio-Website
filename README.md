@@ -4,8 +4,8 @@ Strona portfolio agencji Connectiva. Specyfikacja projektu jest w [`SPEC.md`](./
 i ma pierwszeństwo przed czymkolwiek innym — decyzje trwałe zapisujemy tam,
 nie w promptach i nie w komentarzach.
 
-Stan: **Etap 0 (fundament) ukończony.** Hero, sekcje i warstwa ruchu dochodzą
-w kolejnych etapach (SPEC 14).
+Stan: **Etapy 0–9 ukończone.** Przed publikacją zostaje lista
+„Do uzupełnienia" na dole tego pliku.
 
 ---
 
@@ -21,24 +21,59 @@ npm run preview   # podgląd tego, co wyszło z builda
 npm run check     # kontrola typów i szablonów Astro
 ```
 
-Do przeglądu fundamentu: **http://localhost:4321/styleguide/**
+Strona robocza z tokenami i komponentami: **http://localhost:4321/styleguide/**
+(`noindex`, poza sitemapą).
 
 ---
 
-## Co jest w projekcie
+## Lighthouse (mobile)
 
+Pomiar z **6 września 2026**: Lighthouse 12 (npx), emulacja mobilna
+z symulowanym wolnym 4G, headless Chromium, `astro preview` (gzip) na
+lokalnej maszynie. Cel ze SPEC 11.1: Performance ≥ 95, reszta 100.
+
+| Strona | Performance | Accessibility | Best Practices | SEO |
+|---|---|---|---|---|
+| `/` | 94 | 100 | 100 | 100 |
+| `/cennik/` | 96 | 100 | 100 | 100 |
+| `/audyt/` | 96 | 100 | 100 | 100 |
+| `/kontakt/` | 96 | 100 | 100 | 100 |
+| `/projekty/aurelia/` | 94 | 100 | 100 | 100 |
+| `/projekty/elara/` | 94 | 100 | 100 | 100 |
+| `/projekty/halicka/` | 95 | 100 | 100 | 100 |
+| `/polityka-prywatnosci/` | 97 | 100 | 100 | 100 |
+
+Trzy strony z wynikiem 94 dzieli od celu 1 punkt i w tym środowisku wynik
+faluje o ±2 między przebiegami. Co go trzyma:
+
+- na `/` LCP to nagłówek hero, który celowo czeka na fonty i sekwencję
+  otwarcia (SPEC 8.0) — na symulowanym wolnym 4G fonty przychodzą późno;
+- na podstronach projektów LCP to zrzut desktopowy, który dzieli łącze
+  z czterema plikami fontów.
+
+Pomiar rozstrzygający robimy po wdrożeniu, na produkcyjnym adresie
+(Cloudflare: Brotli, HTTP/3, CDN) i na prawdziwym telefonie — zgodnie ze
+SPEC 10.7 obserwacja na urządzeniu jest ważniejsza niż liczby z symulacji.
+
+---
+
+## Zrzuty ekranu dem
+
+Pipeline Playwrighta: `scripts/shots.mjs`. Dla każdego z trzech dem robi
+dwa pliki do `src/assets/shots/`:
+
+- `{slug}-mobile.webp` — 390 × 2400 CSS px przy `deviceScaleFactor: 2`
+  (budżet ≤ 200 KB),
+- `{slug}-desktop.webp` — 1440 × 900, sam pierwszy ekran (budżet ≤ 260 KB).
+
+```bash
+npm run shots            # wszystkie trzy dema
+npm run shots -- elara   # tylko wybrane
 ```
-src/
-  site.config.ts        kontakt, dane firmy, termin startu, klucze — pola TODO
-  layouts/Base.astro    meta, skip link, Nav, Footer, wpięcie warstwy ruchu
-  styles/global.css     fonty, tokeny palety i typografii, baza, reduced motion
-  components/           Logo, Lacznik, Button, SectionHead, Nav, Footer
-  scripts/motion.ts     rusztowanie GSAP + Lenis (Etap 0: nic jeszcze nie animuje)
-  data/wordmark.ts      GENEROWANY — ścieżki wordmarku, nie edytować ręcznie
-  pages/                index (placeholder), styleguide
-brand/                  materiały źródłowe marki — patrz brand/README.md
-scripts/wordmark.mjs    generator wordmarku i metryk fontów
-```
+
+Skrypt sam zamyka popup dema i baner ciasteczek, dociąga leniwe obrazy
+i schodzi z jakością WebP, aż zmieści się w budżecie. Po każdej zmianie
+w demach odpalamy go ponownie — pliki się nadpisują.
 
 ---
 
@@ -48,29 +83,12 @@ Wordmark jest **zamieniony na ścieżki SVG**, nie składany z żywego fontu.
 Dzięki temu logo nie czeka na `document.fonts.ready`, nie mruga przy wczytywaniu
 i nie ciągnie 18 KB Montserrata na każdą podstronę.
 
-Przeliczenie geometrii:
-
 ```bash
-npm run wordmark
+npm run wordmark   # przelicza geometrię i zapisuje src/data/wordmark.ts
 ```
 
-Skrypt czyta Montserrat 300 z `node_modules`, składa „Connectiva" tak, żeby
-trafić w liczby ze SPEC 3.2 (wysokość wersalika 199, szerokość napisu 1411),
-zamienia glify na ścieżki i zapisuje `src/data/wordmark.ts`. Przy okazji wypisuje
-metryki fallbacku fontów treściowych — te same wartości siedzą w `global.css`
-przy regułach `@font-face` i to jest ich jedyne źródło.
-
-**Otwarte:** czy font w oryginale to na pewno Montserrat Light — patrz
-`brand/README.md` i SPEC 16, decyzja nr 7.
-
----
-
-## Zrzuty ekranu dem
-
-Pipeline Playwrighta (`scripts/shots.mjs`) powstaje w **Etapie 2** (SPEC 8.1).
-Docelowo: viewport 390 × 844, `deviceScaleFactor: 2`, `fullPage`, przycięcie do
-2400 px CSS, `sharp` → WebP q80 do `src/assets/shots/`. Skrypt jest powtarzalny —
-po zmianach w demach odpalamy go ponownie.
+Skrypt wypisuje też metryki fallbacku fontów treściowych — te same wartości
+siedzą w `global.css` przy regułach `@font-face` i to jest ich jedyne źródło.
 
 ---
 
@@ -79,16 +97,43 @@ po zmianach w demach odpalamy go ponownie.
 Cloudflare Pages, Connect to Git, gałąź produkcyjna `main`, komenda
 `npm run build`, katalog wyjściowy `dist`.
 
-**Domeny `connectiva.biz` nie ruszamy bez wyraźnego polecenia** (SPEC 0).
-Stara wizytówka `connectiva-website.pages.dev` zostaje nietknięta.
+**Plan dla domeny:** `connectiva.biz` (GoDaddy) podpinamy w Cloudflare Pages
+**dopiero na wyraźne polecenie Jakuba** — do tego czasu strona żyje na
+`connectiva-portfolio.pages.dev`, a DNS-u nie ruszamy (SPEC 0). Stara
+wizytówka `connectiva-website.pages.dev` zostaje nietknięta.
 
 ---
 
-## Zanim to pójdzie na produkcję
+## DO UZUPEŁNIENIA PRZED PUBLIKACJĄ
 
-Pola TODO w `src/site.config.ts`: e-mail, Instagram, nazwa firmy, NIP, adres,
-klucz Web3Forms. Do tego decyzje otwarte ze SPEC 16. Pełna lista kontrolna
-jest w Etapie 9.
+Wszystkie pola żyją w jednym miejscu i są oznaczone `TODO_` — dopóki tak
+jest, formularze grzecznie odmawiają wysyłki, a stopka pokazuje placeholdery.
 
-Strona główna jest na razie `noindex` — flagę zdejmujemy w Etapie 1, razem
-z prawdziwym hero.
+1. **Klucz Web3Forms** — `web3formsKey` w `src/site.config.ts`. Zasila
+   wszystkie formularze: audyt na `/` i `/audyt/`, kontakt na `/`
+   i `/kontakt/`. Bez klucza formularz pokazuje komunikat zamiast wysyłać.
+2. **E-mail kontaktowy** — `email` w `src/site.config.ts` (sekcja Kontakt,
+   stopka, menu mobilne, komunikaty błędów formularzy).
+3. **Instagram** — `instagram.nazwa` i `instagram.url` w `src/site.config.ts`.
+4. **Dane firmy do stopki** — `firma.nazwa`, `firma.nip`, `firma.adres`
+   w `src/site.config.ts` (stopka + polityka prywatności). Uwaga: przy JDG
+   nazwa zawiera nazwisko (SPEC 2).
+5. **Netto czy brutto** — `cenyVat` w `src/site.config.ts` (decyzja otwarta
+   nr 2, SPEC 16). Dopóki `null`, cennik uczciwie pisze „do ustalenia".
+6. **Kwoty przełączników cennika** — `src/data/cennik.json` (600 / 500 /
+   600 / 300 zł i opieka 249 zł to placeholdery — decyzja otwarta nr 5).
+   Suma bazy i przełączników musi się równać górnej granicy widełek —
+   build pilnuje tego sam.
+7. **Wartości `src/data/miasta.json`** — dziś wszystkie „wolne" i to jest
+   stan faktyczny. Aktualizacja ręcznie po podpisaniu umowy; nigdy „zajęte"
+   dla efektu (SPEC 15).
+8. **Termin startu** — `najblizszyTermin` w `src/site.config.ts` (dziś:
+   październik 2026). Potwierdzić przed publikacją, potem aktualizować ręcznie.
+9. **Wyniki Lighthouse dem** — `lighthouseDate` w `src/data/projekty.ts`
+   jest `null`, więc strona celowo nie pokazuje liczb Lighthouse projektów.
+   Po zmierzeniu dem wpisać datę pomiaru — liczby pojawią się same.
+10. **Wariant H1 hero** — decyzja otwarta nr 8 (SPEC 16). Żaden z trzech
+    wariantów nie mieści się w dwóch liniach na 360 px (raport z Etapu 1) —
+    do rozstrzygnięcia razem z ewentualnym skróceniem tekstu.
+11. **Obietnice terminowe** — 4 tygodnie realizacji, 30 dni poprawek,
+    odpowiedź w 24 h, wideo w 48 h: potwierdzić, że są wykonalne (SPEC 15).
