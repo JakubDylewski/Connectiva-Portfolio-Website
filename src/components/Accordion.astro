@@ -146,6 +146,18 @@ const grupa = `ak-${crypto.randomUUID().slice(0, 8)}`;
     align-items: center;
   }
 
+  /* Marker Łącznika (SPEC 10.3, interakcja 4): przy otwartej pozycji dolna
+     kreska przesuwa się w prawo i staje dokładnie pod górną — punkt
+     połączenia wędruje, dwa poziomy zostają. Jednostki to układ viewBoxa
+     Łącznika (200 szerokości), bo ścieżki mają `transform-box: view-box`. */
+  .poz__marker :global(.l-bottom) {
+    transition: transform 320ms var(--ease-wejscie);
+  }
+
+  .poz.jest-otwarta .poz__marker :global(.l-bottom) {
+    transform: translateX(101px);
+  }
+
   .poz__tytul {
     flex: 1;
     font-size: var(--text-h3);
@@ -265,7 +277,8 @@ const grupa = `ak-${crypto.randomUUID().slice(0, 8)}`;
   @media (prefers-reduced-motion: reduce) {
     .poz__panel,
     .poz__plus,
-    .poz__wnetrze {
+    .poz__wnetrze,
+    .poz__marker :global(.l-bottom) {
       transition: none;
     }
   }

@@ -7,6 +7,7 @@
  * Etap 6 dokłada OG, JSON-LD i sitemapę. Etap 8 — View Transitions.
  */
 import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
 import Nav from '../components/Nav.astro';
 import MobileBar from '../components/MobileBar.astro';
 import Footer from '../components/Footer.astro';
@@ -100,6 +101,10 @@ if (uzupelnione(site.instagram.url)) organizacja.sameAs = [site.instagram.url];
       set:html={JSON.stringify(organizacja)}
     />
 
+    {/* Przejścia między stronami (Etap 8, SPEC 10.3): fade 250 ms w CSS
+        (global.css), inicjalizacja skryptów na `astro:page-load`. */}
+    <ClientRouter />
+
     {
       sekwencjaOtwarcia && (
         <script is:inline>
@@ -108,6 +113,11 @@ if (uzupelnione(site.instagram.url)) organizacja.sameAs = [site.instagram.url];
               sekwencję. `przed` włącza stan początkowy z global.css. */}
           (() => {
             const de = document.documentElement;
+            // Sekwencja gra tylko przy pierwszym załadowaniu witryny. Przy
+            // powrocie na stronę główną przez View Transitions (Etap 8)
+            // `data-ruch` jest już ustawione i treść ma się pokazać od razu,
+            // bez ponownego chowania hero.
+            if (de.dataset.ruch) return;
             const cicho = matchMedia('(prefers-reduced-motion: reduce)').matches;
             de.dataset.ruch = cicho ? 'off' : 'przed';
             if (cicho) return;
@@ -136,7 +146,7 @@ if (uzupelnione(site.instagram.url)) organizacja.sameAs = [site.instagram.url];
     {pasekMobile && <MobileBar />}
 
     <script>
-      import { initMotion } from '../scripts/motion';
+      import { initMotion, destroyMotion } from '../scripts/motion';
       import { initNav } from '../scripts/nav';
       import { initSegmentChips } from '../scripts/segment';
       import { initAccordions } from '../scripts/accordion';
@@ -147,24 +157,42 @@ if (uzupelnione(site.instagram.url)) organizacja.sameAs = [site.instagram.url];
 
       // Menu, chipy, akordeony i sprawdzarka muszą działać niezależnie od
       // preferencji ruchu, więc nie czekają na GSAP (SPEC 10.1).
-      // Etap 8 przełoży to na `astro:page-load`.
+      //
+      // Od Etapu 8 stronami steruje ClientRouter: ten moduł wykonuje się raz
+      // na całą wizytę, a każda wymiana treści przechodzi przez parę zdarzeń
+      // `astro:before-swap` (sprzątanie starej strony) i `astro:page-load`
+      // (inicjalizacja nowej — pierwsze załadowanie też je dostaje).
+      // Każdy init zwraca funkcję sprzątającą; bez ich wołania nasłuchy na
+      // `document` dublowałyby się z każdą nawigacją (test krytyczny Etapu 8).
+      let sprzatanie: Array<() => void> = [];
+
       function start() {
-        initNav();
-        initSegmentChips();
-        initAccordions();
-        initCityCheck();
-        initAudit();
-        initForms();
-        initPasekPrzyFormularzach();
-        initPricing();
+        sprzatanie = [
+          initNav(),
+          initSegmentChips(),
+          initAccordions(),
+          initCityCheck(),
+          initAudit(),
+          initForms(),
+          initPasekPrzyFormularzach(),
+          initPricing(),
+        ];
         void initMotion();
       }
 
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', start);
-      } else {
-        start();
+      function stop() {
+        for (const zdejmij of sprzatanie.splice(0)) {
+          try {
+            zdejmij();
+          } catch {
+            // Sprzątanie nie może wywrócić nawigacji.
+          }
+        }
+        destroyMotion();
       }
+
+      document.addEventListener('astro:page-load', start);
+      document.addEventListener('astro:before-swap', stop);
     </script>
   </body>
 </html>

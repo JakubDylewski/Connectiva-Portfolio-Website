@@ -28,6 +28,28 @@ let sprzatanie: Sprzatanie[] = [];
 let uruchomione = false;
 
 /**
+ * Numer pokolenia inicjalizacji (Etap 8). Nawigacja View Transitions może
+ * zdjąć stronę w środku któregoś z awaitów `initMotion()` — porównanie
+ * pokolenia po każdym awaicie pozwala porzucić spóźnioną inicjalizację,
+ * zanim stworzy drugą instancję Lenis albo triggery dla nieistniejącego DOM.
+ */
+let generacja = 0;
+
+/** Licznik żywych instancji Lenis — diagnostyka testu krytycznego Etapu 8. */
+let aktywneLenis = 0;
+
+/**
+ * Uchwyt diagnostyczny wystawiany na `window.__connectiva` (Etap 8, test
+ * krytyczny): po trzech nawigacjach liczba `ScrollTrigger.getAll()` musi być
+ * równa liczbie po świeżym załadowaniu. Kod strony z tego nie korzysta.
+ */
+interface Diagnostyka {
+  ScrollTrigger: ST;
+  inicjalizacje: number;
+  aktywneLenis: () => number;
+}
+
+/**
  * Aktywna instancja Lenis — potrzebna tam, gdzie przewijamy programowo
  * (chipy segmentu). `null`, gdy ruch jest ograniczony i Lenis nie wstał.
  */
@@ -64,6 +86,7 @@ export function ograniczonyRuch(): boolean {
 export async function initMotion(): Promise<void> {
   if (typeof window === 'undefined' || uruchomione) return;
   uruchomione = true;
+  const moja = ++generacja;
 
   const de = document.documentElement;
   const reduce = ograniczonyRuch();
@@ -72,9 +95,15 @@ export async function initMotion(): Promise<void> {
     import('gsap'),
     import('gsap/ScrollTrigger'),
   ]);
+  // Strona zdążyła się zmienić (View Transitions) — nowa inicjalizacja
+  // albo już biegnie, albo zaraz ruszy. Ta nie stworzyła jeszcze niczego.
+  if (moja !== generacja) return;
   gsap.registerPlugin(ScrollTrigger);
 
-  if (!reduce) await wlaczLenis(gsap, ScrollTrigger);
+  if (!reduce) {
+    await wlaczLenis(gsap, ScrollTrigger, moja);
+    if (moja !== generacja) return;
+  }
 
   const ctx = gsap.context(() => {
     // Kurczenie belki działa w każdym trybie — to zmiana stanu, nie scrub.
@@ -87,7 +116,11 @@ export async function initMotion(): Promise<void> {
       projektyDesktop(gsap, ScrollTrigger); // pin 1 z 2
       procesDesktop(gsap); // pin 2 z 2
       paralaksCaseStudy(gsap); // podstrony projektów (SPEC 9.1)
-      // Etap 8: magnetyzm przycisków.
+      const sprzatnijMagnetyzm = magnetyzmPrzyciskow(gsap); // SPEC 7.4, Etap 8
+      // GSAP sam cofa tweeny i triggery tego kontekstu, ale nasłuchy
+      // magnetyzmu na document trzeba zdjąć ręcznie — także przy zwężeniu
+      // okna poniżej 1024 px, nie tylko przy destroyMotion().
+      return () => sprzatnijMagnetyzm?.();
     });
 
     mm.add(MOBILE, () => {
@@ -103,12 +136,18 @@ export async function initMotion(): Promise<void> {
       de.dataset.ruch = 'off';
       document.querySelector('[data-pasek]')?.classList.add('jest-widoczny');
     });
+
+    // Pas bezpieczeństwa do szelek `ctx.revert()`: gdyby rewert kontekstu
+    // nie sięgnął matchMedia, jawny `revert()` zdejmuje nasłuchy mediów
+    // i woła funkcje sprzątające kontekstów. Drugie wywołanie jest puste.
+    sprzatanie.push(() => mm.revert());
   });
   sprzatanie.push(() => ctx.revert());
 
   // Sekwencja startuje dopiero na docelowych fontach, żeby nie animować
   // fallbacku (SPEC 8.0).
   await document.fonts.ready;
+  if (moja !== generacja) return;
   if (!reduce) {
     try {
       sekwencjaHero(gsap);
@@ -128,9 +167,20 @@ export async function initMotion(): Promise<void> {
   const naZmianeUkladu = () => ScrollTrigger.refresh();
   document.addEventListener(ZDARZENIE_UKLAD, naZmianeUkladu);
   sprzatanie.push(() => document.removeEventListener(ZDARZENIE_UKLAD, naZmianeUkladu));
+
+  // Uchwyt diagnostyczny (test krytyczny Etapu 8) — licznik inicjalizacji
+  // rośnie tylko wtedy, gdy inicjalizacja doszła do końca.
+  const w = window as unknown as { __connectiva?: Diagnostyka };
+  w.__connectiva = {
+    ScrollTrigger,
+    inicjalizacje: (w.__connectiva?.inicjalizacje ?? 0) + 1,
+    aktywneLenis: () => aktywneLenis,
+  };
 }
 
 export function destroyMotion(): void {
+  // Unieważnia inicjalizacje wiszące na awaitach — patrz `generacja`.
+  generacja += 1;
   for (const zdejmij of sprzatanie.splice(0).reverse()) {
     try {
       zdejmij();
@@ -148,14 +198,18 @@ export function destroyMotion(): void {
 async function wlaczLenis(
   gsap: typeof import('gsap').gsap,
   ScrollTrigger: typeof import('gsap/ScrollTrigger').ScrollTrigger,
+  moja: number,
 ): Promise<void> {
   const { default: Lenis } = await import('lenis');
+  // Strona wymieniona w trakcie importu — nie tworzymy niczego (Etap 8).
+  if (moja !== generacja) return;
 
   // `syncTouch` zostaje domyślnie wyłączone: na telefonie przewijanie ma być
   // natywne, Lenis tylko raportuje pozycję (SPEC 10.1).
   const lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
 
   lenisInstancja = lenis;
+  aktywneLenis += 1;
   lenis.on('scroll', ScrollTrigger.update);
   const tick = (t: number) => lenis.raf(t * 1000);
   gsap.ticker.add(tick);
@@ -204,6 +258,7 @@ async function wlaczLenis(
     gsap.ticker.lagSmoothing(500, 33);
     lenis.destroy();
     lenisInstancja = null;
+    aktywneLenis -= 1;
   });
 }
 
@@ -551,6 +606,118 @@ function paralaksCaseStudy(gsap: Gsap): void {
   );
 
   sprzatanie.push(() => willChange(false));
+}
+
+/* -------------------------------------------------------------------------- */
+/* Magnetyzm przycisków głównych (SPEC 7.4, Etap 8)                           */
+/* -------------------------------------------------------------------------- */
+
+/** Promień działania magnesu, liczony od krawędzi przycisku (SPEC 7.4). */
+const PROMIEN_MAGNESU = 40;
+
+/** Maksymalne przesunięcie przycisku w stronę kursora (SPEC 7.4). */
+const MAX_PRZESUW_MAGNESU = 6;
+
+/**
+ * Przycisk główny ciągnie się do 6 px w stronę kursora w promieniu 40 px,
+ * `gsap.quickTo` 0.4 s `power3.out`, powrót po wyjściu z promienia.
+ *
+ * Woła to wyłącznie kontekst desktopowy matchMedia (nigdy mobile, nigdy przy
+ * ograniczonym ruchu); `pointer: fine` sprawdzamy dodatkowo, bo szeroki ekran
+ * nie gwarantuje myszy. Zwraca funkcję sprzątającą dla kontekstu.
+ *
+ * GSAP trzyma transform inline, więc CSS-owe `:active { scale(0.98) }`
+ * przestaje na te przyciski działać — dociśnięcie odtwarzamy tweenem skali,
+ * żeby zachowanie z SPEC 7.4 zostało w komplecie.
+ */
+function magnetyzmPrzyciskow(gsap: Gsap): Sprzatanie | undefined {
+  if (!window.matchMedia('(pointer: fine)').matches) return undefined;
+
+  const przyciski = [...document.querySelectorAll<HTMLElement>('.btn--glowny')];
+  if (przyciski.length === 0) return undefined;
+
+  const lokalne: Sprzatanie[] = [];
+
+  const magnesy = przyciski.map((btn) => {
+    const magnes = {
+      btn,
+      xTo: gsap.quickTo(btn, 'x', { duration: 0.4, ease: 'power3.out' }),
+      yTo: gsap.quickTo(btn, 'y', { duration: 0.4, ease: 'power3.out' }),
+      aktywny: false,
+    };
+
+    const docisnij = () => gsap.to(btn, { scale: 0.98, duration: 0.15, ease: 'power2.out' });
+    const zwolnij = () => gsap.to(btn, { scale: 1, duration: 0.15, ease: 'power2.out' });
+    btn.addEventListener('pointerdown', docisnij);
+    btn.addEventListener('pointerup', zwolnij);
+    btn.addEventListener('pointercancel', zwolnij);
+    btn.addEventListener('pointerleave', zwolnij);
+    lokalne.push(() => {
+      btn.removeEventListener('pointerdown', docisnij);
+      btn.removeEventListener('pointerup', zwolnij);
+      btn.removeEventListener('pointercancel', zwolnij);
+      btn.removeEventListener('pointerleave', zwolnij);
+    });
+
+    return magnes;
+  });
+
+  const pusc = (magnes: (typeof magnesy)[number]) => {
+    if (!magnes.aktywny) return;
+    magnes.aktywny = false;
+    magnes.xTo(0);
+    magnes.yTo(0);
+  };
+
+  const naRuch = (e: PointerEvent) => {
+    for (const magnes of magnesy) {
+      const r = magnes.btn.getBoundingClientRect();
+      // Przycisk schowany (np. pasek mobilny na desktopie) nie magnesuje.
+      if (r.width === 0) continue;
+
+      // Prostokąt bez bieżącego przesunięcia — inaczej przyciągnięty przycisk
+      // uciekałby własnemu polu i drgał na granicy promienia.
+      const x = Number(gsap.getProperty(magnes.btn, 'x')) || 0;
+      const y = Number(gsap.getProperty(magnes.btn, 'y')) || 0;
+      const lewa = r.left - x;
+      const gora = r.top - y;
+
+      // Odległość kursora od krawędzi (0 wewnątrz przycisku).
+      const najX = Math.min(Math.max(e.clientX, lewa), lewa + r.width);
+      const najY = Math.min(Math.max(e.clientY, gora), gora + r.height);
+      const odKrawedzi = Math.hypot(e.clientX - najX, e.clientY - najY);
+
+      if (odKrawedzi > PROMIEN_MAGNESU) {
+        pusc(magnes);
+        continue;
+      }
+
+      magnes.aktywny = true;
+      // Pełna siła na przycisku, wygasa liniowo do granicy promienia.
+      const sila = 1 - odKrawedzi / PROMIEN_MAGNESU;
+      const srodekX = lewa + r.width / 2;
+      const srodekY = gora + r.height / 2;
+      const dystans = Math.hypot(e.clientX - srodekX, e.clientY - srodekY) || 1;
+      magnes.xTo(((e.clientX - srodekX) / dystans) * MAX_PRZESUW_MAGNESU * sila);
+      magnes.yTo(((e.clientY - srodekY) / dystans) * MAX_PRZESUW_MAGNESU * sila);
+    }
+  };
+
+  // Kursor opuszcza okno — wszystkie przyciski wracają na miejsce.
+  const naWyjscie = () => magnesy.forEach(pusc);
+
+  document.addEventListener('pointermove', naRuch, { passive: true });
+  document.documentElement.addEventListener('pointerleave', naWyjscie);
+
+  return () => {
+    document.removeEventListener('pointermove', naRuch);
+    document.documentElement.removeEventListener('pointerleave', naWyjscie);
+    for (const zdejmij of lokalne.splice(0)) zdejmij();
+    for (const magnes of magnesy) {
+      gsap.killTweensOf(magnes.btn);
+      gsap.set(magnes.btn, { clearProps: 'transform' });
+    }
+  };
 }
 
 /* -------------------------------------------------------------------------- */

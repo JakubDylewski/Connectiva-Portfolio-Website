@@ -388,6 +388,25 @@ html[data-ruch='przed'] [data-wejscie='reszta'] {
 }
 
 /* ==========================================================================
+   PRZEJŚCIA MIĘDZY STRONAMI (Etap 8, SPEC 10.3)
+   ClientRouter daje domyślny fade — tu tylko wydłużamy go do 250 ms.
+   Pseudoelementy view transitions żyją poza drzewem dokumentu, więc reguła
+   `*` z bloku ograniczonego ruchu niżej ich nie sięga — wyłączamy je jawnie.
+   ========================================================================== */
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 250ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+}
+
+/* ==========================================================================
    OGRANICZONY RUCH (SPEC 10.1, 11.3)
    Warstwa CSS. Odpowiednik po stronie GSAP jest w src/scripts/motion.ts.
    ========================================================================== */
