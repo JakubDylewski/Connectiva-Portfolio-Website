@@ -1,6 +1,6 @@
 ---
 /**
- * 05 Proces (SPEC 8.5) — interakcja 7.
+ * 04 Jak pracujemy (SPEC 17.7, animacja 8.5/17.5) — interakcja 7.
  *
  *  desktop (≥ 1024 px, ruch włączony) — sekcja przypięta, PIN 2 Z 2. To jest
  *    ostatni dozwolony pin na całej stronie (SPEC 10.2). Pięć kroków jedzie
@@ -8,12 +8,19 @@
  *    ścieżka SVG przeskakująca o poziom wyżej przy każdym kroku, rysowana
  *    `stroke-dashoffset`.
  *
- *  mobile i ograniczony ruch — pionowa lista, pionowa linia po lewej rysowana
- *    `scaleY`, bez pinowania.
+ *  mobile — ta sama animacja obrócona (SPEC 17.5): kroki pionowo na całą
+ *    szerokość, linia schodzi W DÓŁ po pasach (`--poziom`), między krokami
+ *    przeskakuje o pas łącznikiem poziomym. Tory rysowane `scaleY`, łączniki
+ *    `scaleX` — scrubem, bez pinowania (pin mobilny dotyczy tylko Projektów
+ *    i wchodzi w Etapie 13).
  *
- * Linia-schodki to jedyne miejsce na stronie, gdzie animujemy coś innego niż
- * `transform` i `opacity`. SPEC 8.5 prosi o to wprost i sam uzasadnia: jedna
- * ścieżka, niski koszt. Poza tym wyjątkiem reguła z 10.2 obowiązuje.
+ *  ograniczony ruch i `data-motion="off"` — stan końcowy: schodki narysowane
+ *    w całości, bez animacji (10.1).
+ *
+ * Linia-schodki na desktopie to jedyne miejsce na stronie, gdzie animujemy
+ * coś innego niż `transform` i `opacity`. SPEC 8.5 prosi o to wprost i sam
+ * uzasadnia: jedna ścieżka, niski koszt. Poza tym wyjątkiem reguła z 10.2
+ * obowiązuje — wariant mobilny trzyma się już samych transformów.
  */
 import SectionHead from './SectionHead.astro';
 import { kroki } from '../data/proces';
@@ -51,9 +58,9 @@ const WYS_SCHODKOW = 120;
   <div class="kontener">
     <SectionHead
       index="04"
-      linia1="Cztery tygodnie."
-      linia2="Pięć kroków."
-      lead={'Termin liczy się od dnia, w którym mamy Twoje teksty źródłowe i zdjęcia. Bez niespodzianek po drodze.'}
+      linia1="Każdy projekt jest inny."
+      linia2="Sposób pracy — ten sam."
+      lead={'Nie sprzedajemy pakietów z\u00A0góry narzuconym terminem. Zakres, cenę i\u00A0harmonogram ustalamy dla każdego projektu osobno, po rozmowie o\u00A0tym, czego naprawdę potrzebujesz.'}
       lacznik
     />
   </div>
@@ -82,11 +89,21 @@ const WYS_SCHODKOW = 120;
 
         <ol class="proces__kroki">
           {
-            kroki.map((k) => (
-              <li class="krok-p" data-krok-p>
-                {/* Pionowa linia po lewej — wariant mobilny (SPEC 8.5) */}
+            kroki.map((k, i) => (
+              <li class="krok-p" data-krok-p style={`--poziom: ${i}`}>
+                {/* Schodki pionowe — wariant mobilny (SPEC 17.5): tor kroku
+                    biegnie w dół na swoim pasie (`--poziom`), a łącznik
+                    poziomy przeskakuje z pasa poprzedniego kroku. Ta sama
+                    sygnatura co schodki desktopowe, obrócona pod kciuk. */}
                 <span class="krok-p__linia" aria-hidden="true">
-                  <span class="krok-p__linia-wypelnienie" data-linia-pionowa />
+                  {i > 0 && (
+                    <span class="krok-p__lacze">
+                      <span class="krok-p__lacze-wypelnienie" data-linia-pozioma />
+                    </span>
+                  )}
+                  <span class="krok-p__tor">
+                    <span class="krok-p__linia-wypelnienie" data-linia-pionowa />
+                  </span>
                 </span>
 
                 <div class="krok-p__tresc">
@@ -94,7 +111,6 @@ const WYS_SCHODKOW = 120;
                     krok {k.numer} z&nbsp;{kroki.length}
                   </p>
                   <h3 class="krok-p__tytul">{k.tytul}</h3>
-                  <p class="krok-p__kiedy">{k.kiedy}</p>
                   <p class="krok-p__opis">{k.tresc}</p>
                 </div>
               </li>
@@ -135,26 +151,72 @@ const WYS_SCHODKOW = 120;
     flex-direction: column;
   }
 
+  /* Skok jednego pasa schodków (SPEC 17.5). Pięć kroków = pasy 0–4. */
+  .proces {
+    --schodek: 12px;
+  }
+
   .krok-p {
     display: grid;
-    grid-template-columns: auto 1fr;
-    column-gap: 1.5rem;
+    /* Rynna mieści wszystkie pasy plus grubość linii. */
+    grid-template-columns: calc(4 * var(--schodek) + 2px) 1fr;
+    column-gap: 1.25rem;
   }
 
   .krok-p__linia {
     display: block;
     position: relative;
+  }
+
+  /* Tor kroku: pionowa linia na własnym pasie, coraz dalej w prawo —
+     linia „schodzi w dół" i przy każdym kroku przeskakuje o poziom
+     (SPEC 17.5, zasada przesunięcia z 6.2). */
+  .krok-p__tor {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(var(--poziom) * var(--schodek));
     width: 2px;
     background-color: var(--color-line);
   }
 
-  /* Rysowana `scaleY` od góry (SPEC 8.5) */
+  /* Rysowana `scaleY` od góry (SPEC 17.5) */
   .krok-p__linia-wypelnienie {
     position: absolute;
     inset: 0;
     background: var(--g-brand);
     transform: scaleY(0);
     transform-origin: top center;
+  }
+
+  /* Łącznik poziomy: przeskok z pasa poprzedniego kroku na bieżący. */
+  .krok-p__lacze {
+    position: absolute;
+    top: 0;
+    left: calc((var(--poziom) - 1) * var(--schodek));
+    width: calc(var(--schodek) + 2px);
+    height: 2px;
+    background-color: var(--color-line);
+  }
+
+  .krok-p__lacze-wypelnienie {
+    position: absolute;
+    inset: 0;
+    background: var(--g-brand);
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+
+  /* Ograniczony ruch albo wyłączony ruch sekcji: stan końcowy bez animacji
+     (SPEC 10.1) — schodki w całości narysowane, nie sam szary tor. */
+  :global(html[data-ruch='off']) .krok-p__linia-wypelnienie,
+  .proces--bez-ruchu .krok-p__linia-wypelnienie {
+    transform: scaleY(1);
+  }
+
+  :global(html[data-ruch='off']) .krok-p__lacze-wypelnienie,
+  .proces--bez-ruchu .krok-p__lacze-wypelnienie {
+    transform: scaleX(1);
   }
 
   .krok-p__tresc {
@@ -173,12 +235,6 @@ const WYS_SCHODKOW = 120;
     font-size: var(--text-h3);
     font-weight: 500;
     line-height: 1.25;
-  }
-
-  .krok-p__kiedy {
-    margin-top: 0.25rem;
-    font-size: var(--text-small);
-    color: var(--color-text-3);
   }
 
   .krok-p__opis {

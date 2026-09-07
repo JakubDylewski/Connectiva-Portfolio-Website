@@ -854,31 +854,44 @@ function procesDesktop(gsap: Gsap): void {
   });
 }
 
-/** Mobile: pionowa linia po lewej rysowana `scaleY`, bez pinowania (SPEC 8.5). */
+/**
+ * Mobile: schodki pionowe (SPEC 17.5) — bez pinowania.
+ *
+ * Ta sama sygnatura co na desktopie, obrócona: tor każdego kroku rysuje się
+ * `scaleY` w dół na swoim pasie, a między krokami łącznik poziomy (`scaleX`)
+ * przeskakuje o pas w prawo. Jedna oś czasu na krok, wyłącznie transformy
+ * (SPEC 10.2); geometrii nie mierzymy wcale — pasy ustawia CSS z `--poziom`.
+ */
 function procesMobile(gsap: Gsap): void {
   const sekcja = document.querySelector<HTMLElement>('[data-proces]');
   if (!sekcja || sekcja.dataset.motion === 'off') return;
 
-  for (const krok of sekcja.querySelectorAll<HTMLElement>('[data-krok-p]')) {
-    const linia = krok.querySelector<HTMLElement>('[data-linia-pionowa]');
-    if (!linia) continue;
+  const kroki = [...sekcja.querySelectorAll<HTMLElement>('[data-krok-p]')];
+  kroki.forEach((krok, i) => {
+    const tor = krok.querySelector<HTMLElement>('[data-linia-pionowa]');
+    const lacze = krok.querySelector<HTMLElement>('[data-linia-pozioma]');
+    if (!tor) return;
 
-    gsap.fromTo(
-      linia,
-      { scaleY: 0 },
-      {
-        scaleY: 1,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: krok,
-          start: 'top bottom-=120',
-          end: 'bottom center',
-          scrub: 0.8,
-          invalidateOnRefresh: true,
-        },
+    const tl = gsap.timeline({
+      defaults: { ease: 'none' },
+      scrollTrigger: {
+        trigger: krok,
+        start: 'top bottom-=120',
+        end: 'bottom center',
+        scrub: 0.8,
+        invalidateOnRefresh: true,
       },
-    );
-  }
+    });
+
+    // Najpierw przeskok pasa, zaraz po nim zjazd w dół — proporcje dobrane
+    // tak, żeby łącznik był mgnieniem, a tor niósł większość drogi.
+    if (lacze && i > 0) {
+      tl.fromTo(lacze, { scaleX: 0 }, { scaleX: 1, duration: 0.12 }, 0);
+      tl.fromTo(tor, { scaleY: 0 }, { scaleY: 1, duration: 0.88 }, 0.12);
+    } else {
+      tl.fromTo(tor, { scaleY: 0 }, { scaleY: 1, duration: 1 }, 0);
+    }
+  });
 }
 
 /* -------------------------------------------------------------------------- */
