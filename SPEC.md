@@ -581,17 +581,21 @@ Każdy etap kończy się: `npm run build` bez błędów, podsumowaniem zmian, li
 
 ---
 
-## 15. Lista kontrolna uczciwości (sprawdzana w każdym etapie)
+## 15. Lista kontrolna uczciwości (sprawdzana w każdym etapie; zaktualizowana wg 17.9 w Etapie 14)
 
 - [ ] Każde pojawienie się dema ma etykietę „Projekt pokazowy (marka fikcyjna)".
 - [ ] Wygenerowane zdjęcia w demach są ujawnione (stopka + podstrony).
 - [ ] Jedyne liczby na stronie: liczba podstron, wyniki Lighthouse z datą pomiaru, terminy, ceny. Żadnych „klientek", „rezerwacji", opinii, logotypów.
-- [ ] Sprawdzarka miast pokazuje stan faktyczny. Dziś: wszystko „wolne".
+- ~~Sprawdzarka miast pokazuje stan faktyczny. Dziś: wszystko „wolne".~~ **Skreślone w rewizji v2 (17.1, 17.9) — sprawdzarka i wyłączność usunięte ze strony.**
 - [ ] „Najbliższy wolny termin startu" to prawdziwa data z `site.config.ts`.
 - [ ] Żadnego „od" przy cenie; widełki z jawnym „co decyduje o cenie".
 - [ ] „0% prowizji" opisane precyzyjnie: dotyczy rezerwacji przez stronę; marketplace działa na swoich zasadach.
 - [ ] Strona nigdzie nie sugeruje zespołu, którego nie ma.
-- [ ] Wszystkie obietnice (4 tygodnie, 30 dni poprawek, odpowiedź w 24 h, wideo w 48 h) potwierdzone przez Jakuba jako wykonalne.
+- [ ] ~~Wszystkie obietnice (4 tygodnie, 30 dni poprawek, odpowiedź w 24 h, wideo w 48 h)~~ Obietnice pozostałe po rewizji v2 (odpowiedź w 24 h, wideo w 48 h) potwierdzone przez Jakuba jako wykonalne — sztywne terminy realizacji wypadły (17.1, 17.7).
+- [ ] Widełki w kreatorze są opisane jako **wstępne**, z jasnym zastrzeżeniem o wpływie uwag na finalną cenę. *(17.9)*
+- [ ] Nigdzie nie obiecujemy sesji zdjęciowej. *(17.9)*
+- [ ] Nigdzie nie ma sztywnego terminu realizacji podanego jako obietnica dla wszystkich. *(17.9)*
+- [ ] Pytanie 6 kreatora („skąd klientki") nie wpływa na cenę i nie udaje, że wpływa. *(17.9)*
 
 ---
 

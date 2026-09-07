@@ -1,23 +1,23 @@
 /**
- * 07 Pytania (SPEC 8.7).
+ * 06 Pytania (SPEC 8.7, zmiany rewizji v2 w 17.8).
  *
  * Osiem pytań z pełnymi odpowiedziami. Ten sam zestaw zasila akordeon na
- * stronie głównej i dane strukturalne `FAQPage` (SPEC 11.2), a pozycje
- * oznaczone `oCene` trafiają dodatkowo na `/cennik/`.
+ * stronie głównej i dane strukturalne `FAQPage` (SPEC 11.2).
+ *
+ * Rewizja v2: bez sztywnego terminu realizacji (termin po rozmowie, do
+ * umowy), płatność etapami z fakturą za każdy etap, uczciwa odpowiedź
+ * o zdjęciach — sesja nie wchodzi w zakres (17.6, 17.8).
  */
 import type { PozycjaAkordeonu } from '../components/Accordion.astro';
 
-export interface PytanieFaq extends PozycjaAkordeonu {
-  /** Pokazywane także w sekcji „Pytania o cenę" na `/cennik/`. */
-  oCene?: boolean;
-}
-
-export const faq: PytanieFaq[] = [
+export const faq: PozycjaAkordeonu[] = [
   {
     tytul: 'Ile trwa realizacja?',
     tresc:
-      'Cztery tygodnie od dnia, w\u00A0którym mamy teksty źródłowe i\u00A0zdjęcia. ' +
-      'Przy większym zakresie (12 podstron, 15 stron SEO) pięć.',
+      'To zależy od zakresu — wizytówka powstaje szybciej niż rozbudowany ' +
+      'serwis z\u00A0systemem rezerwacji i\u00A0stronami pod kilka miejscowości. ' +
+      'Konkretny termin dostajesz po rozmowie, razem z\u00A0wyceną, ' +
+      'i\u00A0wpisujemy go do umowy.',
   },
   {
     tytul: 'Mam Booksy. Muszę z\u00A0niego rezygnować?',
@@ -27,11 +27,10 @@ export const faq: PytanieFaq[] = [
       'zasadach — Ty decydujesz, z\u00A0czego korzystasz.',
   },
   {
-    // DO POTWIERDZENIA (SPEC 16, decyzja otwarta nr 4): czy klientka dostaje
-    // panel CMS (Keystatic / Decap), czy zmiany idą wyłącznie przez opiekę.
-    // Poniżej wersja ze SPEC 8.7 — zakłada godzinne szkolenie plus opiekę.
-    // Jeśli zapadnie decyzja o panelu, to zdanie trzeba przepisać, a wraz
-    // z nim zakres „godziny szkolenia" w cenniku.
+    // DO POTWIERDZENIA (SPEC 17.11, pkt 5): czy klientka dostaje panel CMS
+    // (Keystatic / Decap), czy zmiany idą wyłącznie przez opiekę. Poniżej
+    // wersja ze SPEC 8.7 — zakłada godzinne szkolenie plus opiekę. Jeśli
+    // zapadnie decyzja o panelu, to zdanie trzeba przepisać.
     tytul: 'Będę mogła sama zmieniać treści?',
     tresc:
       'Cennik, godziny, zespół i\u00A0aktualności zmieniasz sama po godzinnym ' +
@@ -39,14 +38,23 @@ export const faq: PytanieFaq[] = [
       'w\u00A0ciągu jednego dnia roboczego.',
   },
   {
+    // Uczciwa odpowiedź o zdjęciach — treść dosłownie ze SPEC 17.8.
+    tytul: 'Robicie zdjęcia?',
+    tresc:
+      'Nie. Pracujemy na Twoich zdjęciach — wnętrza, zespołu, efektów. ' +
+      'Jeśli ich nie masz albo Ci się nie podobają, podpowiemy, jak zrobić ' +
+      'dobre zdjęcia telefonem, albo polecimy fotografa. Sesja nie wchodzi ' +
+      'w\u00A0zakres projektu i\u00A0płacisz za nią osobno, bezpośrednio fotografowi.',
+  },
+  {
     tytul: 'Dostanę fakturę?',
-    tresc: 'Tak, na każdą z\u00A0trzech części płatności.',
-    oCene: true,
+    tresc:
+      'Tak. Płacisz etapami i\u00A0za każdy zakończony etap dostajesz fakturę.',
   },
   {
     tytul: 'Do kogo należy strona?',
     tresc:
-      'Do Ciebie: kod, treści, domena, zdjęcia z\u00A0sesji. Możesz ją przenieść ' +
+      'Do Ciebie: kod, treści, domena, zdjęcia. Możesz ją przenieść ' +
       'w\u00A0każdej chwili, bez naszej zgody.',
   },
   {
@@ -57,8 +65,6 @@ export const faq: PytanieFaq[] = [
       'promocji i\u00A0przed/po. Przy wątpliwościach rekomendujemy konsultację ' +
       'prawną — praktyka izb bywa aktualizowana.',
   },
-  // Pytanie „Moje miasto jest zajęte. Co wtedy?” usunięte w rewizji v2
-  // (SPEC 17.1, 17.8) — wyłączność geograficzna wypadła z oferty.
   {
     tytul: 'Prowadzicie reklamy i\u00A0social media?',
     tresc:
@@ -66,6 +72,3 @@ export const faq: PytanieFaq[] = [
       'Przy kampanii możemy przygotować dedykowane lądowisko.',
   },
 ];
-
-/** Pytania pokazywane w sekcji „Pytania o cenę" na `/cennik/`. */
-export const faqOCene = faq.filter((p) => p.oCene);

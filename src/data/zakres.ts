@@ -11,10 +11,12 @@ import type { PozycjaAkordeonu } from '../components/Accordion.astro';
 export const zakres: PozycjaAkordeonu[] = [
   {
     tytul: 'Projekt szyty pod Twoją markę',
-    tagi: ['własna paleta i\u00A0typografia', 'Twoje zdjęcia lub sesja', 'zero szablonów'],
+    // Bez „lub sesja” w tagu — sesja nie wchodzi w zakres (SPEC 17.6).
+    tagi: ['własna paleta i\u00A0typografia', 'Twoje zdjęcia', 'zero szablonów'],
     tresc:
       'Nie dostajesz motywu z\u00A0podmienionym logo. Strona ma własny charakter, ' +
-      'dopasowany do wnętrza, cen i\u00A0klientek, które chcesz przyciągać.',
+      'dopasowany do wnętrza, cen i\u00A0klientek, które chcesz przyciągać. ' +
+      'Pracujemy na Twoich zdjęciach: wnętrze, zespół, efekty zabiegów.',
   },
   {
     tytul: 'System pozyskiwania klientek',

@@ -3,8 +3,7 @@
  *
  * Wybór segmentu ląduje jako `data-segment` na `<html>` i jest rozgłaszany
  * zdarzeniem, żeby kolejne miejsca mogły się podpiąć bez znajomości siebie
- * nawzajem — dziś słucha go sekcja Projekty (Etap 2); sprawdzarka miast
- * wypadła w rewizji v2 (SPEC 17.1).
+ * nawzajem — dziś słucha go sekcja Projekty.
  *
  * Stan trzymamy wyłącznie w pamięci — bez localStorage (SPEC 8.0).
  */
