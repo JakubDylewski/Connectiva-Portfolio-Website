@@ -1,0 +1,780 @@
+---
+/**
+ * Kreator wyceny (SPEC 17.4) — sekcja 05 i strona /cennik/.
+ *
+ * Jeden krok = jedno pytanie z widocznym wyjaśnieniem, krok 7 to uwagi,
+ * na końcu ekran wyniku z widełkami, listą „co się składa", informacją
+ * o zdjęciach (17.6), zastrzeżeniem i formularzem (forms.ts, Web3Forms).
+ *
+ * Postęp pokazuje linia budująca się w schodki — ta sama sygnatura co
+ * w sekcji Procesu: desktop poziomo, telefon pionowo w dół (17.5). Wszystko
+ * działa CZYSTYM JS (`src/scripts/kreator.ts`); animacje robi CSS klasami,
+ * więc przy ograniczonym ruchu przełączają się natychmiast (SPEC 10.1).
+ *
+ * Bez JavaScriptu widać wszystkie pytania naraz — jak w audycie; wynik
+ * i tak wymaga policzenia, więc bez skryptu go nie ma.
+ *
+ * Komponent nie renderuje nagłówka sekcji — daje go `SectionHead` (h2 na
+ * stronie głównej, h1 na `/cennik/`), żeby nigdzie nie było dwóch h1.
+ * Tytuły wewnątrz wyniku to `p`, nie nagłówki — na `/cennik/` stoją zaraz
+ * po h1 i h3 łamałoby kolejność nagłówków (wzór ze stopki, SPEC 11.3).
+ */
+import Button from './Button.astro';
+import { site } from '../site.config';
+import { pytania, KROK_UWAGI, WYNIK } from '../data/kreator';
+import cennik from '../data/cennik.json';
+
+const id = `kreator-${crypto.randomUUID().slice(0, 8)}`;
+
+/** 6 pytań + krok uwag. */
+const LICZBA_KROKOW = pytania.length + 1;
+
+const politykaIstnieje =
+  Object.keys(import.meta.glob('../pages/polityka-prywatnosci.astro')).length > 0;
+
+const uzupelnione = (v: string) => Boolean(v) && !v.startsWith('TODO_');
+const tekstBledu = uzupelnione(site.email)
+  ? `Nie udało się wysłać. Napisz na ${site.email}.`
+  : 'Nie udało się wysłać. Spróbuj jeszcze raz za chwilę.';
+---
+
+<div class="kreator" data-kreator>
+  <div class="kreator__uklad">
+    {/* Schodki postępu (17.4/17.5): segment na krok, wypełnia je skrypt
+        klasą `jest-wypelniony`; ruch robi przejście CSS na transformie. */}
+    <div class="kreator__schodki" aria-hidden="true">
+      {
+        Array.from({ length: LICZBA_KROKOW }).map((_, i) => (
+          <span class="schodek-k" style={`--i: ${i}`}>
+            {i > 0 && (
+              <span class="schodek-k__lacze">
+                <span class="schodek-k__lacze-wyp" data-schodek-lacze={i} />
+              </span>
+            )}
+            <span class="schodek-k__tor">
+              <span class="schodek-k__wyp" data-schodek={i} />
+            </span>
+          </span>
+        ))
+      }
+    </div>
+
+    <div class="kreator__srodek">
+      <p class="kreator__licznik index" data-kreator-licznik>
+        krok 1 z&nbsp;{LICZBA_KROKOW}
+      </p>
+
+      {/* --- kroki ------------------------------------------------------- */}
+      <div class="kreator__kroki" data-kreator-kroki>
+        {
+          pytania.map((p) => (
+            <fieldset class="krok-k" data-krok-k tabindex="-1">
+              <legend class="krok-k__pytanie">{p.pytanie}</legend>
+              <p class="krok-k__wyjasnienie">{p.wyjasnienie}</p>
+              {p.dopisek && <p class="krok-k__dopisek">{p.dopisek}</p>}
+
+              <div class="krok-k__opcje">
+                {p.opcje.map((o) => {
+                  const idOpcji = `${id}-${p.klucz}-${o.klucz}`;
+                  return (
+                    <div class="opcja-k">
+                      <input
+                        class="opcja-k__input"
+                        type="radio"
+                        id={idOpcji}
+                        name={`kreator-${p.klucz}`}
+                        value={o.klucz}
+                        data-pytanie={p.klucz}
+                      />
+                      <label class="opcja-k__etykieta" for={idOpcji}>
+                        {o.etykieta}
+                      </label>
+                    </div>
+                  );
+                })}
+              </div>
+            </fieldset>
+          ))
+        }
+
+        {/* Krok 7 — uwagi (17.4). Pole potraktowane jak reszta strony:
+            ink-1, obramowanie line, focus green + ring z global.css. */}
+        <div class="krok-k krok-k--uwagi" data-krok-k tabindex="-1">
+          <p class="krok-k__pytanie">{KROK_UWAGI.naglowek}</p>
+          <label class="krok-k__etykieta-uwag" for={`${id}-uwagi`}>
+            {KROK_UWAGI.etykieta}
+          </label>
+          <textarea
+            class="krok-k__uwagi"
+            id={`${id}-uwagi`}
+            rows="4"
+            placeholder={KROK_UWAGI.podpowiedz}
+            data-uwagi></textarea>
+        </div>
+
+        {/* Bieżące widełki: po każdym kliknięciu widać, jak wybór ruszył
+            cenę (zasada nadrzędna 17.4). Pojawiają się, gdy znana jest baza. */}
+        <p class="kreator__biezaca" data-biezaca hidden aria-live="polite">
+          Twój przedział na razie:{' '}
+          <strong class="kreator__biezaca-kwota" data-biezaca-kwota></strong>
+        </p>
+
+        <div class="kreator__nawigacja">
+          <button type="button" class="kreator__wstecz" data-wstecz>Wstecz</button>
+          <Button wariant="wtorny" data-dalej>Dalej</Button>
+        </div>
+      </div>
+
+      {/* --- ekran wyniku ------------------------------------------------- */}
+      <div class="kreator__wynik" data-kreator-wynik hidden tabindex="-1" aria-live="polite">
+        <p class="wynik__etykieta">Twój orientacyjny przedział</p>
+        <p class="wynik__kwota">
+          <span data-kwota-widelki></span>&nbsp;{cennik.waluta}
+        </p>
+
+        <div class="wynik__sklad">
+          <p class="wynik__tytul">{WYNIK.tytulSkladu}</p>
+          <ul class="wynik__lista" data-sklad></ul>
+        </div>
+
+        <p class="wynik__zdjecia">{WYNIK.zdjecia}</p>
+
+        {/* Zastrzeżenie obowiązkowe i wyraźne (17.4, 17.9) */}
+        <p class="wynik__zastrzezenie">{WYNIK.zastrzezenie}</p>
+
+        <button type="button" class="wynik__zmien" data-zmien>Zmień odpowiedzi</button>
+
+        {/* --- formularz --------------------------------------------------- */}
+        <form
+          class="wynik__formularz"
+          data-formularz
+          data-klucz={site.web3formsKey}
+          data-tekst-ok={'Wysłane. Odpowiem w\u00A0ciągu 24 godzin w\u00A0dni robocze.'}
+          data-tekst-blad={tekstBledu}
+          data-chowa-pasek
+          novalidate
+        >
+          <input type="hidden" name="subject" value="Kreator wyceny — nowe zapytanie" />
+          <input type="hidden" name="from_name" value="Connectiva" />
+          {/* Odpowiedzi 1–6, uwagi i wyliczone widełki — do maila (17.4). */}
+          <input type="hidden" name="wycena_odpowiedzi" data-pole-odpowiedzi />
+          <input type="hidden" name="wycena_uwagi" data-pole-uwagi />
+          <input type="hidden" name="wycena_widelki" data-pole-widelki />
+
+          {/* Honeypot — widoczny tylko dla botów (SPEC 7.5) */}
+          <div class="wynik__pulapka" aria-hidden="true">
+            <label for={`${id}-firma`}>Nie wypełniaj tego pola</label>
+            <input
+              id={`${id}-firma`}
+              type="text"
+              name="firma"
+              tabindex="-1"
+              autocomplete="off"
+              data-honeypot
+            />
+          </div>
+
+          <div class="wynik__pola" data-pola>
+            <div class="pole">
+              <label class="pole__etykieta" for={`${id}-imie`}>
+                Imię <span class="pole__opcjonalne">(opcjonalnie)</span>
+              </label>
+              <input
+                class="pole__input"
+                id={`${id}-imie`}
+                name="imie"
+                type="text"
+                autocomplete="given-name"
+              />
+            </div>
+
+            <div class="pole">
+              <label class="pole__etykieta" for={`${id}-salon`}>
+                Salon i&nbsp;miasto <span class="pole__opcjonalne">(opcjonalnie)</span>
+              </label>
+              <input class="pole__input" id={`${id}-salon`} name="salon" type="text" />
+            </div>
+
+            <div class="pole">
+              <label class="pole__etykieta" for={`${id}-kontakt`}>
+                Instagram albo e-mail
+              </label>
+              <input
+                class="pole__input"
+                id={`${id}-kontakt`}
+                name="kontakt"
+                type="text"
+                autocomplete="email"
+                required
+                data-waliduj="kontakt"
+                aria-describedby={`${id}-kontakt-blad`}
+              />
+              <p class="pole__blad" id={`${id}-kontakt-blad`} aria-live="polite"></p>
+            </div>
+
+            <div class="pole">
+              <div class="zgoda">
+                <input
+                  class="zgoda__input"
+                  id={`${id}-zgoda`}
+                  name="zgoda"
+                  type="checkbox"
+                  required
+                  data-waliduj="zgoda"
+                  aria-describedby={`${id}-zgoda-blad`}
+                />
+                <label class="zgoda__etykieta" for={`${id}-zgoda`}>
+                  Zgadzam się na kontakt w&nbsp;sprawie wyceny i&nbsp;na
+                  przetwarzanie moich danych.{' '}
+                  {
+                    politykaIstnieje && (
+                      <a class="link" href="/polityka-prywatnosci/">
+                        Polityka prywatności
+                      </a>
+                    )
+                  }
+                </label>
+              </div>
+              <p class="pole__blad" id={`${id}-zgoda-blad`} aria-live="polite"></p>
+            </div>
+
+            <div class="wynik__wyslij">
+              <Button type="submit">{WYNIK.przycisk}</Button>
+              <p class="wynik__obietnica">{WYNIK.obietnica}</p>
+            </div>
+          </div>
+
+          <p class="wynik__stan" data-stan aria-live="polite"></p>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .kreator {
+    margin-top: 3rem;
+    max-width: 44rem;
+    /* Skok jednego pasa schodków postępu (17.5) */
+    --skok-k: 6px;
+  }
+
+  /* --- układ: schodki + treść -------------------------------------------- */
+
+  .kreator__uklad {
+    display: grid;
+    /* Mobile: rynna schodków pionowych po lewej (17.5) */
+    grid-template-columns: calc(6 * var(--skok-k) + 2px) 1fr;
+    column-gap: 1.25rem;
+  }
+
+  .kreator__schodki {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 168px;
+  }
+
+  .schodek-k {
+    position: relative;
+    flex: 1;
+  }
+
+  /* Tor segmentu: pionowo, na pasie `--i`, coraz dalej w prawo. */
+  .schodek-k__tor {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(var(--i) * var(--skok-k));
+    width: 2px;
+    background-color: var(--color-line);
+  }
+
+  .schodek-k__wyp {
+    position: absolute;
+    inset: 0;
+    background: var(--g-brand);
+    transform: scaleY(0);
+    transform-origin: top center;
+    transition: transform 250ms var(--ease-wejscie) 80ms;
+  }
+
+  /* Łącznik: przeskok z pasa poprzedniego kroku. */
+  .schodek-k__lacze {
+    position: absolute;
+    top: 0;
+    left: calc((var(--i) - 1) * var(--skok-k));
+    width: calc(var(--skok-k) + 2px);
+    height: 2px;
+    background-color: var(--color-line);
+  }
+
+  .schodek-k__lacze-wyp {
+    position: absolute;
+    inset: 0;
+    background: var(--g-brand);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 250ms var(--ease-wejscie);
+  }
+
+  .schodek-k__wyp.jest-wypelniony {
+    transform: scaleY(1);
+  }
+
+  .schodek-k__lacze-wyp.jest-wypelniony {
+    transform: scaleX(1);
+  }
+
+  /* Desktop: schodki poziomo nad treścią, wznoszą się w prawo (17.5). */
+  @media (min-width: 1024px) {
+    .kreator__uklad {
+      grid-template-columns: 1fr;
+      row-gap: 2rem;
+    }
+
+    .kreator__schodki {
+      flex-direction: row;
+      height: calc(6 * var(--skok-k) + 2px);
+      max-width: 28rem;
+    }
+
+    .schodek-k__tor {
+      left: 0;
+      right: 0;
+      top: auto;
+      bottom: calc(var(--i) * var(--skok-k));
+      width: auto;
+      height: 2px;
+    }
+
+    .schodek-k__wyp {
+      transform: scaleX(0);
+      transform-origin: left center;
+    }
+
+    .schodek-k__wyp.jest-wypelniony {
+      transform: scaleX(1);
+    }
+
+    .schodek-k__lacze {
+      top: auto;
+      left: -1px;
+      bottom: calc((var(--i) - 1) * var(--skok-k) + 2px);
+      width: 2px;
+      height: var(--skok-k);
+    }
+
+    .schodek-k__lacze-wyp {
+      transform: scaleY(0);
+      transform-origin: bottom center;
+    }
+
+    .schodek-k__lacze-wyp.jest-wypelniony {
+      transform: scaleY(1);
+    }
+  }
+
+  /* Bez skryptu nie ma kroków ani postępu — widać wszystkie pytania naraz. */
+  .kreator:not([data-tryb='krokowy']) .kreator__schodki,
+  .kreator:not([data-tryb='krokowy']) .kreator__licznik,
+  .kreator:not([data-tryb='krokowy']) .kreator__nawigacja,
+  .kreator:not([data-tryb='krokowy']) .kreator__biezaca {
+    display: none;
+  }
+
+  /* --- kroki -------------------------------------------------------------- */
+
+  .krok-k {
+    border: 0;
+    padding: 0;
+    margin: 2rem 0 0;
+    min-width: 0;
+  }
+
+  .krok-k:focus-visible {
+    outline: 2px solid var(--color-lime);
+    outline-offset: 8px;
+  }
+
+  .krok-k__pytanie {
+    padding: 0;
+    font-size: var(--text-h3);
+    font-weight: 500;
+    line-height: 1.25;
+    max-width: 34rem;
+  }
+
+  .krok-k__wyjasnienie {
+    margin-top: 0.75rem;
+    color: var(--color-text-2);
+    max-width: 34rem;
+  }
+
+  .krok-k__dopisek {
+    margin-top: 0.5rem;
+    font-size: var(--text-small);
+    color: var(--color-text-3);
+  }
+
+  .krok-k__opcje {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .opcja-k {
+    position: relative;
+  }
+
+  /* Input schowany wizualnie, ale wciąż fokusowalny — stan niesie etykieta. */
+  .opcja-k__input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    cursor: pointer;
+  }
+
+  .opcja-k__etykieta {
+    display: flex;
+    align-items: center;
+    /* Cel dotyku ≥ 48 px (SPEC 7.4) */
+    min-height: 48px;
+    padding: 0.6rem 1.25rem;
+    border: 1px solid var(--color-line-2);
+    border-radius: var(--radius-kontrolka);
+    color: var(--color-text-2);
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      background-color 200ms var(--ease-wejscie),
+      border-color 200ms var(--ease-wejscie),
+      color 200ms var(--ease-wejscie);
+  }
+
+  .opcja-k__input:hover + .opcja-k__etykieta {
+    color: var(--color-text);
+    border-color: var(--color-text-3);
+  }
+
+  /* Zaznaczenie niesie tło, obramowanie i kolor — nie sam kolor (SPEC 11.3). */
+  .opcja-k__input:checked + .opcja-k__etykieta {
+    background-color: var(--color-ink-2);
+    border-color: var(--color-green);
+    color: var(--color-text);
+  }
+
+  .opcja-k__input:focus-visible + .opcja-k__etykieta {
+    outline: 2px solid var(--color-lime);
+    outline-offset: 3px;
+  }
+
+  /* Zmiana pytania: opacity 200 ms (SPEC 17.4, 10.3) */
+  .kreator[data-tryb='krokowy'] .krok-k {
+    opacity: 0;
+    transition: opacity 200ms var(--ease-wejscie);
+  }
+
+  .kreator[data-tryb='krokowy'] .krok-k.jest-widoczny {
+    opacity: 1;
+  }
+
+  /* --- krok uwag ----------------------------------------------------------- */
+
+  .krok-k__etykieta-uwag {
+    display: block;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-size: var(--text-small);
+    color: var(--color-text-2);
+  }
+
+  .krok-k__uwagi {
+    width: 100%;
+    max-width: 34rem;
+    min-height: 120px;
+    padding: 0.75rem 0.875rem;
+    background-color: var(--color-ink-1);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-kontrolka);
+    color: var(--color-text);
+    line-height: 1.5;
+    resize: vertical;
+    transition: border-color 150ms var(--ease-wejscie);
+  }
+
+  .krok-k__uwagi::placeholder {
+    color: var(--color-text-3);
+  }
+
+  .krok-k__uwagi:hover {
+    border-color: var(--color-line-2);
+  }
+
+  .krok-k__uwagi:focus {
+    border-color: var(--color-green);
+    background-color: var(--color-ink-2);
+  }
+
+  /* --- bieżące widełki i nawigacja ----------------------------------------- */
+
+  .kreator__biezaca {
+    margin-top: 2rem;
+    font-size: var(--text-small);
+    color: var(--color-text-2);
+  }
+
+  .kreator__biezaca-kwota {
+    color: var(--color-text);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .kreator__nawigacja {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 2rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .kreator__wstecz,
+  .wynik__zmien {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    background: transparent;
+    border: 0;
+    color: var(--color-text-2);
+    text-decoration: underline;
+    text-decoration-color: var(--color-line-2);
+    text-underline-offset: 0.35em;
+    cursor: pointer;
+  }
+
+  .kreator__wstecz:hover,
+  .wynik__zmien:hover {
+    color: var(--color-text);
+  }
+
+  .kreator__wstecz:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  /* --- ekran wyniku --------------------------------------------------------- */
+
+  .kreator__wynik {
+    margin-top: 2.5rem;
+  }
+
+  .kreator__wynik:focus-visible {
+    outline: 2px solid var(--color-lime);
+    outline-offset: 8px;
+  }
+
+  .wynik__etykieta {
+    font-size: var(--text-small);
+    color: var(--color-text-2);
+  }
+
+  .wynik__kwota {
+    margin-top: 0.5rem;
+    font-family: var(--font-display);
+    font-size: var(--text-price);
+    font-weight: 300;
+    line-height: 1;
+    /* Liczba nie „skacze" szerokością przy tweenie (SPEC 5) */
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text);
+    max-width: none;
+  }
+
+  .wynik__sklad {
+    margin-top: 2.5rem;
+  }
+
+  .wynik__tytul {
+    font-size: var(--text-small);
+    font-weight: 500;
+    color: var(--color-text-2);
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-line);
+    max-width: 34rem;
+  }
+
+  .wynik__lista {
+    margin-top: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    color: var(--color-text-2);
+    max-width: 34rem;
+  }
+
+  /* Pozycje listy buduje JavaScript — bez atrybutu zakresu Astro. */
+  .wynik__lista :global(li) {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .wynik__lista :global(li)::before {
+    content: '';
+    flex: none;
+    width: 12px;
+    height: 1px;
+    margin-top: 0.8em;
+    background-color: var(--color-line-2);
+  }
+
+  .wynik__zdjecia {
+    margin-top: 2rem;
+    color: var(--color-text-2);
+    max-width: 34rem;
+  }
+
+  /* Zastrzeżenie: obowiązkowe i wyraźne (17.4) — oddzielone linią,
+     pełnym kolorem tekstu. */
+  .wynik__zastrzezenie {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-line);
+    color: var(--color-text);
+    max-width: 34rem;
+  }
+
+  .wynik__zmien {
+    margin-top: 1.5rem;
+    font-size: var(--text-small);
+  }
+
+  /* --- formularz ------------------------------------------------------------ */
+
+  .wynik__formularz {
+    margin-top: 2.5rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .wynik__pola {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .pole__etykieta {
+    display: block;
+    font-size: var(--text-small);
+    color: var(--color-text-2);
+    margin-bottom: 0.5rem;
+  }
+
+  .pole__opcjonalne {
+    color: var(--color-text-3);
+  }
+
+  .pole__input {
+    width: 100%;
+    max-width: 26rem;
+    height: 48px;
+    padding-inline: 0.875rem;
+    background-color: var(--color-ink-1);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-kontrolka);
+    color: var(--color-text);
+    transition: border-color 150ms var(--ease-wejscie);
+  }
+
+  .pole__input:hover {
+    border-color: var(--color-line-2);
+  }
+
+  .pole__input:focus {
+    border-color: var(--color-green);
+    background-color: var(--color-ink-2);
+  }
+
+  .pole__input[aria-invalid='true'] {
+    border-color: var(--color-error);
+  }
+
+  .pole__blad {
+    margin-top: 0.5rem;
+    font-size: var(--text-small);
+    color: var(--color-error);
+  }
+
+  .pole__blad:empty {
+    margin-top: 0;
+  }
+
+  .zgoda {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .zgoda__input {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    accent-color: var(--color-green);
+  }
+
+  .zgoda__etykieta {
+    font-size: var(--text-small);
+    color: var(--color-text-2);
+    max-width: 34rem;
+  }
+
+  .wynik__wyslij {
+    margin-top: 0.5rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .wynik__obietnica {
+    margin-top: 1.25rem;
+    font-size: var(--text-small);
+    color: var(--color-text-3);
+  }
+
+  .wynik__stan {
+    margin-top: 1.5rem;
+    color: var(--color-text-2);
+  }
+
+  .wynik__stan:empty {
+    margin-top: 0;
+  }
+
+  .wynik__formularz[data-stan-wysylki='ok'] .wynik__stan {
+    color: var(--color-text);
+  }
+
+  .wynik__formularz[data-stan-wysylki='blad'] .wynik__stan {
+    color: var(--color-error);
+  }
+
+  /* Honeypot: poza ekranem, poza kolejnością tabulacji (SPEC 7.5) */
+  .wynik__pulapka {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .kreator[data-tryb='krokowy'] .krok-k,
+    .opcja-k__etykieta,
+    .schodek-k__wyp,
+    .schodek-k__lacze-wyp {
+      transition: none;
+    }
+  }
+</style>

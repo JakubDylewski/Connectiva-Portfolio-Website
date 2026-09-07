@@ -110,8 +110,9 @@ Wszystkie pola żyją w jednym miejscu i są oznaczone `TODO_` — dopóki tak
 jest, formularze grzecznie odmawiają wysyłki, a stopka pokazuje placeholdery.
 
 1. **Klucz Web3Forms** — `web3formsKey` w `src/site.config.ts`. Zasila
-   wszystkie formularze: audyt na `/` i `/audyt/`, kontakt na `/`
-   i `/kontakt/`. Bez klucza formularz pokazuje komunikat zamiast wysyłać.
+   wszystkie formularze: audyt na `/` i `/audyt/`, kreator wyceny na `/`
+   i `/cennik/`, kontakt na `/` i `/kontakt/`. Bez klucza formularz
+   pokazuje komunikat zamiast wysyłać.
 2. **E-mail kontaktowy** — `email` w `src/site.config.ts` (sekcja Kontakt,
    stopka, menu mobilne, komunikaty błędów formularzy).
 3. **Instagram** — `instagram.nazwa` i `instagram.url` w `src/site.config.ts`.
@@ -120,10 +121,11 @@ jest, formularze grzecznie odmawiają wysyłki, a stopka pokazuje placeholdery.
    nazwa zawiera nazwisko (SPEC 2).
 5. **Netto czy brutto** — `cenyVat` w `src/site.config.ts` (decyzja otwarta
    nr 2, SPEC 16). Dopóki `null`, cennik uczciwie pisze „do ustalenia".
-6. **Model cenowy kreatora** — po Etapie 12 `src/data/cennik.json` przejdzie
-   na model addytywny z 17.4; zweryfikować, czy dolne widełki są opłacalne
-   przy realnym nakładzie pracy (decyzja otwarta 17.11, pkt 7). Do tego
-   czasu obowiązują placeholdery starego konfiguratora.
+6. **Model cenowy kreatora** — `src/data/cennik.json` trzyma model addytywny
+   z 17.4 (skrajne widełki 3 000–4 000 i 13 500–18 000; pilnuje ich
+   zabezpieczenie budowania w `src/data/kreator.ts`). Zweryfikować, czy dolne
+   widełki są opłacalne przy realnym nakładzie pracy (17.11, pkt 7) —
+   kwoty domyślnie netto, decyzja o VAT otwarta.
 7. **Termin startu** — `najblizszyTermin` w `src/site.config.ts` (dziś:
    październik 2026). Potwierdzić przed publikacją, potem aktualizować ręcznie.
 8. **Wyniki Lighthouse dem** — `lighthouseDate` w `src/data/projekty.ts`

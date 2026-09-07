@@ -1,41 +1,49 @@
 ---
 /**
- * /cennik/ (SPEC 8.6, 9).
+ * /cennik/ (SPEC 17.4).
  *
- * Ten sam konfigurator co sekcja 06 na stronie głównej, plus pytania o cenę.
- * Pytania biorą się z `src/data/faq.ts` — z tego samego źródła co sekcja 07,
- * filtrowane po fladze `oCene`, żeby treść nie żyła w dwóch miejscach.
+ * Ten sam kreator wyceny co sekcja 05 na stronie głównej, a pod nim blok
+ * „Nie ma w cenie" i zasada płatności etapami — oba z `cennik.json`,
+ * żeby treść nie żyła w dwóch miejscach.
  *
- * Od Etapu 6 strona jest indeksowalna — warstwa SEO jest na miejscu.
+ * Tytuły bloków to `p`, nie nagłówki — stoją po h1 i h2/h3 łamałyby
+ * kolejność nagłówków (wzór ze stopki, SPEC 11.3).
  */
 import Base from '../layouts/Base.astro';
 import SectionHead from '../components/SectionHead.astro';
-import Pricing from '../components/Pricing.astro';
-import Accordion from '../components/Accordion.astro';
-import { faqOCene } from '../data/faq';
-
+import Kreator from '../components/Kreator.astro';
+import cennik from '../data/cennik.json';
 ---
 
 <Base
   tytul="Cennik stron dla salonów beauty i klinik — Connectiva"
-  opis="Jedna cena widełkowa, znana przed startem: 8 000–10 000 zł. Po rozmowie dostajesz kwotę końcową i to ona jest w umowie."
+  opis="Sześć pytań o to, czego potrzebujesz. Na końcu zobaczysz orientacyjne widełki i dokładnie to, co się na nie składa. Bez logowania, bez zobowiązań."
   pasekMobile
 >
   <section class="strona-cennik">
     <div class="kontener">
       <SectionHead
         poziom="h1"
-        linia1={'8 000–10 000 zł.'}
-        linia2={'Tyle, nie „od”.'}
-        lead={'Jedna cena widełkowa, znana przed startem. Po rozmowie dostajesz kwotę końcową i to ona jest w umowie.'}
+        linia1="Każdy projekt wyceniamy osobno."
+        linia2={'Sprawdź, w\u00A0jakim jesteś przedziale.'}
+        lead={'Sześć pytań o\u00A0to, czego potrzebujesz. Na końcu zobaczysz orientacyjne widełki i\u00A0dokładnie to, co się na nie składa. Bez logowania, bez zobowiązań.'}
         lacznik
       />
 
-      <Pricing />
+      <Kreator />
 
-      <div class="strona-cennik__pytania">
-        <h2 class="strona-cennik__naglowek">Pytania o cenę</h2>
-        <Accordion pozycje={faqOCene} />
+      <div class="strona-cennik__dol">
+        <div class="strona-cennik__blok">
+          <p class="strona-cennik__tytul">Nie ma w&nbsp;cenie</p>
+          <ul class="strona-cennik__lista">
+            {cennik.nieMaWCenie.map((p) => <li>{p}</li>)}
+          </ul>
+        </div>
+
+        <div class="strona-cennik__blok">
+          <p class="strona-cennik__tytul">Płatność</p>
+          <p class="strona-cennik__tekst">{cennik.platnosc}</p>
+        </div>
       </div>
     </div>
   </section>
@@ -46,16 +54,52 @@ import { faqOCene } from '../data/faq';
     padding-block: var(--spacing-sekcja);
   }
 
-  .strona-cennik__pytania {
+  .strona-cennik__dol {
+    display: grid;
+    gap: 2.5rem;
     margin-top: var(--spacing-sekcja);
+    max-width: 44rem;
   }
 
-  .strona-cennik__naglowek {
-    font-family: var(--font-display);
-    font-size: var(--text-display-2);
-    font-weight: 400;
-    line-height: 1.06;
-    letter-spacing: -0.01em;
-    margin-bottom: 2.5rem;
+  .strona-cennik__tytul {
+    font-size: var(--text-small);
+    font-weight: 500;
+    color: var(--color-text-2);
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .strona-cennik__lista {
+    margin-top: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    color: var(--color-text-3);
+  }
+
+  .strona-cennik__lista li {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .strona-cennik__lista li::before {
+    content: '';
+    flex: none;
+    width: 12px;
+    height: 1px;
+    margin-top: 0.8em;
+    background-color: var(--color-line-2);
+  }
+
+  .strona-cennik__tekst {
+    margin-top: 1.25rem;
+    color: var(--color-text-2);
+  }
+
+  @media (min-width: 768px) {
+    .strona-cennik__dol {
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+    }
   }
 </style>

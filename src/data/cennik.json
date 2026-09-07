@@ -1,41 +1,45 @@
 {
-  "baza": 8000,
-  "gorna": 10000,
+  "uwaga": "Model addytywny kreatora wyceny (SPEC 17.4). Kwoty netto — decyzja o\u00A0VAT otwarta (17.11). Przedziały zakotwiczone w\u00A0realnych cenach polskiego rynku 2026 — nie zmieniać bez rozmowy z\u00A0Jakubem. Skrajnych wartości pilnuje zabezpieczenie budowania w\u00A0src/data/kreator.ts.",
   "waluta": "zł",
-  "zawiera": [
-    "stronę główną i\u00A0do 6 podstron usługowych",
-    "jeden moduł systemu pozyskiwania klientek",
-    "rezerwację online, zintegrowaną z\u00A0Twoim systemem",
-    "5 stron lokalnego SEO",
-    "wizytówkę Google spiętą ze stroną",
-    "RODO i\u00A0polityki",
-    "godzinę szkolenia",
-    "30 dni poprawek",
-    "hosting na Cloudflare, 0 zł miesięcznie, na zawsze"
-  ],
-  "przelaczniki": [
-    { "id": "podstrony", "etykieta": "+6 podstron usługowych (do 12)", "kwota": 600 },
-    { "id": "seo", "etykieta": "+10 stron lokalnego SEO (do 15)", "kwota": 500 },
-    {
-      "id": "modul",
-      "etykieta": "Drugi moduł systemu (np. cennik z\u00A0filtrem i\u00A0diagnoza skóry)",
-      "kwota": 600
+  "zaokraglenie": 500,
+  "wagi": {
+    "rozmiar": {
+      "wizytowka": [3000, 4000],
+      "srednia": [5000, 6500],
+      "rozbudowana": [8000, 10000]
     },
-    {
-      "id": "art14",
-      "etykieta": "Teksty dla kliniki lekarskiej zgodne z\u00A0art. 14",
-      "kwota": 300
+    "segment": {
+      "salon": [0, 0],
+      "gabinet": [0, 0],
+      "klinika": [500, 800],
+      "inne": [0, 0]
+    },
+    "system": {
+      "brak": [0, 0],
+      "jeden": [1500, 2000],
+      "dwa": [2500, 3500]
+    },
+    "rezerwacja": {
+      "brak": [0, 0],
+      "wpiac": [500, 800],
+      "dobrac": [800, 1200]
+    },
+    "miejscowosci": {
+      "jedna": [0, 0],
+      "okoliczne": [800, 1200],
+      "region": [1500, 2500]
+    },
+    "zrodlo": {
+      "instagram": [0, 0],
+      "google": [0, 0],
+      "reklamy": [0, 0]
     }
-  ],
-  "platnosc": "W\u00A0trzech częściach: 30% na start, 40% po akceptacji projektu, 30% po publikacji. Faktura na każdą część.",
-  "opieka": {
-    "kwota": 249,
-    "opis": "aktualizacje, kopie zapasowe, monitoring, do dwóch godzin zmian w\u00A0treści. Bez zobowiązania, wypowiedzenie w\u00A0każdej chwili. Bez opieki strona działa dalej — jest Twoja."
   },
   "nieMaWCenie": [
     "honorarium fotografa",
-    "abonament systemu rezerwacji (Booksy, Fresha, Estetify)",
-    "reklamy i\u00A0ich obsługa",
-    "teksty specjalistyczne pisane od zera przez lekarza"
-  ]
+    "abonament systemu rezerwacji",
+    "budżet reklamowy i\u00A0obsługa kampanii",
+    "teksty specjalistyczne pisane przez lekarza"
+  ],
+  "platnosc": "Płacisz etapami, faktura za każdy etap."
 }
