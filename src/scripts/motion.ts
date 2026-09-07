@@ -133,7 +133,7 @@ export async function initMotion(): Promise<void> {
 
     mm.add(DESKTOP, () => {
       // Dwa piny i ani jednego więcej (SPEC 10.2).
-      projektyDesktop(gsap, ScrollTrigger); // pin 1 z 2
+      projektyPrzypiete(gsap, ScrollTrigger); // pin 1 z 2
       procesDesktop(gsap); // pin 2 z 2
       paralaksCaseStudy(gsap); // podstrony projektów (SPEC 9.1)
       const sprzatnijMagnetyzm = magnetyzmPrzyciskow(gsap); // SPEC 7.4, Etap 8
@@ -145,8 +145,13 @@ export async function initMotion(): Promise<void> {
 
     mm.add(MOBILE, () => {
       pasekDolny(ScrollTrigger);
-      projektyMobile(gsap, ScrollTrigger);
-      procesMobile(gsap);
+      // 17.5: Projekty przypięte także na telefonie — JEDYNY pin mobile
+      // (Proces na telefonie bez pinu, Etap 11; limit 2 z 10.2 zachowany
+      // z zapasem). Przy `data-motion="off"` zamiast pinu działa stara
+      // wersja bez pinowania — funkcje wykluczają się nawzajem atrybutem.
+      projektyPrzypiete(gsap, ScrollTrigger); // pin 1 (jedyny na mobile)
+      projektyMobileBezPinu(gsap, ScrollTrigger); // wyłącznik awaryjny 17.5
+      procesMobile(gsap); // bez pinu
     });
 
     mm.add(REDUCE, () => {
@@ -367,10 +372,14 @@ interface CzesciProjektow {
   zrzuty: HTMLImageElement[];
 }
 
-/** Zbiera elementy sekcji. `null`, gdy sekcji nie ma albo ruch jest wyłączony. */
+/**
+ * Zbiera elementy sekcji. `null`, gdy sekcji nie ma. O tym, który wariant
+ * ruchu obowiązuje, decydują wywołujący na podstawie `data-motion` —
+ * od 17.5 atrybut przełącza warianty, a nie tylko wyłącza ruch.
+ */
 function czesciProjektow(): CzesciProjektow | null {
   const sekcja = document.querySelector<HTMLElement>('[data-projekty]');
-  if (!sekcja || sekcja.dataset.motion === 'off') return null;
+  if (!sekcja) return null;
 
   const scena = sekcja.querySelector<HTMLElement>('[data-scena]');
   const bloki = [...sekcja.querySelectorAll<HTMLElement>('[data-blok]')];
@@ -462,10 +471,18 @@ function podepnijChipy(
   sprzatanie.push(() => document.removeEventListener(ZDARZENIE_SEGMENT, naSegment));
 }
 
-/** Układ desktopowy: sekcja przypięta, scrub steruje wszystkim (SPEC 8.1). */
-function projektyDesktop(gsap: Gsap, ScrollTrigger: ST): void {
+/**
+ * Sekcja przypięta, scrub steruje wszystkim (SPEC 8.1, 17.5).
+ *
+ * Od rewizji v2 ten sam wariant działa na desktopie i na telefonie: trzy dema
+ * pokazują się po kolei w przypiętym kadrze — zrzut przewija się do końca,
+ * potem crossfade do następnego, w obie strony. Różni je tylko układ w CSS
+ * (Projects.astro). `data-motion="off"` przełącza telefon na wariant bez
+ * pinu (projektyMobileBezPinu), a desktop na statyczny układ pionowy.
+ */
+function projektyPrzypiete(gsap: Gsap, ScrollTrigger: ST): void {
   const czesci = czesciProjektow();
-  if (!czesci) return;
+  if (!czesci || czesci.sekcja.dataset.motion === 'off') return;
   const { scena, bloki, teksty, zrzuty } = czesci;
 
   const przebarw = zrobPrzebarwiacz(gsap);
@@ -537,10 +554,16 @@ function projektyDesktop(gsap: Gsap, ScrollTrigger: ST): void {
   sprzatanie.push(() => willChange(false));
 }
 
-/** Układ mobilny: bez pinowania, każdy blok scrubuje własny zrzut (SPEC 8.1). */
-function projektyMobile(gsap: Gsap, ScrollTrigger: ST): void {
+/**
+ * Wyłącznik awaryjny na telefonie (17.5): przy `data-motion="off"` wraca
+ * stara wersja mobile — trzy bloki jeden pod drugim BEZ pinu, zrzut
+ * przewijany scrubem w obrębie własnego bloku. Zabezpieczenie na wypadek
+ * szarpania pinu na słabszych telefonach; decyzję podejmuje Jakub na
+ * prawdziwym urządzeniu (10.7).
+ */
+function projektyMobileBezPinu(gsap: Gsap, ScrollTrigger: ST): void {
   const czesci = czesciProjektow();
-  if (!czesci) return;
+  if (!czesci || czesci.sekcja.dataset.motion !== 'off') return;
   const { sekcja, bloki, zrzuty } = czesci;
 
   const przebarw = zrobPrzebarwiacz(gsap);
