@@ -150,12 +150,11 @@ if (uzupelnione(site.instagram.url)) organizacja.sameAs = [site.instagram.url];
       import { initNav } from '../scripts/nav';
       import { initSegmentChips } from '../scripts/segment';
       import { initAccordions } from '../scripts/accordion';
-      import { initCityCheck } from '../scripts/city';
       import { initAudit } from '../scripts/audit';
       import { initForms, initPasekPrzyFormularzach } from '../scripts/forms';
       import { initPricing } from '../scripts/pricing';
 
-      // Menu, chipy, akordeony i sprawdzarka muszą działać niezależnie od
+      // Menu, chipy, akordeony i audyt muszą działać niezależnie od
       // preferencji ruchu, więc nie czekają na GSAP (SPEC 10.1).
       //
       // Od Etapu 8 stronami steruje ClientRouter: ten moduł wykonuje się raz
@@ -171,7 +170,6 @@ if (uzupelnione(site.instagram.url)) organizacja.sameAs = [site.instagram.url];
           initNav(),
           initSegmentChips(),
           initAccordions(),
-          initCityCheck(),
           initAudit(),
           initForms(),
           initPasekPrzyFormularzach(),

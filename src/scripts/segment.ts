@@ -3,8 +3,8 @@
  *
  * Wybór segmentu ląduje jako `data-segment` na `<html>` i jest rozgłaszany
  * zdarzeniem, żeby kolejne miejsca mogły się podpiąć bez znajomości siebie
- * nawzajem: sekcja Projekty (Etap 2) i sprawdzarka miast (Etap 3, SPEC 8.3 —
- * „te same chipy, zsynchronizowane").
+ * nawzajem — dziś słucha go sekcja Projekty (Etap 2); sprawdzarka miast
+ * wypadła w rewizji v2 (SPEC 17.1).
  *
  * Stan trzymamy wyłącznie w pamięci — bez localStorage (SPEC 8.0).
  */
@@ -29,8 +29,8 @@ export interface SegmentDetail {
   zDotkniecia: boolean;
   /**
    * `true` tylko dla grupy chipów, która ma prowadzić do sekcji Projekty
-   * (hero). Chipy w sprawdzarce miast zmieniają segment, ale nie mają prawa
-   * wyrwać użytkowniczki ze środka formularza.
+   * (hero). Inne grupy zmieniają segment w miejscu — nie mają prawa
+   * wyrywać użytkowniczki z tego, co właśnie robi.
    */
   prowadziDoProjektow: boolean;
 }

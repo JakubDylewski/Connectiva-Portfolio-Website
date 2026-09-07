@@ -4,8 +4,8 @@ Strona portfolio agencji Connectiva. Specyfikacja projektu jest w [`SPEC.md`](./
 i ma pierwszeństwo przed czymkolwiek innym — decyzje trwałe zapisujemy tam,
 nie w promptach i nie w komentarzach.
 
-Stan: **Etapy 0–9 ukończone.** Przed publikacją zostaje lista
-„Do uzupełnienia" na dole tego pliku.
+Stan: **Etapy 0–10 ukończone; trwa rewizja v2 (SPEC 17, Etapy 11–14).**
+Przed publikacją zostaje lista „Do uzupełnienia" na dole tego pliku.
 
 ---
 
@@ -120,20 +120,17 @@ jest, formularze grzecznie odmawiają wysyłki, a stopka pokazuje placeholdery.
    nazwa zawiera nazwisko (SPEC 2).
 5. **Netto czy brutto** — `cenyVat` w `src/site.config.ts` (decyzja otwarta
    nr 2, SPEC 16). Dopóki `null`, cennik uczciwie pisze „do ustalenia".
-6. **Kwoty przełączników cennika** — `src/data/cennik.json` (600 / 500 /
-   600 / 300 zł i opieka 249 zł to placeholdery — decyzja otwarta nr 5).
-   Suma bazy i przełączników musi się równać górnej granicy widełek —
-   build pilnuje tego sam.
-7. **Wartości `src/data/miasta.json`** — dziś wszystkie „wolne" i to jest
-   stan faktyczny. Aktualizacja ręcznie po podpisaniu umowy; nigdy „zajęte"
-   dla efektu (SPEC 15).
-8. **Termin startu** — `najblizszyTermin` w `src/site.config.ts` (dziś:
+6. **Model cenowy kreatora** — po Etapie 12 `src/data/cennik.json` przejdzie
+   na model addytywny z 17.4; zweryfikować, czy dolne widełki są opłacalne
+   przy realnym nakładzie pracy (decyzja otwarta 17.11, pkt 7). Do tego
+   czasu obowiązują placeholdery starego konfiguratora.
+7. **Termin startu** — `najblizszyTermin` w `src/site.config.ts` (dziś:
    październik 2026). Potwierdzić przed publikacją, potem aktualizować ręcznie.
-9. **Wyniki Lighthouse dem** — `lighthouseDate` w `src/data/projekty.ts`
+8. **Wyniki Lighthouse dem** — `lighthouseDate` w `src/data/projekty.ts`
    jest `null`, więc strona celowo nie pokazuje liczb Lighthouse projektów.
    Po zmierzeniu dem wpisać datę pomiaru — liczby pojawią się same.
-10. **Wariant H1 hero** — decyzja otwarta nr 8 (SPEC 16). Żaden z trzech
-    wariantów nie mieści się w dwóch liniach na 360 px (raport z Etapu 1) —
-    do rozstrzygnięcia razem z ewentualnym skróceniem tekstu.
-11. **Obietnice terminowe** — 4 tygodnie realizacji, 30 dni poprawek,
-    odpowiedź w 24 h, wideo w 48 h: potwierdzić, że są wykonalne (SPEC 15).
+9. **Opieka pomiesięczna** — czy zostaje w ofercie i za ile (decyzja
+   otwarta 17.11, pkt 6).
+10. **Obietnice terminowe** — odpowiedź w 24 h i wideo w 48 h: potwierdzić,
+    że są wykonalne (SPEC 15). Sztywne terminy realizacji wypadają z treści
+    w Etapie 11 (17.7).

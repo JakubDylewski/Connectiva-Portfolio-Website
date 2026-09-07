@@ -13,7 +13,7 @@ import Lacznik from './Lacznik.astro';
 interface Props {
   /** Numer pozycji, np. „01". Pomiń dla hero i kontaktu. */
   index?: string;
-  /** Liczba sekcji numerowanych. */
+  /** Liczba sekcji numerowanych (17.2: sześć po usunięciu wyłączności). */
   total?: string;
   /** Pierwsza linia H2. */
   linia1: string;
@@ -29,7 +29,7 @@ interface Props {
 
 const {
   index,
-  total = '07',
+  total = '06',
   linia1,
   linia2,
   lead,

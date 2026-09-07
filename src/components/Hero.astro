@@ -18,18 +18,15 @@ import SegmentChips from './SegmentChips.astro';
 <section id="top" class="hero" data-hero>
   <div class="kontener hero__srodek">
     {/*
-      DO DECYZJI JAKUBA (SPEC 8.0 — wybór wariantu H1, SPEC 6.2 — dwie linie).
-      Zmierzone na 360 px, display-1 = 44 px, po wcięciu zostaje 276 px:
-        „zapełnia kalendarz."  345 px → za szerokie o 69 px (wariant 1, ten)
-        „Wychodzi z rezerwacją."  417 px → za szerokie o 141 px (wariant 2)
-        „Pełny kalendarz."     296 px → za szerokie o 20 px (wariant 3)
-      Żaden z trzech wariantów ze SPEC 8.0 nie mieści się dziś w dwóch
-      linijkach na 360 px. Zgodnie ze SPEC 6.2 skraca się tekst, a nie zasadę —
-      ale to jest decyzja o treści, więc zostawiam wariant 1 i raportuję.
+      Treść H1 wprost z 17.3 — wariant zamknięty w 17.11, nie wybieramy go
+      tutaj. Obie linie są dłuższe niż warianty z 8.0, więc na wąskich
+      ekranach każda może złamać się na dwie linijki; SPEC 6.2 kazałby
+      skracać tekst, ale sekcja 17 ma pierwszeństwo i tekst jest ustalony.
+      Pomiar na 360 px raportowany w podsumowaniu Etapu 10.
     */}
     <h1 class="hero__h1" data-wejscie="h1">
-      <span class="l1">Strona, która</span>
-      <span class="l2">zapełnia kalendarz.</span>
+      <span class="l1">Ładna strona to za mało.</span>
+      <span class="l2">Ma prowadzić do rezerwacji.</span>
     </h1>
 
     <div class="hero__lacznik" data-wejscie="lacznik">
@@ -37,13 +34,14 @@ import SegmentChips from './SegmentChips.astro';
     </div>
 
     <p class="hero__lead" data-wejscie="reszta">
-      Strony i&nbsp;systemy pozyskiwania klientek dla salonów beauty, gabinetów
-      kosmetologii i&nbsp;klinik medycyny estetycznej. Jedna marka na miasto.
-      Cena znana przed pierwszą rozmową.
+      Twoja klientka wchodzi z&nbsp;telefonu i&nbsp;decyduje w&nbsp;kilka
+      sekund. Budujemy strony, które prowadzą ją krok po kroku — od pierwszego
+      wejścia, przez ciekawość, po umówioną wizytę. Nie zostawiamy tego
+      przypadkowi.
     </p>
 
     <div class="hero__cta" data-wejscie="reszta">
-      <Button wariant="glowny" href="#audyt">Bezpłatny audyt w&nbsp;60 sekund</Button>
+      <Button wariant="glowny" href="#audyt">Sprawdź swoją stronę</Button>
       <Button wariant="wtorny" href="#projekty" przesuniety>Zobacz projekty</Button>
     </div>
 

@@ -1,39 +1,34 @@
 ---
 /**
- * Strona główna (SPEC 8).
+ * Strona główna (SPEC 17.2 — rewizja v2).
  *
- * Kolejność sekcji i licznik „NN / 07" wprost ze SPEC 8: hero → 01 Projekty
- * → 02 Co dostajesz → 03 Jedna marka na miasto → 04 Audyt → 05 Proces
- * → 06 Cena → 07 Pytania → Kontakt (bez numeru).
+ * Kolejność sekcji i licznik „NN / 06" wprost z 17.2: hero → 01 Projekty
+ * → 02 Co dostajesz → 03 Sprawdź swoją stronę (audyt) → 04 Jak pracujemy
+ * → 05 Ile to kosztuje → 06 Pytania → Kontakt (bez numeru).
  *
- * Od Etapu 6 strona jest indeksowalna — warstwa SEO (canonical, sitemap,
- * dane strukturalne) jest już na miejscu.
+ * Sekcja „Jedna marka na miasto" usunięta w całości (17.1 — koniec
+ * wyłączności geograficznej). Sekcja 05 renderuje na razie stary
+ * konfigurator — kreator wyceny wchodzi w Etapie 12 (17.4); kotwica
+ * `#kreator` jest już docelowa, żeby linki z podstron projektów nie
+ * zmieniały się drugi raz.
+ *
+ * DO DECYZJI JAKUBA (SPEC 6.2 — nagłówki mają dokładnie dwie linie).
+ * Zmierzone na 360 px przy display-2 = 34 px — dwa nagłówki łamią się
+ * na więcej niż dwie linijki:
+ *   01 „Trzy segmenty rynku. / Trzy projekty pokazowe."    → 4 linie
+ *   02 „Jeden produkt. / Wszystko, co zapełnia kalendarz." → 3 linie
  */
 import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
 import Projects from '../components/Projects.astro';
 import SectionHead from '../components/SectionHead.astro';
 import Accordion from '../components/Accordion.astro';
-import CityCheck from '../components/CityCheck.astro';
 import Audit from '../components/Audit.astro';
 import Process from '../components/Process.astro';
 import Pricing from '../components/Pricing.astro';
 import Faq from '../components/Faq.astro';
 import Contact from '../components/Contact.astro';
 import { zakres } from '../data/zakres';
-
-/**
- * Sekcje strony głównej w kolejności ze SPEC 8. Licznik „NN / 07".
- *
- * DO DECYZJI JAKUBA (SPEC 6.2 — nagłówki mają dokładnie dwie linie).
- * Zmierzone na 360 px przy display-2 = 34 px — trzy nagłówki się nie mieszczą
- * i łamią się na więcej niż dwie linijki:
- *   01 „Trzy segmenty rynku. / Trzy projekty pokazowe."    → 4 linie
- *   02 „Jeden produkt. / Wszystko, co zapełnia kalendarz." → 3 linie
- *   03 „Jedna marka na miasto. / Sprawdź, czy Twoje jest wolne." → 4 linie
- * Pozostałe pięć mieści się w dwóch. Zgodnie ze SPEC 6.2 skraca się tekst,
- * a nie zasadę — te trzy sekcje i tak dostają treść w Etapach 2–3.
- */
 ---
 
 <Base
@@ -59,25 +54,11 @@ import { zakres } from '../data/zakres';
     </div>
   </section>
 
-  {/* 03 Jedna marka na miasto (SPEC 8.3) */}
-  <section id="miasto" class="sekcja">
-    <div class="kontener">
-      <SectionHead
-        index="03"
-        linia1="Jedna marka na miasto."
-        linia2="Sprawdź, czy Twoje jest wolne."
-        lead={'Nie zrobimy strony Twojej konkurencji z tej samej ulicy. W każdym mieście pracujemy z jednym salonem beauty, jednym gabinetem kosmetologii i jedną kliniką.'}
-        lacznik
-      />
-      <CityCheck />
-    </div>
-  </section>
-
-  {/* 04 Audyt w 60 sekund (SPEC 8.4) — główna konwersja */}
+  {/* 03 Sprawdź swoją stronę (SPEC 8.4, kolejność 17.2) — główna konwersja */}
   <section id="audyt" class="sekcja">
     <div class="kontener">
       <SectionHead
-        index="04"
+        index="03"
         linia1="Sprawdź swoją stronę"
         linia2={'w 60 sekund.'}
         lead="Sześć pytań. Bez logowania, bez maila. Na końcu zdecydujesz, czy chcesz pełny audyt wideo."
@@ -87,14 +68,16 @@ import { zakres } from '../data/zakres';
     </div>
   </section>
 
-  {/* 05 Proces (SPEC 8.5) — pin 2 z 2 na desktopie */}
+  {/* 04 Jak pracujemy (SPEC 8.5, kolejność 17.2; treść bez terminów w Etapie 11) — pin 2 z 2 na desktopie */}
   <Process />
 
-  {/* 06 Cena (SPEC 8.6) */}
-  <section id="cennik" class="sekcja">
+  {/* 05 Ile to kosztuje (17.2). Kotwica `#kreator` jest docelowa — treść
+      kreatora wyceny (17.4) wchodzi w Etapie 12, do tego czasu renderuje się
+      dotychczasowy konfigurator. */}
+  <section id="kreator" class="sekcja">
     <div class="kontener">
       <SectionHead
-        index="06"
+        index="05"
         linia1={'8 000–10 000 zł.'}
         linia2={'Tyle, nie „od”.'}
         lead={'Jedna cena widełkowa, znana przed startem. Po rozmowie dostajesz kwotę końcową i to ona jest w umowie.'}
@@ -104,11 +87,11 @@ import { zakres } from '../data/zakres';
     </div>
   </section>
 
-  {/* 07 Pytania (SPEC 8.7) */}
+  {/* 06 Pytania (SPEC 8.7, zmiany treści w Etapie 14) */}
   <section id="pytania" class="sekcja">
     <div class="kontener">
       <SectionHead
-        index="07"
+        index="06"
         linia1="Osiem pytań."
         linia2="Osiem odpowiedzi."
         lead={'Wszystko, o co pytają najczęściej: termin, rezerwacja, prawa do strony, faktury i zakaz reklamy w klinikach.'}

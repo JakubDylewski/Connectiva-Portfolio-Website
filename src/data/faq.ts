@@ -57,13 +57,8 @@ export const faq: PytanieFaq[] = [
       'promocji i\u00A0przed/po. Przy wątpliwościach rekomendujemy konsultację ' +
       'prawną — praktyka izb bywa aktualizowana.',
   },
-  {
-    tytul: 'Moje miasto jest zajęte. Co wtedy?',
-    tresc:
-      'Nie zrobimy drugiej strony w\u00A0tym samym segmencie w\u00A0tym samym mieście. ' +
-      'Możemy zaproponować sąsiednie miasto albo wpisać Cię na listę na wypadek ' +
-      'zakończenia współpracy.',
-  },
+  // Pytanie „Moje miasto jest zajęte. Co wtedy?” usunięte w rewizji v2
+  // (SPEC 17.1, 17.8) — wyłączność geograficzna wypadła z oferty.
   {
     tytul: 'Prowadzicie reklamy i\u00A0social media?',
     tresc:

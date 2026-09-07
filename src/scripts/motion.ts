@@ -56,6 +56,26 @@ interface Diagnostyka {
 type LenisInstancja = InstanceType<typeof import('lenis').default>;
 let lenisInstancja: LenisInstancja | null = null;
 
+/** Dosuwa scroll do elementu z `location.hash` — patrz wywołanie w `initMotion`. */
+function poprawKotwiceZAdresu(): void {
+  const hash = window.location.hash;
+  if (hash.length < 2) return;
+
+  let cel: HTMLElement | null = null;
+  try {
+    cel = document.getElementById(decodeURIComponent(hash.slice(1)));
+  } catch {
+    return;
+  }
+  if (!cel) return;
+
+  if (lenisInstancja) {
+    lenisInstancja.scrollTo(cel, { offset: ODSUNIECIE_KOTWICY, immediate: true });
+  } else {
+    cel.scrollIntoView({ block: 'start' });
+  }
+}
+
 /** Przewija do elementu albo do pozycji w pikselach — przez Lenis, gdy działa. */
 function przewinDoCelu(cel: number | HTMLElement): void {
   if (lenisInstancja) {
@@ -160,6 +180,13 @@ export async function initMotion(): Promise<void> {
 
   // Geometrię mierzymy raz, po fontach (SPEC 10.2).
   ScrollTrigger.refresh();
+
+  // Wejście z kotwicą w adresie (np. /#kreator z podstrony projektu):
+  // przeglądarka albo router przewija do celu, zanim powstaną pin-spacery
+  // sekcji przypiętych, więc cel odjeżdża potem w dół o ich wysokość.
+  // Po przeliczeniu geometrii dowozimy scroll na miejsce — natychmiast,
+  // bez animacji, bo to korekta pozycji, nie efekt.
+  poprawKotwiceZAdresu();
 
   // Wyjątek od „mierzymy raz": gdy sekcja odsłoni coś, czego wcześniej nie
   // było w układzie (werdykt audytu z formularzem), trzeba przeliczyć —
@@ -424,8 +451,8 @@ function podepnijChipy(
     const { segment, zDotkniecia, prowadziDoProjektow } = (
       e as CustomEvent<SegmentDetail>
     ).detail;
-    // Do projektów prowadzą tylko chipy z hero. Te w sprawdzarce miast
-    // zmieniają segment w miejscu — przewinięcie wyrwałoby z formularza.
+    // Do projektów prowadzą tylko chipy z hero (`prowadziDoProjektow`) —
+    // inne grupy chipów zmieniałyby segment w miejscu, bez przewijania.
     if (!zDotkniecia || !prowadziDoProjektow) return;
     const i = bloki.findIndex((b) => b.dataset.segmentKlucz === segment);
     if (i < 0) return;

@@ -609,3 +609,295 @@ Każdy etap kończy się: `npm run build` bez błędów, podsumowaniem zmian, li
 ---
 
 *Specyfikacja v1 · 4 września 2026 · Connectiva — strona portfolio. Wersje kolejne: zmieniać w pliku, nie w promptach.*
+
+
+
+
+
+---
+
+# 17. REWIZJA v2 — OBOWIĄZUJĄCA WERSJA (4 września 2026)
+
+> **Ta sekcja ma pierwszeństwo przed wszystkim, co jest wyżej w tym pliku.** Gdziekolwiek sekcje 0–16 mówią co innego niż sekcja 17 — obowiązuje sekcja 17. Nie usuwamy starych sekcji z pliku (są zapisem historii decyzji), ale kod ma być zgodny z tą rewizją.
+>
+> Co zostaje bez zmian: logo i jego odtworzenie (3), paleta i tokeny (4), typografia (5), sygnatura „Łącznik" i zasada przesunięcia (6), komponenty bazowe (7), lekcje techniczne i konwencje Astro/Tailwind (12), lista „czego nie robimy" (13), zasady wydajności i dostępności (11).
+
+---
+
+## 17.1 Co wypada ze strony (usunąć)
+
+**Sekcja „Jedna marka na miasto" (8.3) — usunąć w całości.** Rezygnujemy z wyłączności geograficznej. Konkretnie:
+
+- usunąć sekcję z `index.astro`,
+- usunąć komponent `CityCheck.astro` i plik `src/data/miasta.json`,
+- usunąć sprawdzarkę miast ze strony `/kontakt/`,
+- usunąć pytanie FAQ „Moje miasto jest zajęte. Co wtedy?" (8.7, pozycja 7),
+- usunąć wzmianki o wyłączności z gwarancji w sekcji 2 i z treści całej strony (grep: „wyłączność", „jedna marka", „konkurencji z tej samej ulicy"),
+- na podstronach projektów (9.1, punkt 6) link do sprawdzarki zastąpić linkiem do kreatora wyceny.
+
+**Sekcja „Cena" (8.6) i strona `/cennik/` — zastąpione kreatorem wyceny (17.4).** Znika konfigurator z bazą 8 000 zł, przełącznikami i sztywnymi widełkami. Plik `src/data/cennik.json` zostaje, ale z nową zawartością wg 17.4. Strona `/cennik/` zostaje jako adres, ale renderuje kreator.
+
+**Sztywne terminy w procesie (8.5) — usunąć.** Znika „Cztery tygodnie. Pięć kroków.", znikają przypisania „tydzień 1", „tygodnie 3–4" i obietnica „30 dni poprawek w cenie" jako liczba. Sama sekcja Procesu **zostaje** razem z animacją schodków (patrz 17.5).
+
+**Opcja „potrzebuję sesji zdjęciowej" — usunąć wszędzie.** Nie dowozimy fotografa. Zamiast tego uczciwa informacja (17.6).
+
+---
+
+## 17.2 Nowa kolejność i numeracja sekcji strony głównej
+
+Licznik pozycji zmienia się z „NN / 07" na **„NN / 06"**:
+
+1. Hero (bez numeru) — 17.3
+2. **01 Projekty** — bez zmian w treści (8.1), zmiana zachowania na telefonie (17.5)
+3. **02 Co dostajesz** — bez zmian (8.2), z jedną poprawką o zdjęciach (17.6)
+4. **03 Sprawdź swoją stronę** — audyt w 60 sekund, bez zmian (8.4)
+5. **04 Jak pracujemy** — proces bez terminów (17.7)
+6. **05 Ile to kosztuje** — kreator wyceny (17.4)
+7. **06 Pytania** — FAQ ze zmianami (17.8)
+8. Kontakt (bez numeru) — bez zmian (8.8), minus sprawdzarka miast
+9. Stopka — bez zmian (8.9), minus wzmianka o wyłączności
+
+Uzasadnienie kolejności: problem (hero) → dowód rzemiosła (projekty) → co dostajesz → diagnoza jej sytuacji (audyt) → jak pracujemy → ile to kosztuje → pytania. Cena pojawia się dopiero, gdy klientka wie, za co płaci.
+
+---
+
+## 17.3 Hero — nowa treść
+
+Zastępuje 8.0 w części tekstowej. Sekwencja otwarcia, Łącznik, chipy segmentu i cała warstwa ruchu **bez zmian**.
+
+**H1 (dwie linie, druga wcięta):**
+```
+Ładna strona to za mało.
+Ma prowadzić do rezerwacji.
+```
+
+**Lead:**
+„Twoja klientka wchodzi z telefonu i decyduje w kilka sekund. Budujemy strony, które prowadzą ją krok po kroku — od pierwszego wejścia, przez ciekawość, po umówioną wizytę. Nie zostawiamy tego przypadkowi."
+
+**CTA:** główny `Sprawdź swoją stronę` (→ `#audyt`), wtórny `Zobacz projekty` (→ `#projekty`). Wtórny przesunięty 8 px niżej na desktopie.
+
+**Chipy „Dla kogo"** — bez zmian: salon beauty / gabinet kosmetologii / klinika lekarska, sterują aktywnym projektem w sekcji 01.
+
+**Zasada dla całej strony:** motyw „ścieżki" (od wejścia, przez ciekawość, po decyzję) przewija się przez treść, ale **nigdy żargonem**. Nie piszemy „ścieżka konwersji", „lejek", „customer journey". Piszemy językiem właścicielki: „prowadzi klientkę", „krok po kroku", „od oglądania do zapisania się".
+
+---
+
+## 17.4 Kreator wyceny — sekcja 05 (nowa, zastępuje 8.6)
+
+**Nagłówek H2 (dwie linie):**
+```
+Każdy projekt wyceniamy osobno.
+Sprawdź, w jakim jesteś przedziale.
+```
+
+**Lead:** „Sześć pytań o to, czego potrzebujesz. Na końcu zobaczysz orientacyjne widełki i dokładnie to, co się na nie składa. Bez logowania, bez zobowiązań."
+
+### Zasada nadrzędna
+Kreator ma być **prosty**. Jeden krok = jedno pytanie, 2–4 opcje, przy każdej opcji **jedno zdanie: co to znaczy i po co**. Po każdym kliknięciu klientka wie trzy rzeczy: co wybrała, co jej to daje i jak to ruszyło cenę. Zero żargonu. Jeśli któreś pytanie wymagałoby akapitu tłumaczenia — wypada, bo jest za trudne na wstępną wycenę.
+
+### Sześć pytań (plik `src/data/kreator.ts`)
+
+**1. Do czego jest strona?**
+- salon beauty · gabinet kosmetologii · klinika medycyny estetycznej · coś innego
+- Wyjaśnienie: „Od tego zależy, jak zbudujemy stronę i jakim językiem. Klinika lekarska ma inne zasady niż salon — reklama świadczeń zdrowotnych jest zakazana."
+
+**2. Jak duża ma być?**
+- wizytówka (jedna strona) · średnia (do 6 podstron z usługami) · rozbudowana (12+ podstron, osobna strona na każdą usługę)
+- Wyjaśnienie: „Wizytówka pokazuje, kim jesteś i gdzie Cię znaleźć. Rozbudowana opisuje każdy zabieg osobno — i dzięki temu łapie klientki, które szukają konkretnej usługi w Google."
+
+**3. System, który zamienia oglądanie w rezerwację**
+- bez systemu · jeden · dwa lub więcej
+- Wyjaśnienie: „To element, który prowadzi klientkę od «oglądam» do «zapisuję się»: dobór zabiegu do jej problemu, cennik z wyszukiwarką albo analiza skóry z raportem. To serce strony, która sprzedaje — zobacz, jak działa w projektach wyżej."
+
+**4. Rezerwacja online**
+- nie potrzebuję · wpiąć system, którego już używam (Booksy, Fresha, Estetify) · dobierzcie i wdróżcie
+- Wyjaśnienie: „Klientka rezerwuje wprost na Twojej stronie, bez prowizji od marketplace'u. Wpinamy system, który już masz, albo pomagamy wybrać nowy."
+
+**5. Ile miejscowości ma Cię znajdować w Google?**
+- jedna (moje miasto) · kilka okolicznych · szeroko, cały region
+- Wyjaśnienie: „Pod każdą miejscowość robimy osobną stronę, żeby klientka z Torunia i klientka z Bydgoszczy trafiły do Ciebie, wpisując swoją okolicę. Więcej miejscowości to więcej stron i szerszy zasięg."
+
+**6. Skąd mają przychodzić klientki?**
+- głównie z Instagrama · głównie z Google · z reklam
+- Wyjaśnienie: „Mówi nam, na czym skupić stronę: szybkie wejście z Instagrama, widoczność w wyszukiwarce czy lądowanie prosto z reklamy."
+- **Nie wpływa na cenę** — służy wyłącznie do dopasowania oferty. To jest uczciwe i ma tak zostać.
+
+### Krok 7 — uwagi (nowy, przed wynikiem)
+
+Pole tekstowe, potraktowane wizualnie jak reszta strony (nie doklejony szary formularz): tło `ink-1`, obramowanie `line`, na focus obramowanie `green` + focus ring, wysokość ok. 120 px.
+
+- Nagłówek kroku: „Chcesz coś dodać?"
+- Etykieta nad polem: „Twoje uwagi (opcjonalnie)"
+- Podpowiedź w polu: „Masz konkretny pomysł, przykład strony, która Ci się podoba, albo pytanie? Napisz tutaj."
+- Pole opcjonalne — można przejść dalej bez wypełniania.
+
+### Ekran wyniku
+
+1. **Widełki** jako duża liczba (styl `price`, `tabular-nums`), np. „7 500–10 000 zł". Liczba tweenuje przy zmianie wyborów (300 ms) — ruch odpowiada na dotyk, więc dozwolony. Reduced motion: bez tweena.
+2. **„Co się składa na tę wycenę"** — lista zbudowana dynamicznie z jej wyborów, po ludzku. Przykład: „strona z 6 podstronami usług · dobór zabiegu · rezerwacja wpięta z Booksy · 3 strony pod okoliczne miejscowości · teksty zgodne z prawem dla klinik".
+3. **Informacja o zdjęciach** (17.6).
+4. **Zastrzeżenie — obowiązkowe, wyraźne:**
+   „To wstępna wycena w widełkach. To, co napiszesz w uwagach, może — choć nie musi — wpłynąć na finalną kwotę. Dokładną cenę ustalamy po rozmowie, zanim cokolwiek zaczniemy."
+5. **Formularz:** `Imię`, `Salon i miasto`, `Instagram albo e-mail` (wymagany), zgoda RODO. Ukryte pola: wszystkie odpowiedzi 1–6, treść uwag, wyliczone widełki. Web3Forms, honeypot, stany inline przez istniejący `forms.ts`.
+6. **Przycisk:** `Wyślij i porozmawiajmy`. Pod nim: „Odpowiadam w ciągu 24 godzin w dni robocze."
+
+### Logika ceny (`src/data/cennik.json`)
+
+Model addytywny. Każdy wybór dodaje do dolnej i górnej granicy. Wynik zaokrąglany do pełnych 500 zł. Kwoty **netto** (do potwierdzenia przy decyzji o VAT — pozycja otwarta).
+
+**Baza (pytanie 2, rozmiar):**
+| Wybór | Dół | Góra |
+|---|---|---|
+| wizytówka | 3 000 | 4 000 |
+| średnia (do 6 podstron) | 5 000 | 6 500 |
+| rozbudowana (12+ podstron) | 8 000 | 10 000 |
+
+**Dodatki:**
+| Pytanie | Wybór | Dół | Góra |
+|---|---|---|---|
+| 3. System | bez systemu | 0 | 0 |
+| | jeden | +1 500 | +2 000 |
+| | dwa lub więcej | +2 500 | +3 500 |
+| 4. Rezerwacja | nie potrzebuję | 0 | 0 |
+| | wpiąć mój system | +500 | +800 |
+| | dobierzcie i wdróżcie | +800 | +1 200 |
+| 5. Miejscowości | jedna | 0 | 0 |
+| | kilka okolicznych | +800 | +1 200 |
+| | szeroko, region | +1 500 | +2 500 |
+| 1. Segment | klinika lekarska | +500 | +800 |
+| | pozostałe | 0 | 0 |
+| 6. Skąd klientki | dowolny | 0 | 0 |
+
+Skrajne wartości: minimum 3 000–4 000 zł (wizytówka bez dodatków), maksimum 13 500–18 000 zł (rozbudowana z pełnym zakresem). Te przedziały są zakotwiczone w realnych cenach polskiego rynku 2026 — nie zmieniać ich bez rozmowy z Jakubem.
+
+### Strona `/cennik/`
+Renderuje ten sam kreator. Dodatkowo pod nim: blok „Nie ma w cenie" (honorarium fotografa, abonament systemu rezerwacji, budżet reklamowy i obsługa kampanii, teksty specjalistyczne pisane przez lekarza) oraz zasada płatności etapami.
+
+### Warstwa ruchu kreatora
+Ta sama sygnatura co reszta strony: **postęp przez kroki pokazany jako linia budująca się w schodki** (identyczny motyw jak w sekcji Procesu — dwa poziomy z logo). Zmiana pytania: `opacity` 200 ms, focus przenoszony na nowe pytanie. Kreator ma działać **czystym JS**, bez zależności od GSAP — animacja schodków to progresywne ulepszenie.
+
+---
+
+## 17.5 Zmiany pod telefon (obowiązują ponad sekcją 10)
+
+### Sekcja Projekty — pinowanie także na telefonie
+**Zmiana wobec 10.1 i 10.2, które zabraniały pinów na mobile.** Teraz na telefonie działa tak samo jak na desktopie, z zachowaniem sekwencji:
+
+- sekcja jest przypięta (`pin: true`) także poniżej 1024 px,
+- trzy dema pokazują się **po kolei, nie naraz**: najpierw Aurelia — klientka przewija i widzi jej stronę w całości wewnątrz ramki telefonu, aż do końca zrzutu; dopiero wtedy następuje przejście do ELARY, potem do HALICKIEJ,
+- działa w obie strony: przewijanie w górę cofa sekwencję,
+- tło przebarwia się kolorem aktywnego projektu (10.6) — bez zmian,
+- **wyłącznik awaryjny zostaje:** atrybut `data-motion="off"` na sekcji przywraca wersję bez pinu (trzy bloki jeden pod drugim). To jest zabezpieczenie na wypadek szarpania na słabszych telefonach — Jakub testuje na prawdziwym urządzeniu i jego obserwacja rozstrzyga (10.7).
+
+Wynika z tego, że **na telefonie są teraz 2 piny** (Projekty i Proces) — tyle samo co na desktopie. Limit z 10.2 („maksymalnie 2 piny") nadal obowiązuje i nie wolno go przekraczać. Reguły wydajnościowe z 10.2 obowiązują bez wyjątku: tylko `transform` i `opacity`, geometria mierzona raz, `await img.decode()` przed startem, `will-change` tylko na aktywnej warstwie.
+
+### Schodki procesu — na telefonie pionowo w dół
+Potwierdzenie i doprecyzowanie 8.5. Na desktopie linia-schodki biegnie **poziomo** (kroki obok siebie, scrub przesuwa w bok). Na telefonie ta sama animacja jest **obrócona: linia schodzi w dół**, każdy krok przeskakuje o poziom niżej, kroki ułożone pionowo na całą szerokość ekranu.
+
+Uzasadnienie (zapisane, żeby nikt tego nie „poprawił"): na wąskim ekranie pięć kroków w poziomie byłoby nieczytelne albo wymuszałoby przewijanie w bok, co walczy z naturalnym ruchem kciuka. Pionowe schodki to ta sama sygnatura marki, dopasowana do kształtu urządzenia.
+
+**Ta sama zasada dotyczy schodków w kreatorze wyceny** (17.4): desktop poziomo, telefon pionowo.
+
+---
+
+## 17.6 Zdjęcia — uczciwe ograniczenie
+
+Nie dowozimy sesji zdjęciowej. Pracujemy na materiale klientki. Musi to być powiedziane wprost w trzech miejscach:
+
+1. **Ekran wyniku kreatora:** „Pracujemy na Twoich zdjęciach. Jeśli ich nie masz albo nie jesteś z nich zadowolona, podpowiemy, jak zrobić dobre zdjęcia telefonem, albo polecimy fotografa — ale sesja nie wchodzi w zakres projektu."
+2. **FAQ** — nowe pytanie (17.8).
+3. **Sekcja 02 „Co dostajesz"**, pozycja 1 („Projekt szyty pod Twoją markę") — dopisać zdanie: „Pracujemy na Twoich zdjęciach: wnętrze, zespół, efekty zabiegów."
+
+Znika też z sekcji 8.6 pozycja „sesja zdjęciowa opcjonalnie" i wszelkie wzmianki sugerujące, że sesja jest w ofercie.
+
+---
+
+## 17.7 Proces — sekcja 04 „Jak pracujemy" (zastępuje 8.5 w warstwie treści)
+
+Animacja schodków zostaje (17.5). Zmienia się treść: znikają terminy, pojawia się indywidualne podejście.
+
+**H2 (dwie linie):**
+```
+Każdy projekt jest inny.
+Sposób pracy — ten sam.
+```
+
+**Lead:** „Nie sprzedajemy pakietów z góry narzuconym terminem. Zakres, cenę i harmonogram ustalamy dla każdego projektu osobno, po rozmowie o tym, czego naprawdę potrzebujesz."
+
+**Pięć kroków — bez przypisanych tygodni:**
+
+| # | Krok | Treść |
+|---|---|---|
+| 1 | Rozmowa | Online albo na żywo. Cel, klientki, konkurencja, systemy, których używasz. Po rozmowie dostajesz konkretną wycenę i termin — jedno i drugie ustalone pod Twój projekt. |
+| 2 | Koncept | Struktura strony, kierunek wizualny, plan treści. Wiesz, co powstanie, zanim cokolwiek zakodujemy. |
+| 3 | Projekt | Ekrany na telefonie i na komputerze. Zgłaszasz uwagi, poprawiamy, akceptujesz. |
+| 4 | Budowa | Kod, treści, Twoje zdjęcia, rezerwacja, lokalne SEO. Testy na prawdziwych telefonach, nie tylko w przeglądarce. |
+| 5 | Start | Publikacja, szkolenie z edycji treści, ustalony okres poprawek po starcie. |
+
+Zasady płatności zostają, ale bez sztywnych liczb w tej sekcji — trafiają na `/cennik/` i do FAQ: płatność etapami, faktura za każdy etap.
+
+---
+
+## 17.8 FAQ — zmiany (sekcja 06)
+
+**Usunąć:** pytanie „Moje miasto jest zajęte. Co wtedy?".
+
+**Zmienić:**
+- „Ile trwa realizacja?" → nowa odpowiedź: „To zależy od zakresu — wizytówka powstaje szybciej niż rozbudowany serwis z systemem rezerwacji i stronami pod kilka miejscowości. Konkretny termin dostajesz po rozmowie, razem z wyceną, i wpisujemy go do umowy."
+- „Dostanę fakturę?" → dodać: płatność etapami, faktura za każdy etap.
+
+**Dodać nowe pytanie:**
+- **„Robicie zdjęcia?"** → „Nie. Pracujemy na Twoich zdjęciach — wnętrza, zespołu, efektów. Jeśli ich nie masz albo Ci się nie podobają, podpowiemy, jak zrobić dobre zdjęcia telefonem, albo polecimy fotografa. Sesja nie wchodzi w zakres projektu i płacisz za nią osobno, bezpośrednio fotografowi."
+
+**Bez zmian:** pytania o Booksy, edycję treści, własność strony, zgodność z prawem dla lekarzy, reklamy i social media.
+
+---
+
+## 17.9 Lista kontrolna uczciwości — aktualizacja sekcji 15
+
+Skreślić punkty o sprawdzarce miast i o wyłączności. Dopisać:
+
+- [ ] Widełki w kreatorze są opisane jako **wstępne**, z jasnym zastrzeżeniem o wpływie uwag na finalną cenę.
+- [ ] Nigdzie nie obiecujemy sesji zdjęciowej.
+- [ ] Nigdzie nie ma sztywnego terminu realizacji podanego jako obietnica dla wszystkich.
+- [ ] Pytanie 6 kreatora („skąd klientki") nie wpływa na cenę i nie udaje, że wpływa.
+
+---
+
+## 17.10 Etapy przebudowy (nowe, po Etapie 9)
+
+Ta sama zasada: jeden etap = jedno polecenie, `npm run build`, podsumowanie, lista do sprawdzenia na telefonie, **STOP**.
+
+**Etap 10 — Sprzątanie i hero.** Usunąć sekcję „Jedna marka na miasto" wraz z `CityCheck.astro` i `miasta.json` (także z `/kontakt/`), usunąć powiązane FAQ i wzmianki o wyłączności z całej strony. Nowa treść hero (17.3). Przenumerować liczniki sekcji na „NN / 06" i ustawić nową kolejność (17.2).
+Commit: `Etap 10: rewizja v2 — hero, usunięcie wyłączności, nowa numeracja sekcji`
+
+**Etap 11 — Proces bez terminów.** Nowa treść sekcji (17.7). Animacja schodków bez zmian na desktopie; **weryfikacja i naprawa wersji pionowej na telefonie** (17.5) — jeśli obecna implementacja odbiega od specyfikacji, poprawić.
+Commit: `Etap 11: proces bez sztywnych terminów, schodki pionowo na telefonie`
+
+**Etap 12 — Kreator wyceny.** Pełna implementacja 17.4: `kreator.ts`, `cennik.json` z nowym modelem, komponent kreatora z sześcioma pytaniami, krokiem uwag i ekranem wyniku, sekcja 05 na stronie głównej, strona `/cennik/`. Usunąć stary konfigurator ceny. Kreator działa czystym JS.
+Commit: `Etap 12: kreator wyceny zamiast cennika`
+
+**Etap 13 — Pinowanie dem na telefonie.** Przebudowa sekcji Projekty wg 17.5: pin także na mobile, trzy dema po kolei wewnątrz przypiętego kadru, obie strony przewijania, wyłącznik `data-motion="off"`. Weryfikacja limitu 2 pinów i reguł z 10.2.
+Commit: `Etap 13: pinowana sekcja projektów na telefonie`
+
+**Etap 14 — FAQ, zdjęcia, audyt końcowy rewizji.** Zmiany w FAQ (17.8), informacja o zdjęciach w trzech miejscach (17.6), przegląd całej strony pod kątem pozostałości po usuniętych sekcjach (grep), aktualizacja listy uczciwości (17.9), Lighthouse wszystkich stron, korekta językowa nowych treści wg sekcji 5.
+Commit: `Etap 14: FAQ, informacja o zdjęciach, audyt rewizji v2`
+
+---
+
+## 17.11 Decyzje otwarte — stan po rewizji
+
+**Zamknięte:** wyłączność (usunięta), marka bez twarzy, wariant H1 (17.3), cena (kreator z widełkami), zdjęcia (nie dowozimy sesji), animacje mobilne (piny tak, schodki pionowo).
+
+**Nadal otwarte — do potwierdzenia przez Jakuba:**
+1. **Dane rejestrowe do stopki:** nazwa firmy, NIP, adres.
+2. **VAT:** czy kwoty w kreatorze są netto czy brutto. Domyślnie w `cennik.json` stoi netto.
+3. **Klucz Web3Forms** — cztery formularze (audyt, kreator, kontakt, strona `/kontakt/`) są nieczynne bez niego.
+4. **E-mail kontaktowy i Instagram.**
+5. **Edycja treści przez klientkę:** panel CMS czy zmiany w ramach opieki (wpływa na FAQ).
+6. **Opieka pomiesięczna** — czy zostaje w ofercie i za ile.
+7. **Weryfikacja modelu cenowego** (17.4) — czy dolne widełki są dla Jakuba opłacalne przy realnym nakładzie pracy.
+
+---
+
+*Rewizja v2 · 4 września 2026 · zastępuje sprzeczne ustalenia z sekcji 0–16.*

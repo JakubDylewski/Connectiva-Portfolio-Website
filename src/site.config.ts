@@ -15,8 +15,9 @@ export const site = {
   tytul: 'Strony dla salonów beauty i\u00A0klinik medycyny estetycznej — Connectiva',
   opis:
     'Strony i\u00A0systemy pozyskiwania klientek dla salonów beauty, gabinetów ' +
-    'kosmetologii i\u00A0klinik medycyny estetycznej. Jedna marka na miasto. ' +
-    'Cena znana przed pierwszą rozmową.',
+    'kosmetologii i\u00A0klinik medycyny estetycznej. ' +
+    'Strona, która prowadzi klientkę od pierwszego wejścia ' +
+    'do umówionej wizyty.',
 
   /** Kontakt. TODO Jakub — decyzja otwarta nr 2 (SPEC 16). */
   email: 'TODO_EMAIL',
