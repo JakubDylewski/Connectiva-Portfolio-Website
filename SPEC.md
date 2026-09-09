@@ -905,3 +905,53 @@ Commit: `Etap 14: FAQ, informacja o zdjęciach, audyt rewizji v2`
 ---
 
 *Rewizja v2 · 4 września 2026 · zastępuje sprzeczne ustalenia z sekcji 0–16.*
+
+
+
+---
+
+## 17.12 Projekty na telefonie — blok info, potem przypięte okno (9 września 2026)
+
+> Doprecyzowanie i korekta 17.5. Stan po Etapie 13 miał dobrą dynamikę pinowania, ale okna dem były za małe, różnej wielkości, i zniknęły informacje o projektach (liczby, podstrony, technologia). Ta sekcja to naprawia. **Desktop bez zmian.**
+
+### Sekwencja na telefonie (poniżej 1024 px)
+
+Dla każdego z trzech dem po kolei:
+
+```
+scroll → BLOK INFO (Aurelia) → scroll → OKNO Aurelia (przypięte) → scroll
+→ BLOK INFO (ELARA) → scroll → OKNO ELARA (przypięte) → scroll
+→ BLOK INFO (HALICKA) → scroll → OKNO HALICKA (przypięte)
+```
+
+### 1. Blok info (normalny przepływ, NIE pinowany)
+
+Pełna szerokość, treść z `projekty.ts` (te same dane co w tabeli 8.1 i na podstronach 9.1):
+
+- etykieta „Projekt pokazowy (marka fikcyjna)"
+- nazwa i segment
+- problem i rozwiązanie
+- liczby: podstrony, strony lokalnego SEO, wynik Lighthouse z datą pomiaru, dostępność
+- jedna linia w stylu `small`, `text-3`: „Zbudowane w: Astro, Tailwind, hosting Cloudflare" — fakt na końcu, nie argument sprzedażowy (zgodnie z zasadą z sekcji 1: stack pojawia się raz, nisko)
+- dwa linki: `Zobacz case study` (→ `/projekty/{slug}/`) i `Otwórz demo` (zewnętrzny, `target="_blank" rel="noopener"`, z informacją dla czytnika o nowej karcie)
+
+### 2. Okno (przypięte, ta sama dynamika co dotychczas)
+
+- `PhoneFrame` o **stałym, identycznym rozmiarze dla wszystkich trzech dem**: wysokość `75dvh` (fallback `75vh` dla przeglądarek bez wsparcia), szerokość wyliczona z proporcji `390:844`, `max-width: 92vw`, wycentrowane w sekcji
+- nad ramką mała etykieta z nazwą dema (klientka wie, co ogląda — blok info już przewinął się wyżej)
+- pin aktywny tylko na czas przewijania zrzutu: `translateY` zrzutu od góry do końca, `scrub: 0.8`, jak w dotychczasowej implementacji
+- po dojechaniu do końca zrzutu okno się odpina, scroll przechodzi do bloku info następnego dema
+- działa w obie strony (przewijanie w górę cofa sekwencję)
+- przebarwienie tła (10.6) przełącza się przy **wejściu w blok info** danego dema, nie dopiero przy oknie — kolor projektu towarzyszy już czytaniu informacji o nim
+
+### 3. Reguła pinów — zmiana wobec 17.5
+
+**Zastępuje zdanie z 17.5:** „na telefonie są teraz 2 piny (Projekty i Proces) — tyle samo co na desktopie".
+
+**Nowa reguła:** na telefonie w sekcji Projekty są **trzy piny sekwencyjne**, po jednym na każde okno demo, **nigdy aktywne jednocześnie** — w dowolnej chwili scrolla aktywny jest co najwyżej jeden. Limit „maksymalnie 2 piny" z sekcji 10.2 dotyczy pinów **jednocześnie możliwych do aktywacji w tym samym momencie scrolla**, nie łącznej liczby elementów `pin: true` w kodzie. Sekcja Proces na mobile pozostaje bez pinu (10.2/17.5 bez zmian).
+
+Wyłącznik `data-motion="off"` na sekcji Projekty zostaje i nadal przywraca wersję bez pinów (bloki jeden pod drugim, zrzut statyczny lub scrubowany bez pinowania).
+
+Reguły wydajnościowe z 10.2 obowiązują bez wyjątku, w szczególności: geometria każdego okna mierzona raz po `document.fonts.ready` i `img.decode()`, `will-change` tylko na aktualnie scrubowanym zrzucie i zdejmowane po `onLeave`, `ScrollTrigger.refresh()` po załadowaniu wszystkich trzech zrzutów.
+
+Chipy segmentu z hero nadal przewijają do właściwego **bloku info** (nie bezpośrednio do okna).

@@ -59,6 +59,10 @@ const dataPL = projekt.lighthouseDate
     )
   }
 
+  {/* Fakt na końcu, nie argument sprzedażowy (SPEC 1, 17.12). Na desktopie
+      ukryty — tam stack pojawia się raz, nisko, w stopce. */}
+  <p class="panel__stack">Zbudowane w:&nbsp;Astro, Tailwind, hosting Cloudflare</p>
+
   <div class="panel__linki">
     {
       caseStudyIstnieje && (
@@ -143,6 +147,19 @@ const dataPL = projekt.lighthouseDate
     margin-top: 0.75rem;
     font-size: var(--text-small);
     color: var(--color-text-3);
+  }
+
+  /* Linia stacku w stylu `small` / `text-3` (SPEC 17.12) — tylko telefon. */
+  .panel__stack {
+    margin-top: 0.75rem;
+    font-size: var(--text-small);
+    color: var(--color-text-3);
+  }
+
+  @media (min-width: 1024px) {
+    .panel__stack {
+      display: none;
+    }
   }
 
   .panel__linki {

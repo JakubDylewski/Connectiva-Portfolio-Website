@@ -145,12 +145,14 @@ export async function initMotion(): Promise<void> {
 
     mm.add(MOBILE, () => {
       pasekDolny(ScrollTrigger);
-      // 17.5: Projekty przypięte także na telefonie — JEDYNY pin mobile
-      // (Proces na telefonie bez pinu, Etap 11; limit 2 z 10.2 zachowany
-      // z zapasem). Przy `data-motion="off"` zamiast pinu działa stara
-      // wersja bez pinowania — funkcje wykluczają się nawzajem atrybutem.
-      projektyPrzypiete(gsap, ScrollTrigger); // pin 1 (jedyny na mobile)
-      projektyMobileBezPinu(gsap, ScrollTrigger); // wyłącznik awaryjny 17.5
+      // 17.12: w sekcji Projekty trzy piny SEKWENCYJNE — po jednym na okno
+      // dema, nigdy aktywne jednocześnie (w dowolnej chwili scrolla co
+      // najwyżej jeden). Limit „2 pinów" z 10.2 dotyczy pinów możliwych do
+      // aktywacji w tym samym momencie, nie sumy `pin: true` w kodzie.
+      // Przy `data-motion="off"` zamiast pinów działa wersja bez pinowania —
+      // funkcje wykluczają się nawzajem atrybutem. Proces bez pinu (17.5).
+      projektyMobilePiny(gsap, ScrollTrigger); // 3 piny sekwencyjne (17.12)
+      projektyMobileBezPinu(gsap, ScrollTrigger); // wyłącznik awaryjny
       procesMobile(gsap); // bez pinu
     });
 
@@ -472,13 +474,13 @@ function podepnijChipy(
 }
 
 /**
- * Sekcja przypięta, scrub steruje wszystkim (SPEC 8.1, 17.5).
+ * Sekcja przypięta, scrub steruje wszystkim (SPEC 8.1) — TYLKO desktop.
  *
- * Od rewizji v2 ten sam wariant działa na desktopie i na telefonie: trzy dema
- * pokazują się po kolei w przypiętym kadrze — zrzut przewija się do końca,
- * potem crossfade do następnego, w obie strony. Różni je tylko układ w CSS
- * (Projects.astro). `data-motion="off"` przełącza telefon na wariant bez
- * pinu (projektyMobileBezPinu), a desktop na statyczny układ pionowy.
+ * Trzy dema pokazują się po kolei w przypiętym kadrze — zrzut przewija się
+ * do końca, potem crossfade do następnego, w obie strony. Od 17.12 telefon
+ * ma własny wariant (projektyMobilePiny): bloki info w normalnym przepływie
+ * i trzy sekwencyjne piny okien. `data-motion="off"` przełącza desktop na
+ * statyczny układ pionowy.
  */
 function projektyPrzypiete(gsap: Gsap, ScrollTrigger: ST): void {
   const czesci = czesciProjektow();
@@ -552,6 +554,85 @@ function projektyPrzypiete(gsap: Gsap, ScrollTrigger: ST): void {
 
   odswiezPoZrzutach(ScrollTrigger, zrzuty);
   sprzatanie.push(() => willChange(false));
+}
+
+/**
+ * Telefon (SPEC 17.12): blok info w normalnym przepływie, potem przypięte
+ * okno dema — na przemian, dla trzech dem po kolei.
+ *
+ * Każde okno (`[data-okno]`) ma własny pin, aktywny tylko na czas
+ * przewijania zrzutu: `translateY` od góry do końca, `scrub: 0.8`. Okna są
+ * rozdzielone blokami info, więc w dowolnej chwili scrolla przypięte jest
+ * co najwyżej jedno — limit z 10.2 dotyczy pinów jednoczesnych (17.12).
+ * Po dojechaniu do końca zrzutu okno się odpina i scroll przechodzi do
+ * bloku info następnego dema; w górę sekwencja się cofa.
+ *
+ * Przebarwienie (10.6) przełącza się już przy wejściu w blok info danego
+ * dema, nie dopiero przy oknie — trigger obejmuje cały blok (info + okno),
+ * więc kolor trzyma się dema aż do wejścia w następny blok.
+ */
+function projektyMobilePiny(gsap: Gsap, ScrollTrigger: ST): void {
+  const czesci = czesciProjektow();
+  if (!czesci || czesci.sekcja.dataset.motion === 'off') return;
+  const { sekcja, bloki, zrzuty } = czesci;
+
+  const okna = [...sekcja.querySelectorAll<HTMLElement>('[data-okno]')];
+  if (okna.length !== bloki.length) return;
+
+  const przebarw = zrobPrzebarwiacz(gsap);
+
+  bloki.forEach((blok, i) => {
+    const img = zrzuty[i];
+    const willChange = przelacznikWillChange([img]);
+
+    // Długość pinu = droga zrzutu wewnątrz ekranu (limit 1600 px z 10.2
+    // obowiązuje bez wyjątku) — piksel scrolla za piksel obrazu.
+    gsap.fromTo(
+      img,
+      { y: 0 },
+      {
+        y: () => -przesuwZrzutu(img, 1600),
+        ease: 'none',
+        scrollTrigger: {
+          trigger: okna[i],
+          start: 'center center',
+          end: () => '+=' + przesuwZrzutu(img, 1600),
+          pin: true,
+          scrub: 0.8,
+          invalidateOnRefresh: true,
+          // `will-change` tylko na aktualnie scrubowanym zrzucie (10.2).
+          onEnter: () => willChange(true),
+          onEnterBack: () => willChange(true),
+          onLeave: () => willChange(false),
+          onLeaveBack: () => willChange(false),
+        },
+      },
+    );
+
+    // Przebarwienie na cały blok — od bloku info do końca okna (17.12).
+    ScrollTrigger.create({
+      trigger: blok,
+      start: 'top center',
+      end: 'bottom center',
+      onEnter: () => przebarw(i),
+      onEnterBack: () => przebarw(i),
+    });
+
+    sprzatanie.push(() => willChange(false));
+  });
+
+  // Po wyjściu z sekcji wraca czerń (10.6).
+  ScrollTrigger.create({
+    trigger: sekcja,
+    start: 'top bottom',
+    end: 'bottom top',
+    onLeave: () => przebarw(null),
+    onLeaveBack: () => przebarw(null),
+  });
+
+  // Chip segmentu prowadzi do bloku info dema, nie do okna.
+  podepnijChipy(bloki, (i) => bloki[i]);
+  odswiezPoZrzutach(ScrollTrigger, zrzuty);
 }
 
 /**
