@@ -1,27 +1,33 @@
 /**
- * Kreator wyceny (SPEC 17.4) — sekcja 05 i strona /cennik/.
+ * Kreator wyceny (SPEC 17.15 B, zasada nadrzędna z 17.4) — sekcja 05
+ * i strona /cennik/.
  *
- * Teksty pytań, opcji i wyjaśnień wprost ze SPEC 17.4 — nie parafrazujemy.
- * Zasada nadrzędna: jeden krok = jedno pytanie, 2–4 opcje, jedno zdanie
- * wyjaśnienia „co to znaczy i po co". Kwoty żyją w `cennik.json` (model
- * addytywny z tabel 17.4); tu jest tylko treść i logika liczenia.
+ * Rewizja v4: cztery pytania zamiast sześciu plus kroku uwag. Dawne pytania
+ * o system i o rezerwację połączyły się w jedno („Co strona ma robić?"),
+ * pytanie „skąd klientki" zniknęło w całości, a uwagi przeniosły się na ekran
+ * wyniku. Rozróżnienie „wpiąć mój system / dobierzcie" nie wpływa już na
+ * wycenę — jest tematem rozmowy.
  *
- * UCZCIWOŚĆ (SPEC 17.9): pytanie „skąd klientki" ma wagę zero i mówi to
- * wprost. Widełki są wstępne, z jawnym zastrzeżeniem o wpływie uwag.
+ * Teksty pytań, opcji i wyjaśnień wprost ze SPEC 17.15 — nie parafrazujemy.
+ * Zasada nadrzędna zostaje: jeden krok = jedno pytanie, przy każdej opcji
+ * wiadomo, co to znaczy i po co. Kwoty żyją w `cennik.json`; tu jest tylko
+ * treść i logika liczenia.
  */
 import cennik from './cennik.json';
 
-export type KluczPytania =
-  | 'segment'
-  | 'rozmiar'
-  | 'system'
-  | 'rezerwacja'
-  | 'miejscowosci'
-  | 'zrodlo';
+export type KluczPytania = 'segment' | 'rozmiar' | 'cel' | 'miejscowosci';
 
 export interface OpcjaKreatora {
   klucz: string;
   etykieta: string;
+  /**
+   * Doprecyzowanie etykiety — pytanie 3 opisuje każdą opcję osobno
+   * (SPEC 17.15 B). Osobna linia zamiast myślnika po etykiecie: konstrukcji
+   * „SŁOWO — fragment" nie używamy (SPEC 5).
+   */
+  opis?: string;
+  /** Wyjaśnienie przy opcji, gdy pytanie nie ma jednego wspólnego. */
+  wyjasnienie?: string;
   /**
    * Wiersz listy „Co się składa na tę wycenę" na ekranie wyniku.
    * `null` = wybór nie dodaje osobnej pozycji (mieści się w bazie).
@@ -32,10 +38,8 @@ export interface OpcjaKreatora {
 export interface PytanieKreatora {
   klucz: KluczPytania;
   pytanie: string;
-  /** Jedno–dwa zdania: co to znaczy i po co (SPEC 17.4). */
-  wyjasnienie: string;
-  /** Dodatkowa uczciwa informacja pod wyjaśnieniem (pytanie 6). */
-  dopisek?: string;
+  /** Jedno–dwa zdania dla całego pytania. Pytanie 3 wyjaśnia każdą opcję. */
+  wyjasnienie?: string;
   opcje: OpcjaKreatora[];
 }
 
@@ -84,45 +88,39 @@ export const pytania: PytanieKreatora[] = [
     ],
   },
   {
-    klucz: 'system',
-    pytanie: 'System, który zamienia oglądanie w rezerwację',
-    wyjasnienie:
-      'To element, który prowadzi klientkę od «oglądam» do «zapisuję się»: ' +
-      'dobór zabiegu do jej problemu, cennik z wyszukiwarką albo analiza ' +
-      'skóry z raportem. To serce strony, która sprzedaje — zobacz, jak ' +
-      'działa w projektach wyżej.',
+    klucz: 'cel',
+    pytanie: 'Co strona ma robić?',
     opcje: [
-      { klucz: 'brak', etykieta: 'bez systemu', sklad: null },
       {
-        klucz: 'jeden',
-        etykieta: 'jeden',
-        sklad: 'jeden system prowadzący od oglądania do rezerwacji',
+        klucz: 'pokazywac',
+        etykieta: 'Pokazywać',
+        opis: 'kim jesteś, co robisz, jak Cię znaleźć.',
+        wyjasnienie:
+          'Wystarczy, gdy klientki i tak piszą na Instagramie, a strona ma ' +
+          'potwierdzać, że jesteś profesjonalistką.',
+        sklad: null,
       },
       {
-        klucz: 'dwa',
-        etykieta: 'dwa lub więcej',
-        sklad: 'dwa lub więcej systemów prowadzących do rezerwacji',
-      },
-    ],
-  },
-  {
-    klucz: 'rezerwacja',
-    pytanie: 'Rezerwacja online',
-    wyjasnienie:
-      'Klientka rezerwuje wprost na Twojej stronie, bez prowizji od ' +
-      'marketplace’u. Wpinamy system, który już masz, albo pomagamy ' +
-      'wybrać nowy.',
-    opcje: [
-      { klucz: 'brak', etykieta: 'nie potrzebuję', sklad: null },
-      {
-        klucz: 'wpiac',
-        etykieta: 'wpiąć system, którego już używam (Booksy, Fresha, Estetify)',
-        sklad: 'rezerwacja wpięta z systemu, którego już używasz',
+        klucz: 'rezerwacja',
+        etykieta: 'Prowadzić do rezerwacji',
+        opis:
+          'system dopasowany do Twojej oferty plus rezerwacja online wpięta ' +
+          'w stronę, bez prowizji.',
+        wyjasnienie:
+          'Dobór zabiegu albo cennik z wyszukiwarką prowadzi klientkę ' +
+          'od «oglądam» do «zapisuję się» — prosto do Twojego kalendarza.',
+        sklad:
+          'system dopasowany do Twojej oferty i rezerwacja online wpięta ' +
+          'w stronę, bez prowizji',
       },
       {
-        klucz: 'dobrac',
-        etykieta: 'dobierzcie i wdróżcie',
-        sklad: 'rezerwacja dobrana i wdrożona przez nas',
+        klucz: 'pozyskiwac',
+        etykieta: 'Aktywnie pozyskiwać',
+        opis: 'dwa systemy, rezerwacja i zbieranie kontaktów do klientek.',
+        wyjasnienie:
+          'Strona pracuje jak handlowiec: analiza skóry z raportem zostawia ' +
+          'Ci kontakt z pełnym profilem, zanim klientka w ogóle napisze.',
+        sklad: 'dwa systemy, rezerwacja i zbieranie kontaktów do klientek',
       },
     ],
   },
@@ -131,8 +129,7 @@ export const pytania: PytanieKreatora[] = [
     pytanie: 'Ile miejscowości ma Cię znajdować w Google?',
     wyjasnienie:
       'Pod każdą miejscowość robimy osobną stronę, żeby klientka z Torunia ' +
-      'i klientka z Bydgoszczy trafiły do Ciebie, wpisując swoją ' +
-      'okolicę. Więcej miejscowości to więcej stron i szerszy zasięg.',
+      'i klientka z Bydgoszczy trafiły do Ciebie, wpisując swoją okolicę.',
     opcje: [
       { klucz: 'jedna', etykieta: 'jedna (moje miasto)', sklad: null },
       {
@@ -147,31 +144,18 @@ export const pytania: PytanieKreatora[] = [
       },
     ],
   },
-  {
-    klucz: 'zrodlo',
-    pytanie: 'Skąd mają przychodzić klientki?',
-    wyjasnienie:
-      'Mówi nam, na czym skupić stronę: szybkie wejście z Instagrama, ' +
-      'widoczność w wyszukiwarce czy lądowanie prosto z reklamy.',
-    // UCZCIWOŚĆ (17.4, 17.9): zero wpływu na cenę — mówimy to wprost.
-    dopisek: 'To pytanie nie wpływa na cenę — pomaga nam dopasować ofertę.',
-    opcje: [
-      { klucz: 'instagram', etykieta: 'głównie z Instagrama', sklad: null },
-      { klucz: 'google', etykieta: 'głównie z Google', sklad: null },
-      { klucz: 'reklamy', etykieta: 'z reklam', sklad: null },
-    ],
-  },
 ];
 
-/** Krok 7 — uwagi (SPEC 17.4). */
-export const KROK_UWAGI = {
-  naglowek: 'Chcesz coś dodać?',
+/** Pole uwag — od rewizji v4 stoi na ekranie wyniku (SPEC 17.15 B). */
+export const UWAGI = {
   etykieta: 'Twoje uwagi (opcjonalnie)',
   podpowiedz:
-    'Masz konkretny pomysł, przykład strony, która Ci się podoba, albo pytanie? Napisz tutaj.',
+    'Masz pytanie albo konkretny pomysł? Napisz też, z jakiego systemu ' +
+    'rezerwacji korzystasz i skąd dziś przychodzą klientki — lepiej ' +
+    'przygotuję wycenę.',
 };
 
-/** Teksty ekranu wyniku (SPEC 17.4, 17.6). */
+/** Teksty ekranu wyniku (SPEC 17.4, 17.6, 17.13 A). */
 export const WYNIK = {
   tytulSkladu: 'Co się składa na tę wycenę',
   zdjecia:
@@ -180,7 +164,7 @@ export const WYNIK = {
     'albo polecimy fotografa — ale sesja nie wchodzi w zakres projektu.',
   /**
    * Kwota jest ostateczna — bez doliczania podatku (SPEC 17.13 A). Zdanie
-   * o uwagach zostaje, bo wymaga go lista kontrolna uczciwości (17.9).
+   * o uwagach zostaje, bo wymaga go lista kontrolna uczciwości (17.9).
    */
   zastrzezenie:
     'To wstępna wycena w widełkach. Kwota, którą widzisz, jest kwotą, ' +
@@ -204,7 +188,7 @@ export function wagaOpcji(pytanie: KluczPytania, opcja: string): [number, number
   return WAGI[pytanie]?.[opcja] ?? [0, 0];
 }
 
-/** Zaokrąglenie do pełnych 500 zł (SPEC 17.4). */
+/** Zaokrąglenie do pełnych 500 zł (SPEC 17.15). */
 function zaokraglij(kwota: number): number {
   const krok = cennik.zaokraglenie;
   return Math.round(kwota / krok) * krok;
@@ -213,6 +197,9 @@ function zaokraglij(kwota: number): number {
 /**
  * Widełki dla kompletu (albo części) odpowiedzi. Bez wybranego rozmiaru nie
  * ma bazy — zwracamy `null`, a interfejs nie pokazuje wtedy żadnej kwoty.
+ *
+ * Górną granicę po zaokrągleniu przycinamy do `gornaGranica` (SPEC 17.15):
+ * suma skrajnych dodatków wychodzi ponad 18 000, a tyle ma być maksimum.
  */
 export function policzWidelki(
   odpowiedzi: Partial<Record<KluczPytania, string>>,
@@ -228,7 +215,10 @@ export function policzWidelki(
     dol += d;
     gora += g;
   }
-  return { dol: zaokraglij(dol), gora: zaokraglij(gora) };
+  return {
+    dol: zaokraglij(dol),
+    gora: Math.min(zaokraglij(gora), cennik.gornaGranica),
+  };
 }
 
 /** Pozycje listy „Co się składa na tę wycenę" dla danych odpowiedzi. */
@@ -246,26 +236,24 @@ export function zbudujSklad(
 }
 
 /* --------------------------------------------------------------------------
- * Zabezpieczenie budowania: skrajne widełki z 17.4 są zakotwiczone w realnych
- * cenach rynku 2026 i nie wolno ich zmienić przypadkiem — minimum 3 000–4 000,
- * maksimum 13 500–18 000. Gdy ktoś ruszy kwoty w cennik.json, build ma paść
- * tutaj, a nie cicho wypuścić stronę z innym przedziałem.
+ * Zabezpieczenie budowania: skrajne widełki z 17.15 są zakotwiczone w realnych
+ * cenach rynku 2026 i nie wolno ich zmienić przypadkiem — minimum 3 000–4 000
+ * (wizytówka, „pokazywać", jedna miejscowość, salon), maksimum 13 500–18 000
+ * (rozbudowana, „aktywnie pozyskiwać", szeroko, klinika). Gdy ktoś ruszy kwoty
+ * w cennik.json, build ma paść tutaj, a nie cicho wypuścić stronę z innym
+ * przedziałem.
  * ------------------------------------------------------------------------ */
 const minimum = policzWidelki({
   segment: 'salon',
   rozmiar: 'wizytowka',
-  system: 'brak',
-  rezerwacja: 'brak',
+  cel: 'pokazywac',
   miejscowosci: 'jedna',
-  zrodlo: 'google',
 });
 const maksimum = policzWidelki({
   segment: 'klinika',
   rozmiar: 'rozbudowana',
-  system: 'dwa',
-  rezerwacja: 'dobrac',
+  cel: 'pozyskiwac',
   miejscowosci: 'region',
-  zrodlo: 'google',
 });
 if (
   !minimum ||
@@ -276,7 +264,7 @@ if (
   maksimum.gora !== 18000
 ) {
   throw new Error(
-    `kreator.ts: skrajne widełki rozjechały się ze SPEC 17.4 — ` +
+    `kreator.ts: skrajne widełki rozjechały się ze SPEC 17.15 — ` +
       `minimum ${minimum?.dol}–${minimum?.gora}, maksimum ${maksimum?.dol}–${maksimum?.gora}, ` +
       `a mają być 3000–4000 i 13500–18000. Sprawdź cennik.json.`,
   );

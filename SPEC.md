@@ -587,7 +587,7 @@ Każdy etap kończy się: `npm run build` bez błędów, podsumowaniem zmian, li
 - [ ] Wygenerowane zdjęcia w demach są ujawnione (stopka + podstrony).
 - [ ] Jedyne liczby na stronie: liczba podstron, wyniki Lighthouse z datą pomiaru, terminy, ceny. Żadnych „klientek", „rezerwacji", opinii, logotypów.
 - ~~Sprawdzarka miast pokazuje stan faktyczny. Dziś: wszystko „wolne".~~ **Skreślone w rewizji v2 (17.1, 17.9) — sprawdzarka i wyłączność usunięte ze strony.**
-- [ ] „Najbliższy wolny termin startu" to prawdziwa data z `site.config.ts`.
+- [ ] Zdanie o wolnych terminach jest prawdziwe — jeśli kalendarz się zapełni, zdanie trzeba zmienić. *(17.15 A; zastąpiło punkt o dacie z `site.config.ts`)*
 - [ ] Żadnego „od" przy cenie; widełki z jawnym „co decyduje o cenie".
 - [ ] „0% prowizji" opisane precyzyjnie: dotyczy rezerwacji przez stronę; marketplace działa na swoich zasadach.
 - [ ] Strona nigdzie nie sugeruje zespołu, którego nie ma.
@@ -595,7 +595,7 @@ Każdy etap kończy się: `npm run build` bez błędów, podsumowaniem zmian, li
 - [ ] Widełki w kreatorze są opisane jako **wstępne**, z jasnym zastrzeżeniem o wpływie uwag na finalną cenę. *(17.9)*
 - [ ] Nigdzie nie obiecujemy sesji zdjęciowej. *(17.9)*
 - [ ] Nigdzie nie ma sztywnego terminu realizacji podanego jako obietnica dla wszystkich. *(17.9)*
-- [ ] Pytanie 6 kreatora („skąd klientki") nie wpływa na cenę i nie udaje, że wpływa. *(17.9)*
+- ~~Pytanie 6 kreatora („skąd klientki") nie wpływa na cenę i nie udaje, że wpływa.~~ **Skreślone w rewizji v4 (17.15 B) — kreator ma cztery pytania, to pytanie nie istnieje.**
 
 ---
 

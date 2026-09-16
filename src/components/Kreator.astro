@@ -1,10 +1,15 @@
 ---
 /**
- * Kreator wyceny (SPEC 17.4) — sekcja 05 i strona /cennik/.
+ * Kreator wyceny (SPEC 17.15 B) — sekcja 05 i strona /cennik/.
  *
- * Jeden krok = jedno pytanie z widocznym wyjaśnieniem, krok 7 to uwagi,
- * na końcu ekran wyniku z widełkami, listą „co się składa", informacją
- * o zdjęciach (17.6), zastrzeżeniem i formularzem (forms.ts, Web3Forms).
+ * Cztery pytania, każde z wyjaśnieniem (pytanie o to, co strona ma robić,
+ * wyjaśnia każdą opcję osobno). Dalej ekran wyniku w kolejności z 17.15:
+ * widełki, lista „co się składa", informacja o zdjęciach (17.6),
+ * zastrzeżenie (17.13 A), pole uwag i formularz (forms.ts, Web3Forms).
+ *
+ * Uwagi przeniosły się z osobnego kroku na ekran wyniku — dlatego ich treść
+ * nie jedzie w `pokazWynik()`, tylko doklejamy ją do ukrytego pola na bieżąco
+ * (skrypt `kreator.ts`, nasłuch `input`).
  *
  * Postęp pokazuje linia budująca się w schodki — ta sama sygnatura co
  * w sekcji Procesu: desktop poziomo, telefon pionowo w dół (17.5). Wszystko
@@ -21,13 +26,13 @@
  */
 import Button from './Button.astro';
 import { site } from '../site.config';
-import { pytania, KROK_UWAGI, WYNIK } from '../data/kreator';
+import { pytania, UWAGI, WYNIK } from '../data/kreator';
 import cennik from '../data/cennik.json';
 
 const id = `kreator-${crypto.randomUUID().slice(0, 8)}`;
 
-/** 6 pytań + krok uwag. */
-const LICZBA_KROKOW = pytania.length + 1;
+/** Cztery pytania — tyle samo kresek ma pasek postępu (SPEC 17.15 B). */
+const LICZBA_KROKOW = pytania.length;
 
 const politykaIstnieje =
   Object.keys(import.meta.glob('../pages/polityka-prywatnosci.astro')).length > 0;
@@ -38,7 +43,7 @@ const tekstBledu = uzupelnione(site.email)
   : 'Nie udało się wysłać. Spróbuj jeszcze raz za chwilę.';
 ---
 
-<div class="kreator" data-kreator>
+<div class="kreator" data-kreator style={`--kroki: ${LICZBA_KROKOW}`}>
   <div class="kreator__uklad">
     {/* Schodki postępu (17.4/17.5): segment na krok, wypełnia je skrypt
         klasą `jest-wypelniony`; ruch robi przejście CSS na transformie. */}
@@ -70,12 +75,15 @@ const tekstBledu = uzupelnione(site.email)
           pytania.map((p) => (
             <fieldset class="krok-k" data-krok-k tabindex="-1">
               <legend class="krok-k__pytanie">{p.pytanie}</legend>
-              <p class="krok-k__wyjasnienie">{p.wyjasnienie}</p>
-              {p.dopisek && <p class="krok-k__dopisek">{p.dopisek}</p>}
+              {p.wyjasnienie && <p class="krok-k__wyjasnienie">{p.wyjasnienie}</p>}
 
               <div class="krok-k__opcje">
                 {p.opcje.map((o) => {
                   const idOpcji = `${id}-${p.klucz}-${o.klucz}`;
+                  /* Opcje z własnym opisem (pytanie 3, SPEC 17.15 B) są
+                     wyższe: nazwa, doprecyzowanie i zdanie wyjaśnienia,
+                     każde w swojej linii — bez „SŁOWO — fragment" (SPEC 5). */
+                  const rozbudowana = Boolean(o.opis || o.wyjasnienie);
                   return (
                     <div class="opcja-k">
                       <input
@@ -86,8 +94,15 @@ const tekstBledu = uzupelnione(site.email)
                         value={o.klucz}
                         data-pytanie={p.klucz}
                       />
-                      <label class="opcja-k__etykieta" for={idOpcji}>
-                        {o.etykieta}
+                      <label
+                        class:list={['opcja-k__etykieta', rozbudowana && 'opcja-k__etykieta--opis']}
+                        for={idOpcji}
+                      >
+                        <span class="opcja-k__nazwa">{o.etykieta}</span>
+                        {o.opis && <span class="opcja-k__opis">{o.opis}</span>}
+                        {o.wyjasnienie && (
+                          <span class="opcja-k__wyjasnienie">{o.wyjasnienie}</span>
+                        )}
                       </label>
                     </div>
                   );
@@ -96,21 +111,6 @@ const tekstBledu = uzupelnione(site.email)
             </fieldset>
           ))
         }
-
-        {/* Krok 7 — uwagi (17.4). Pole potraktowane jak reszta strony:
-            ink-1, obramowanie line, focus green + ring z global.css. */}
-        <div class="krok-k krok-k--uwagi" data-krok-k tabindex="-1">
-          <p class="krok-k__pytanie">{KROK_UWAGI.naglowek}</p>
-          <label class="krok-k__etykieta-uwag" for={`${id}-uwagi`}>
-            {KROK_UWAGI.etykieta}
-          </label>
-          <textarea
-            class="krok-k__uwagi"
-            id={`${id}-uwagi`}
-            rows="4"
-            placeholder={KROK_UWAGI.podpowiedz}
-            data-uwagi></textarea>
-        </div>
 
         {/* Bieżące widełki: po każdym kliknięciu widać, jak wybór ruszył
             cenę (zasada nadrzędna 17.4). Pojawiają się, gdy znana jest baza. */}
@@ -137,12 +137,29 @@ const tekstBledu = uzupelnione(site.email)
           <ul class="wynik__lista" data-sklad></ul>
         </div>
 
+        {/* Powrót do pytań stoi przy liście wyborów — to ją zmienia. */}
+        <button type="button" class="wynik__zmien" data-zmien>Zmień odpowiedzi</button>
+
         <p class="wynik__zdjecia">{WYNIK.zdjecia}</p>
 
-        {/* Zastrzeżenie obowiązkowe i wyraźne (17.4, 17.9) */}
+        {/* Zastrzeżenie obowiązkowe i wyraźne (17.4, 17.9, 17.13 A) */}
         <p class="wynik__zastrzezenie">{WYNIK.zastrzezenie}</p>
 
-        <button type="button" class="wynik__zmien" data-zmien>Zmień odpowiedzi</button>
+        {/* Uwagi — dawny krok 7, od rewizji v4 tutaj (17.15 B). Ta sama
+            stylistyka: ink-1, obramowanie line, focus green + ring. Pole
+            stoi poza formularzem, więc jego treść wędruje do ukrytego pola
+            `wycena_uwagi` (skrypt kreatora). */}
+        <div class="wynik__uwagi-blok">
+          <label class="wynik__etykieta-uwag" for={`${id}-uwagi`}>
+            {UWAGI.etykieta}
+          </label>
+          <textarea
+            class="wynik__uwagi"
+            id={`${id}-uwagi`}
+            rows="4"
+            placeholder={UWAGI.podpowiedz}
+            data-uwagi></textarea>
+        </div>
 
         {/* --- formularz --------------------------------------------------- */}
         <form
@@ -156,7 +173,7 @@ const tekstBledu = uzupelnione(site.email)
         >
           <input type="hidden" name="subject" value="Kreator wyceny — nowe zapytanie" />
           <input type="hidden" name="from_name" value="Connectiva Studio" />
-          {/* Odpowiedzi 1–6, uwagi i wyliczone widełki — do maila (17.4). */}
+          {/* Odpowiedzi 1–4, uwagi i wyliczone widełki — do maila (17.15 B). */}
           <input type="hidden" name="wycena_odpowiedzi" data-pole-odpowiedzi />
           <input type="hidden" name="wycena_uwagi" data-pole-uwagi />
           <input type="hidden" name="wycena_widelki" data-pole-widelki />
@@ -257,6 +274,9 @@ const tekstBledu = uzupelnione(site.email)
     max-width: 44rem;
     /* Skok jednego pasa schodków postępu (17.5) */
     --skok-k: 6px;
+    /* Liczbę kroków wstawia komponent (--kroki), żeby szerokość rynny
+       i wysokość schodków szły za danymi, a nie za wpisaną liczbą. */
+    --rynna-k: calc((var(--kroki) - 1) * var(--skok-k) + 2px);
   }
 
   /* --- układ: schodki + treść -------------------------------------------- */
@@ -264,7 +284,7 @@ const tekstBledu = uzupelnione(site.email)
   .kreator__uklad {
     display: grid;
     /* Mobile: rynna schodków pionowych po lewej (17.5) */
-    grid-template-columns: calc(6 * var(--skok-k) + 2px) 1fr;
+    grid-template-columns: var(--rynna-k) 1fr;
     column-gap: 1.25rem;
   }
 
@@ -272,7 +292,9 @@ const tekstBledu = uzupelnione(site.email)
     position: relative;
     display: flex;
     flex-direction: column;
-    height: 168px;
+    /* Pas na krok — przy czterech krokach schodki są krótsze niż przy
+       siedmiu i nie zostaje pusta rynna obok treści. */
+    height: calc(var(--kroki) * 24px);
   }
 
   .schodek-k {
@@ -335,7 +357,7 @@ const tekstBledu = uzupelnione(site.email)
 
     .kreator__schodki {
       flex-direction: row;
-      height: calc(6 * var(--skok-k) + 2px);
+      height: var(--rynna-k);
       max-width: 28rem;
     }
 
@@ -411,12 +433,6 @@ const tekstBledu = uzupelnione(site.email)
     max-width: 34rem;
   }
 
-  .krok-k__dopisek {
-    margin-top: 0.5rem;
-    font-size: var(--text-small);
-    color: var(--color-text-3);
-  }
-
   .krok-k__opcje {
     display: flex;
     flex-direction: column;
@@ -473,6 +489,34 @@ const tekstBledu = uzupelnione(site.email)
     outline-offset: 3px;
   }
 
+  /* Opcja z opisem i wyjaśnieniem (pytanie 3, SPEC 17.15 B): trzy linie
+     jedna pod drugą, cały blok jest celem dotyku. */
+  .opcja-k__etykieta--opis {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+    padding: 1rem 1.25rem;
+    max-width: 34rem;
+  }
+
+  .opcja-k__opis {
+    font-weight: 400;
+    line-height: 1.5;
+  }
+
+  .opcja-k__wyjasnienie {
+    font-size: var(--text-small);
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--color-text-3);
+  }
+
+  /* Przy wybranej opcji także tekst pomocniczy robi się czytelniejszy —
+     stan niesie tło, obramowanie i kolor, nie sam kolor (SPEC 11.3). */
+  .opcja-k__input:checked + .opcja-k__etykieta .opcja-k__wyjasnienie {
+    color: var(--color-text-2);
+  }
+
   /* Zmiana pytania: opacity 200 ms (SPEC 17.4, 10.3) */
   .kreator[data-tryb='krokowy'] .krok-k {
     opacity: 0;
@@ -481,43 +525,6 @@ const tekstBledu = uzupelnione(site.email)
 
   .kreator[data-tryb='krokowy'] .krok-k.jest-widoczny {
     opacity: 1;
-  }
-
-  /* --- krok uwag ----------------------------------------------------------- */
-
-  .krok-k__etykieta-uwag {
-    display: block;
-    margin-top: 1.5rem;
-    margin-bottom: 0.5rem;
-    font-size: var(--text-small);
-    color: var(--color-text-2);
-  }
-
-  .krok-k__uwagi {
-    width: 100%;
-    max-width: 34rem;
-    min-height: 120px;
-    padding: 0.75rem 0.875rem;
-    background-color: var(--color-ink-1);
-    border: 1px solid var(--color-line);
-    border-radius: var(--radius-kontrolka);
-    color: var(--color-text);
-    line-height: 1.5;
-    resize: vertical;
-    transition: border-color 150ms var(--ease-wejscie);
-  }
-
-  .krok-k__uwagi::placeholder {
-    color: var(--color-text-3);
-  }
-
-  .krok-k__uwagi:hover {
-    border-color: var(--color-line-2);
-  }
-
-  .krok-k__uwagi:focus {
-    border-color: var(--color-green);
-    background-color: var(--color-ink-2);
   }
 
   /* --- bieżące widełki i nawigacja ----------------------------------------- */
@@ -648,8 +655,48 @@ const tekstBledu = uzupelnione(site.email)
   }
 
   .wynik__zmien {
-    margin-top: 1.5rem;
+    margin-top: 1.25rem;
     font-size: var(--text-small);
+  }
+
+  /* --- uwagi na ekranie wyniku (SPEC 17.15 B) ------------------------------ */
+
+  .wynik__uwagi-blok {
+    margin-top: 2rem;
+  }
+
+  .wynik__etykieta-uwag {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: var(--text-small);
+    color: var(--color-text-2);
+  }
+
+  .wynik__uwagi {
+    width: 100%;
+    max-width: 34rem;
+    min-height: 120px;
+    padding: 0.75rem 0.875rem;
+    background-color: var(--color-ink-1);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-kontrolka);
+    color: var(--color-text);
+    line-height: 1.5;
+    resize: vertical;
+    transition: border-color 150ms var(--ease-wejscie);
+  }
+
+  .wynik__uwagi::placeholder {
+    color: var(--color-text-3);
+  }
+
+  .wynik__uwagi:hover {
+    border-color: var(--color-line-2);
+  }
+
+  .wynik__uwagi:focus {
+    border-color: var(--color-green);
+    background-color: var(--color-ink-2);
   }
 
   /* --- formularz ------------------------------------------------------------ */

@@ -1,6 +1,6 @@
 /**
  * Jedno źródło prawdy dla danych, które zmieniają się poza kodem:
- * kontakt, dane rejestrowe, termin startu, klucze usług.
+ * kontakt, dane rejestrowe, klucze usług.
  *
  * Pola oznaczone TODO_ uzupełnia Jakub przed publikacją (SPEC Etap 9).
  * Nie zaszywamy tych wartości w komponentach.
@@ -34,11 +34,10 @@ export const site = {
     url: 'https://instagram.com/connectiva.studio',
   },
 
-  /**
-   * Uczciwy termin startu (SPEC 8.8 i lista kontrolna 15).
-   * Aktualizowany ręcznie — nigdy licznik, nigdy „efekt".
-   */
-  najblizszyTermin: 'październik 2026',
+  /* Pole `najblizszyTermin` zniknęło w rewizji v4 (SPEC 17.15 A): sekcja
+     Kontakt nie podaje daty, tylko stałe zdanie o wolnych terminach. Nie
+     zostawiamy martwego pola — jeśli kalendarz się zapełni, zmienia się
+     zdanie w `Contact.astro`, nie konfiguracja. */
 
   /**
    * Dane rejestrowe do stopki i polityki prywatności (SPEC 17.13 C).

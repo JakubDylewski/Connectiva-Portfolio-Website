@@ -1,13 +1,17 @@
 /**
- * Kreator wyceny (SPEC 17.4) — logika kroków, widełek i ekranu wyniku.
+ * Kreator wyceny (SPEC 17.15 B) — logika kroków, widełek i ekranu wyniku.
  *
  * CZYSTY JS — bez GSAP i bez Lenis. Zmiana kroku i schodki postępu to
  * przełączanie klas; ruch robi CSS i sam znika przy ograniczonym ruchu.
  * Tween liczby (300 ms) to jedna pętla `requestAnimationFrame`, przy
  * `prefers-reduced-motion: reduce` wartość wpisuje się od razu (SPEC 10.1).
  *
+ * Rewizja v4: cztery kroki, wszystkie są pytaniami. Pole uwag stoi na ekranie
+ * wyniku, czyli jest wypełniane PO policzeniu widełek — dlatego jego treść
+ * ląduje w ukrytym polu na bieżąco, przy każdym wpisaniu znaku.
+ *
  * Wysyłką formularza zajmuje się wspólny `forms.ts` — tu tylko uzupełniamy
- * ukryte pola: odpowiedzi 1–6, uwagi i wyliczone widełki (SPEC 17.4).
+ * ukryte pola: odpowiedzi 1–4, uwagi i wyliczone widełki (SPEC 17.15 B).
  */
 import {
   pytania,
@@ -126,11 +130,11 @@ function uruchom(widget: HTMLElement): () => void {
   const poleUwag = widget.querySelector<HTMLInputElement>('[data-pole-uwagi]');
   const poleWidelek = widget.querySelector<HTMLInputElement>('[data-pole-widelki]');
 
-  // 6 pytań + krok uwag. Rozjazd znaczników z danymi to zawsze błąd —
-  // zostawiamy widok bez prowadzenia (wszystkie pytania naraz), ale głośno.
-  if (kroki.length !== pytania.length + 1 || !panelKrokow || !panelWyniku) {
+  // Krok = pytanie (SPEC 17.15 B). Rozjazd znaczników z danymi to zawsze błąd
+  // — zostawiamy widok bez prowadzenia (wszystkie pytania naraz), ale głośno.
+  if (kroki.length !== pytania.length || !panelKrokow || !panelWyniku) {
     console.warn(
-      `[kreator] oczekiwano ${pytania.length + 1} kroków, znaleziono ${kroki.length}; widget zostaje bez prowadzenia`,
+      `[kreator] oczekiwano ${pytania.length} kroków, znaleziono ${kroki.length}; widget zostaje bez prowadzenia`,
     );
     return () => {};
   }
@@ -165,12 +169,11 @@ function uruchom(widget: HTMLElement): () => void {
     ustawBiezaca(w);
   }
 
-  function czyKrokUwag(i: number): boolean {
+  function czyOstatni(i: number): boolean {
     return i === kroki.length - 1;
   }
 
   function odpowiedziano(i: number): boolean {
-    if (czyKrokUwag(i)) return true;
     return Boolean(odpowiedzi[pytania[i].klucz]);
   }
 
@@ -190,7 +193,7 @@ function uruchom(widget: HTMLElement): () => void {
     if (dalej) {
       dalej.disabled = !odpowiedziano(i);
       const podpis = dalej.querySelector<HTMLElement>('.btn__tresc') ?? dalej;
-      podpis.textContent = czyKrokUwag(i) ? 'Pokaż wycenę' : 'Dalej';
+      podpis.textContent = czyOstatni(i) ? 'Pokaż wycenę' : 'Dalej';
     }
 
     if (przenieFokus) kroki[i].focus();
@@ -212,7 +215,9 @@ function uruchom(widget: HTMLElement): () => void {
       }
     }
 
-    // Ukryte pola do maila (SPEC 17.4): odpowiedzi po ludzku, uwagi, widełki.
+    // Ukryte pola do maila (SPEC 17.15 B): odpowiedzi po ludzku, uwagi,
+    // widełki. Uwagi klientka pisze dopiero tutaj, więc pole synchronizuje
+    // się też przy każdym wpisaniu znaku (`naUwagi` niżej).
     if (poleOdpowiedzi) {
       poleOdpowiedzi.value = pytania
         .map((p) => {
@@ -259,7 +264,7 @@ function uruchom(widget: HTMLElement): () => void {
 
   const naDalej = () => {
     if (!odpowiedziano(aktywny)) return;
-    if (czyKrokUwag(aktywny)) pokazWynik();
+    if (czyOstatni(aktywny)) pokazWynik();
     else pokazKrok(aktywny + 1);
   };
 
@@ -267,10 +272,17 @@ function uruchom(widget: HTMLElement): () => void {
     if (aktywny > 0) pokazKrok(aktywny - 1);
   };
 
+  // Pole uwag stoi na ekranie wyniku, czyli jest wypełniane po `pokazWynik()`.
+  // Bez tego nasłuchu do maila poszłaby pusta treść (SPEC 17.15 B).
+  const naUwagi = () => {
+    if (poleUwag) poleUwag.value = uwagi?.value.trim() ?? '';
+  };
+
   panelKrokow.addEventListener('change', naZmiane);
   dalej?.addEventListener('click', naDalej);
   wstecz?.addEventListener('click', naWstecz);
   zmien?.addEventListener('click', wrocDoKrokow);
+  uwagi?.addEventListener('input', naUwagi);
 
   pokazKrok(0, false);
 
@@ -279,6 +291,7 @@ function uruchom(widget: HTMLElement): () => void {
     dalej?.removeEventListener('click', naDalej);
     wstecz?.removeEventListener('click', naWstecz);
     zmien?.removeEventListener('click', wrocDoKrokow);
+    uwagi?.removeEventListener('input', naUwagi);
     delete widget.dataset.tryb;
   };
 }

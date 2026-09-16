@@ -131,11 +131,11 @@ jest, formularze grzecznie odmawiają wysyłki, a stopka pokazuje placeholdery.
    zmieniać treści?" i zakres godziny szkolenia. *(17.11, pkt 5)*
 8. **Opieka pomiesięczna** — czy zostaje w ofercie i za ile; dziś strona
    wspomina opiekę tylko w FAQ, bez kwoty. *(17.11, pkt 6)*
-9. **Termin startu** — `najblizszyTermin` w `src/site.config.ts` (dziś:
-   październik 2026). Potwierdzić przed publikacją, potem aktualizować ręcznie.
-10. **Wyniki Lighthouse dem** — `lighthouseDate` w `src/data/projekty.ts`
-    jest `null`, więc strona celowo nie pokazuje liczb Lighthouse projektów.
-    Po zmierzeniu dem wpisać datę pomiaru — liczby pojawią się same.
-11. **Obietnice terminowe** — odpowiedź w 24 h i wideo w 48 h: potwierdzić,
+9. **Wyniki Lighthouse dem** — `lighthouseDate` w `src/data/projekty.ts`
+   jest `null`, więc strona celowo nie pokazuje liczb Lighthouse projektów.
+   Po zmierzeniu dem wpisać datę pomiaru — liczby pojawią się same.
+10. **Obietnice terminowe** — odpowiedź w 24 h i wideo w 48 h: potwierdzić,
     że są wykonalne (SPEC 15). Sztywne terminy realizacji wypadły z treści
-    w rewizji v2 (17.1, 17.7).
+    w rewizji v2 (17.1, 17.7). Sekcja Kontakt nie podaje daty startu, tylko
+    zdanie „Mamy wolne terminy" — gdy kalendarz się zapełni, trzeba je
+    zmienić (17.15 A).

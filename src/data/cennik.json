@@ -1,38 +1,29 @@
 {
-  "uwaga": "Model addytywny kreatora wyceny (SPEC 17.4). Kwota z\u00A0kreatora jest kwotą do zapłaty — nie doliczamy do niej podatku (17.13 A). Przedziały zakotwiczone w\u00A0realnych cenach polskiego rynku 2026 — nie zmieniać bez rozmowy z\u00A0Jakubem. Skrajnych wartości pilnuje zabezpieczenie budowania w\u00A0src/data/kreator.ts.",
+  "uwaga": "Model addytywny kreatora wyceny (SPEC 17.15 B — cztery pytania). Kwota z\u00A0kreatora jest kwotą do zapłaty — nie doliczamy do niej podatku (17.13 A). Zaokrąglenie do pełnych 500 zł, górna granica przycięta do 18\u00A0000. Przedziały zakotwiczone w\u00A0realnych cenach polskiego rynku 2026 — nie zmieniać bez rozmowy z\u00A0Jakubem. Skrajnych wartości pilnuje zabezpieczenie budowania w\u00A0src/data/kreator.ts.",
   "waluta": "zł",
   "zaokraglenie": 500,
+  "gornaGranica": 18000,
   "wagi": {
     "rozmiar": {
       "wizytowka": [3000, 4000],
       "srednia": [5000, 6500],
       "rozbudowana": [8000, 10000]
     },
-    "segment": {
-      "salon": [0, 0],
-      "gabinet": [0, 0],
-      "klinika": [500, 800],
-      "inne": [0, 0]
-    },
-    "system": {
-      "brak": [0, 0],
-      "jeden": [1500, 2000],
-      "dwa": [2500, 3500]
-    },
-    "rezerwacja": {
-      "brak": [0, 0],
-      "wpiac": [500, 800],
-      "dobrac": [800, 1200]
+    "cel": {
+      "pokazywac": [0, 0],
+      "rezerwacja": [2000, 3000],
+      "pozyskiwac": [3500, 5000]
     },
     "miejscowosci": {
       "jedna": [0, 0],
       "okoliczne": [800, 1200],
       "region": [1500, 2500]
     },
-    "zrodlo": {
-      "instagram": [0, 0],
-      "google": [0, 0],
-      "reklamy": [0, 0]
+    "segment": {
+      "salon": [0, 0],
+      "gabinet": [0, 0],
+      "klinika": [500, 800],
+      "inne": [0, 0]
     }
   },
   "nieMaWCenie": [

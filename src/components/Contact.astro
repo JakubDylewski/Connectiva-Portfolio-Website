@@ -2,12 +2,13 @@
 /**
  * Sekcja Kontakt (SPEC 8.8).
  *
- * Lewa kolumna: termin startu, czas odpowiedzi, e-mail, Instagram.
+ * Lewa kolumna: dostępność, czas odpowiedzi, e-mail, Instagram.
  * Prawa: formularz.
  *
- * UCZCIWOŚĆ (SPEC 15, interakcja 10): „najbliższy wolny termin startu" to
- * zwykła data z `site.config.ts`, aktualizowana ręcznie. Bez licznika, bez
- * animacji, bez sugerowania, że miejsca właśnie się kończą.
+ * UCZCIWOŚĆ (SPEC 15, 17.15 A): zamiast konkretnej daty startu stoi tu stałe
+ * zdanie o wolnych terminach. Zdanie ma być prawdziwe — gdy kalendarz się
+ * zapełni, trzeba je zmienić. Bez licznika, bez animacji, bez sugerowania,
+ * że miejsca właśnie się kończą.
  *
  * Komponent nie renderuje nagłówka — daje go `SectionHead` (h2 na stronie
  * głównej, h1 na `/kontakt/`), żeby nigdzie nie było dwóch h1 (SPEC 11.3).
@@ -23,8 +24,7 @@ const instaOk = uzupelnione(site.instagram.nazwa) && uzupelnione(site.instagram.
 <div class="kontakt">
   <div class="kontakt__info">
     <p class="kontakt__termin">
-      Najbliższy wolny termin startu:{' '}
-      <strong>{site.najblizszyTermin}</strong>
+      Mamy wolne terminy — zaczynamy, kiedy będziesz gotowa.
     </p>
 
     <p class="kontakt__odpowiedz">Odpowiedź w&nbsp;ciągu 24 godzin w&nbsp;dni robocze.</p>
@@ -76,18 +76,9 @@ const instaOk = uzupelnione(site.instagram.nazwa) && uzupelnione(site.instagram.
   .kontakt__termin {
     font-size: var(--text-lead);
     line-height: 1.55;
-    color: var(--color-text-2);
-  }
-
-  .kontakt__termin strong {
-    /* Zawsze we własnej linii. Bez tego zdanie balansowało na granicy
-       łamania: fallback mieścił je w jednej linii, docelowy Hanken w dwóch,
-       i podmiana fontu przesuwała cały formularz (CLS 0,109 — audyt
-       Etapu 9). Stały układ etykieta / wartość ucina problem niezależnie
-       od tego, jaki termin siedzi w site.config.ts. */
-    display: block;
+    /* Zdanie jest teraz stałe (17.15 A), więc nie ma już części wyróżnionej
+       wagą. Zostaje kolor treści — to informacja, nie ozdoba. */
     color: var(--color-text);
-    font-weight: 500;
   }
 
   .kontakt__odpowiedz {
