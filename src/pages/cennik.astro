@@ -2,28 +2,25 @@
 /**
  * /cennik/ (SPEC 17.4).
  *
- * Ten sam kreator wyceny co sekcja 05 na stronie głównej, a pod nim blok
- * „Nie ma w cenie" i zasada płatności etapami — oba z `cennik.json`,
- * żeby treść nie żyła w dwóch miejscach.
+ * Ten sam kreator wyceny co sekcja 05 na stronie głównej, a pod nim trzy
+ * bloki — „Nie ma w cenie", „Opieka po starcie" i płatność — wszystkie
+ * z `cennik.json`, żeby treść nie żyła w dwóch miejscach.
  *
  * Tytuły bloków to `p`, nie nagłówki — stoją po h1 i h2/h3 łamałyby
  * kolejność nagłówków (wzór ze stopki, SPEC 11.3).
  *
- * Blok „Opieka po starcie" ma kotwicę `#opieka` — prowadzi do niego link
- * z sekcji „Co potem" na stronie głównej (SPEC 17.14). Treść bierzemy z tego
- * samego pliku co ta sekcja, żeby cena opieki miała jedno źródło.
+ * Blok opieki (SPEC 17.13 B) stoi obok „Nie ma w cenie" i ma kotwicę
+ * `#opieka` — prowadzi do niego link „Szczegóły opieki" z sekcji „Co potem"
+ * na stronie głównej (17.14).
  */
 import Base from '../layouts/Base.astro';
 import SectionHead from '../components/SectionHead.astro';
 import Kreator from '../components/Kreator.astro';
 import cennik from '../data/cennik.json';
-import { coPotem } from '../data/coPotem';
-
-const opieka = coPotem.filter((p) => p.id !== 'wlasnosc');
 ---
 
 <Base
-  tytul="Cennik stron dla salonów beauty i klinik — Connectiva"
+  tytul="Cennik stron dla salonów beauty i klinik — Connectiva Studio"
   opis="Sześć pytań o to, czego potrzebujesz. Na końcu zobaczysz orientacyjne widełki i dokładnie to, co się na nie składa. Bez logowania, bez zobowiązań."
   pasekMobile
 >
@@ -47,16 +44,16 @@ const opieka = coPotem.filter((p) => p.id !== 'wlasnosc');
           </ul>
         </div>
 
+        {/* Cel linku „Szczegóły opieki" z sekcji 06 na stronie głównej */}
+        <div class="strona-cennik__blok" id="opieka">
+          <p class="strona-cennik__tytul">{cennik.opieka.tytul}</p>
+          <p class="strona-cennik__tekst">{cennik.opieka.tekst}</p>
+        </div>
+
         <div class="strona-cennik__blok">
           <p class="strona-cennik__tytul">Płatność</p>
           <p class="strona-cennik__tekst">{cennik.platnosc}</p>
         </div>
-      </div>
-
-      {/* Cel linku „Szczegóły opieki" z sekcji 06 na stronie głównej (17.14) */}
-      <div class="strona-cennik__blok strona-cennik__opieka" id="opieka">
-        <p class="strona-cennik__tytul">Opieka po starcie</p>
-        {opieka.map((p) => <p class="strona-cennik__tekst">{p.tresc}</p>)}
       </div>
     </div>
   </section>
@@ -109,10 +106,8 @@ const opieka = coPotem.filter((p) => p.id !== 'wlasnosc');
     color: var(--color-text-2);
   }
 
-  .strona-cennik__opieka {
-    margin-top: 2.5rem;
-    max-width: 44rem;
-    /* Wejście z kotwicy /cennik/#opieka nie może chować tytułu pod belką. */
+  /* Wejście z kotwicy /cennik/#opieka nie może chować tytułu pod belką. */
+  #opieka {
     scroll-margin-top: 5rem;
   }
 

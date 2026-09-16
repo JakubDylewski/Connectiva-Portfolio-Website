@@ -27,15 +27,13 @@ export const faq: PozycjaAkordeonu[] = [
       'zasadach — Ty decydujesz, z\u00A0czego korzystasz.',
   },
   {
-    // DO POTWIERDZENIA (SPEC 17.11, pkt 5): czy klientka dostaje panel CMS
-    // (Keystatic / Decap), czy zmiany idą wyłącznie przez opiekę. Poniżej
-    // wersja ze SPEC 8.7 — zakłada godzinne szkolenie plus opiekę. Jeśli
-    // zapadnie decyzja o panelu, to zdanie trzeba przepisać.
+    // Decyzja otwarta nr 5 z 17.11 jest zamknięta (SPEC 17.13 B):
+    // rozwiązaniem jest opieka, nie panel CMS. Treść odpowiedzi wprost z
+    // 17.13 B.
     tytul: 'Będę mogła sama zmieniać treści?',
     tresc:
-      'Cennik, godziny, zespół i\u00A0aktualności zmieniasz sama po godzinnym ' +
-      'szkoleniu albo zgłaszasz zmiany nam w\u00A0ramach opieki — wykonujemy je ' +
-      'w\u00A0ciągu jednego dnia roboczego.',
+      'Zgłaszasz zmianę — w\u00A0ramach opieki wprowadzam ją w\u00A0ciągu 48\u00A0godzin. ' +
+      'Nie musisz uczyć się żadnego panelu.',
   },
   {
     // Uczciwa odpowiedź o zdjęciach — treść dosłownie ze SPEC 17.8.

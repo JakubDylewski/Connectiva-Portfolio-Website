@@ -10,7 +10,9 @@
  * dojdzie Meta Pixel), trzeba tu wrócić — i wtedy potrzebny będzie także baner
  * zgody, którego dziś świadomie nie ma (SPEC 0).
  *
- * Dane administratora są w `site.config.ts` jako pola TODO.
+ * Dane administratora bierzemy z `site.config.ts` (SPEC 17.13 C): nazwa
+ * z CEIDG, NIP i REGON, bez adresu — pominięty świadomie, ze względu na
+ * prywatność. Kontakt w sprawach danych idzie mailem, gdy adres będzie gotowy.
  */
 import Base from '../layouts/Base.astro';
 import SectionHead from '../components/SectionHead.astro';
@@ -18,12 +20,12 @@ import { site } from '../site.config';
 
 const uzupelnione = (v: string) => Boolean(v) && !v.startsWith('TODO_');
 const daneGotowe =
-  uzupelnione(site.firma.nazwa) && uzupelnione(site.firma.nip) && uzupelnione(site.firma.adres);
+  uzupelnione(site.firma.nazwa) && uzupelnione(site.firma.nip) && uzupelnione(site.firma.regon);
 const mailOk = uzupelnione(site.email);
 ---
 
 <Base
-  tytul="Polityka prywatności — Connectiva"
+  tytul="Polityka prywatności — Connectiva Studio"
   opis="Jakie dane zbieramy przez formularze, komu je powierzamy i jakie masz prawa."
 >
   <section class="polityka">
@@ -42,11 +44,11 @@ const mailOk = uzupelnione(site.email);
           daneGotowe ? (
             <p>
               Administratorem danych jest {site.firma.nazwa}, NIP {site.firma.nip},{' '}
-              {site.firma.adres}.
+              REGON {site.firma.regon}.
             </p>
           ) : (
             <p class="polityka__todo">
-              Dane administratora (nazwa firmy, NIP, adres) trzeba uzupełnić
+              Dane administratora (nazwa firmy, NIP, REGON) trzeba uzupełnić
               w&nbsp;src/site.config.ts przed publikacją. Bez nich ta polityka
               jest niekompletna.
             </p>

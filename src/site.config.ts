@@ -7,23 +7,31 @@
  */
 
 export const site = {
-  nazwa: 'Connectiva',
+  /**
+   * Marka na stronie (SPEC 17.13 D). To NIE jest zarejestrowana nazwa firmy
+   * — ta stoi niżej w `firma.nazwa` i brzmi inaczej. Logo graficzne też
+   * zostaje bez dopisku: wordmark w SVG to nadal samo „Connectiva”.
+   */
+  nazwa: 'Connectiva Studio',
   url: 'https://connectiva-portfolio.pages.dev',
   jezyk: 'pl',
 
   /** Domyślny tytuł i opis — wzór z SPEC 11.2. */
-  tytul: 'Strony dla salonów beauty i\u00A0klinik medycyny estetycznej — Connectiva',
+  tytul: 'Strony dla salonów beauty i\u00A0klinik medycyny estetycznej — Connectiva Studio',
   opis:
     'Strony i\u00A0systemy pozyskiwania klientek dla salonów beauty, gabinetów ' +
     'kosmetologii i\u00A0klinik medycyny estetycznej. ' +
     'Strona, która prowadzi klientkę od pierwszego wejścia ' +
     'do umówionej wizyty.',
 
-  /** Kontakt. TODO Jakub — decyzja otwarta nr 2 (SPEC 16). */
+  /**
+   * Kontakt. E-mail zostaje TODO — nowy adres nie jest gotowy, a tymczasowego
+   * Jakub nie publikuje (SPEC 17.13 F). Instagram: handle i link z 17.13 E.
+   */
   email: 'TODO_EMAIL',
   instagram: {
-    nazwa: 'TODO_INSTAGRAM',
-    url: 'TODO_INSTAGRAM_URL',
+    nazwa: 'connectiva.studio',
+    url: 'https://instagram.com/connectiva.studio',
   },
 
   /**
@@ -32,22 +40,27 @@ export const site = {
    */
   najblizszyTermin: 'październik 2026',
 
-  /** Dane rejestrowe do stopki i polityki. TODO Jakub (SPEC 16, decyzja 2). */
+  /**
+   * Dane rejestrowe do stopki i polityki prywatności (SPEC 17.13 C).
+   *
+   * `nazwa` to zarejestrowana nazwa z CEIDG i ma zostać dokładnie w tym
+   * brzmieniu — nigdy „Connectiva Studio Jakub Dylewski". To inny byt niż
+   * marka (`site.nazwa`) i nie wolno ich mylić.
+   *
+   * Adresu nie podajemy świadomie — decyzja o prywatności, nie przeoczenie.
+   */
   firma: {
-    nazwa: 'TODO_NAZWA_FIRMY',
-    nip: 'TODO_NIP',
-    adres: 'TODO_ADRES',
+    nazwa: 'Connectiva Jakub Dylewski',
+    nip: '8911643646',
+    regon: '543116883',
   },
 
   /** Web3Forms. TODO Jakub przed publikacją (SPEC 0). */
   web3formsKey: 'TODO_WEB3FORMS_KEY',
 
-  /**
-   * Czy ceny w cenniku są netto, czy brutto — zależy od tego, czy JDG jest
-   * podatnikiem VAT. Decyzja otwarta nr 2 (SPEC 16), jeszcze niepodjęta.
-   * Dopóki jest `null`, cennik nie twierdzi ani jednego, ani drugiego.
-   */
-  cenyVat: null as 'netto' | 'brutto' | null,
+  /* Pytanie „netto czy brutto" jest zamknięte (SPEC 17.13 A): kwota z kreatora
+     jest kwotą do zapłaty, nie doliczamy do niej podatku. Dlatego nie ma tu
+     już przełącznika `cenyVat` — nie ma czego przełączać. */
 
   /** Miasta, od których zaczynamy (SPEC 8.3, 11.2 areaServed). */
   obszar: ['Gdańsk', 'Gdynia', 'Sopot', 'Toruń'],

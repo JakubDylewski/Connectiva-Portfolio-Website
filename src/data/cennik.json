@@ -1,5 +1,5 @@
 {
-  "uwaga": "Model addytywny kreatora wyceny (SPEC 17.4). Kwoty netto — decyzja o\u00A0VAT otwarta (17.11). Przedziały zakotwiczone w\u00A0realnych cenach polskiego rynku 2026 — nie zmieniać bez rozmowy z\u00A0Jakubem. Skrajnych wartości pilnuje zabezpieczenie budowania w\u00A0src/data/kreator.ts.",
+  "uwaga": "Model addytywny kreatora wyceny (SPEC 17.4). Kwota z\u00A0kreatora jest kwotą do zapłaty — nie doliczamy do niej podatku (17.13 A). Przedziały zakotwiczone w\u00A0realnych cenach polskiego rynku 2026 — nie zmieniać bez rozmowy z\u00A0Jakubem. Skrajnych wartości pilnuje zabezpieczenie budowania w\u00A0src/data/kreator.ts.",
   "waluta": "zł",
   "zaokraglenie": 500,
   "wagi": {
@@ -41,5 +41,9 @@
     "budżet reklamowy i\u00A0obsługa kampanii",
     "teksty specjalistyczne pisane przez lekarza"
   ],
+  "opieka": {
+    "tytul": "Opieka po starcie (opcjonalnie) — 249\u00A0zł miesięcznie",
+    "tekst": "Aktualizacje, kopie zapasowe, monitoring, do 2\u00A0godzin zmian w\u00A0treści miesięcznie, wprowadzanych w\u00A0ciągu 48\u00A0godzin roboczych. Bez zobowiązania — wypowiedzenie w\u00A0każdej chwili."
+  },
   "platnosc": "Płacisz etapami, faktura za każdy etap."
 }

@@ -9,6 +9,10 @@
  * Zasady użycia (SPEC 3.3): tylko na czerni lub ciemnych przebarwieniach,
  * nigdy na jasnym tle, nigdy w innym kolorze. Minimalna szerokość 120 px
  * (112 px dopuszczalne w belce mobilnej).
+ *
+ * Rebranding na „Connectiva Studio" (SPEC 17.13 D) dotyczy tekstu, nie
+ * grafiki: sam wordmark zostaje bez dopisku. Nazwą marki mówi tylko etykieta
+ * dla czytnika ekranu — i to jest zamierzone.
  */
 import { VIEWBOX, LINIE, WORDMARK_PATH } from '../data/wordmark';
 
@@ -49,7 +53,7 @@ const wysokosc = Math.round((szerokosc / VIEWBOX.width) * VIEWBOX.height * 100) 
   fill="none"
   role={dekoracyjne ? undefined : 'img'}
   aria-hidden={dekoracyjne ? 'true' : undefined}
-  aria-label={dekoracyjne ? undefined : 'Connectiva'}
+  aria-label={dekoracyjne ? undefined : 'Connectiva Studio'}
 >
   {
     wariant === 'gradient' && (

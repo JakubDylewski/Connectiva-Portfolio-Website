@@ -178,10 +178,15 @@ export const WYNIK = {
     'Pracujemy na Twoich zdjęciach. Jeśli ich nie masz albo nie jesteś ' +
     'z nich zadowolona, podpowiemy, jak zrobić dobre zdjęcia telefonem, ' +
     'albo polecimy fotografa — ale sesja nie wchodzi w zakres projektu.',
+  /**
+   * Kwota jest ostateczna — bez doliczania podatku (SPEC 17.13 A). Zdanie
+   * o uwagach zostaje, bo wymaga go lista kontrolna uczciwości (17.9).
+   */
   zastrzezenie:
-    'To wstępna wycena w widełkach. To, co napiszesz w uwagach, ' +
-    'może — choć nie musi — wpłynąć na finalną kwotę. Dokładną cenę ustalamy ' +
-    'po rozmowie, zanim cokolwiek zaczniemy.',
+    'To wstępna wycena w widełkach. Kwota, którą widzisz, jest kwotą, ' +
+    'którą płacisz — nie doliczamy do niej żadnego podatku. To, co napiszesz ' +
+    'w uwagach, może — choć nie musi — wpłynąć na finalną kwotę. Dokładną ' +
+    'cenę ustalamy po rozmowie, zanim cokolwiek zaczniemy.',
   przycisk: 'Wyślij i porozmawiajmy',
   obietnica: 'Odpowiadam w ciągu 24 godzin w dni robocze.',
 };

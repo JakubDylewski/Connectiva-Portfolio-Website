@@ -1082,3 +1082,85 @@ Pod trzema punktami jeden link tekstowy: `Szczegóły opieki` → `/cennik/#opie
 ### Decyzja otwarta (nowa)
 
 Stawka za jednorazowe zmiany bez opieki — na stronie celowo bez kwoty („wyceniamy jednorazowo"). Jeśli Jakub ustali stałą stawkę godzinową, dopisać ją w punkcie 3 i na `/cennik/`. Rynek 2026: 70–250 zł za godzinę w zależności od tego, czy freelancer, czy agencja.
+
+
+
+
+
+
+---
+
+## 17.15 Rewizja v4 — kreator w 4 pytaniach, termin startu bez daty (16 września 2026)
+
+> Dwie zmiany po audycie konwersji. Ma pierwszeństwo przed 17.4 tam, gdzie jest sprzeczność. Zasada nadrzędna kreatora z 17.4 (jeden krok = jedno pytanie, każda opcja z jednozdaniowym wyjaśnieniem, zero żargonu) obowiązuje dalej.
+
+### A. Termin startu — tekst bez daty
+
+Znika „Najbliższy wolny termin startu: [data]" z sekcji Kontakt (8.8). Zastępuje go stałe zdanie:
+
+**„Mamy wolne terminy — zaczynamy, kiedy będziesz gotowa."**
+
+- Usunąć pole terminu startu z `site.config.ts` (nie zostawiać martwego pola).
+- README, lista „Do uzupełnienia przed publikacją": usunąć pozycję o terminie startu.
+- Lista uczciwości (15/17.9): punkt o „prawdziwej dacie z site.config.ts" zastąpić punktem: „Zdanie o wolnych terminach jest prawdziwe — jeśli kalendarz się zapełni, zdanie trzeba zmienić."
+
+### B. Kreator wyceny — 4 pytania, uwagi na ekranie wyniku
+
+Ścieżka skraca się z 6 pytań + krok uwag do **4 pytań → ekran wyniku**. Pasek postępu (linia-schodki) ma teraz 4 kreski; poza tym warstwa ruchu bez zmian.
+
+**Pytanie 1. Do czego jest strona?** *(bez zmian z 17.4)*
+salon beauty · gabinet kosmetologii · klinika medycyny estetycznej · coś innego
+Wyjaśnienie: „Od tego zależy, jak zbudujemy stronę i jakim językiem. Klinika lekarska ma inne zasady niż salon — reklama świadczeń zdrowotnych jest zakazana."
+
+**Pytanie 2. Jak duża ma być?** *(bez zmian z 17.4)*
+wizytówka (jedna strona) · średnia (do 6 podstron z usługami) · rozbudowana (12+ podstron, osobna strona na każdą usługę)
+Wyjaśnienie: „Wizytówka pokazuje, kim jesteś i gdzie Cię znaleźć. Rozbudowana opisuje każdy zabieg osobno — i dzięki temu łapie klientki, które szukają konkretnej usługi w Google."
+
+**Pytanie 3. Co strona ma robić?** *(nowe — łączy dawne pytania o system i rezerwację)*
+- **Pokazywać** — kim jesteś, co robisz, jak Cię znaleźć.
+  Wyjaśnienie: „Wystarczy, gdy klientki i tak piszą na Instagramie, a strona ma potwierdzać, że jesteś profesjonalistką."
+- **Prowadzić do rezerwacji** — system dopasowany do Twojej oferty plus rezerwacja online wpięta w stronę, bez prowizji.
+  Wyjaśnienie: „Dobór zabiegu albo cennik z wyszukiwarką prowadzi klientkę od «oglądam» do «zapisuję się» — prosto do Twojego kalendarza."
+- **Aktywnie pozyskiwać** — dwa systemy, rezerwacja i zbieranie kontaktów do klientek.
+  Wyjaśnienie: „Strona pracuje jak handlowiec: analiza skóry z raportem zostawia Ci kontakt z pełnym profilem, zanim klientka w ogóle napisze."
+
+**Pytanie 4. Ile miejscowości ma Cię znajdować w Google?** *(bez zmian z 17.4)*
+jedna (moje miasto) · kilka okolicznych · szeroko, cały region
+Wyjaśnienie: „Pod każdą miejscowość robimy osobną stronę, żeby klientka z Torunia i klientka z Bydgoszczy trafiły do Ciebie, wpisując swoją okolicę."
+
+**Usunięte:** dawne pytanie 6 („Skąd mają przychodzić klientki") — znika w całości, razem z wpisami w danych. Rozróżnienie „wpiąć mój system / dobierzcie" — znika z wyceny, zostaje tematem rozmowy.
+
+### Nowy model ceny (`cennik.json` — zastępuje tabele z 17.4)
+
+Baza (pytanie 2):
+| Wybór | Dół | Góra |
+|---|---|---|
+| wizytówka | 3 000 | 4 000 |
+| średnia | 5 000 | 6 500 |
+| rozbudowana | 8 000 | 10 000 |
+
+Dodatki:
+| Pytanie | Wybór | Dół | Góra |
+|---|---|---|---|
+| 3. Co ma robić | pokazywać | 0 | 0 |
+| | prowadzić do rezerwacji | +2 000 | +3 000 |
+| | aktywnie pozyskiwać | +3 500 | +5 000 |
+| 4. Miejscowości | jedna | 0 | 0 |
+| | kilka okolicznych | +800 | +1 200 |
+| | szeroko, region | +1 500 | +2 500 |
+| 1. Segment | klinika lekarska | +500 | +800 |
+| | pozostałe | 0 | 0 |
+
+Zaokrąglenie do pełnych 500 zł; górną granicę po zaokrągleniu przyciąć do 18 000. Kontrola skrajnych: minimum 3 000–4 000 (wizytówka, „pokazywać", jedna miejscowość), maksimum 13 500–18 000 (rozbudowana, „aktywnie pozyskiwać", szeroko, klinika). Kwoty są kwotami końcowymi (17.13 A — bez „netto").
+
+### Ekran wyniku — uwagi przenoszą się tutaj
+
+Kolejność na ekranie wyniku: widełki → „co się składa na tę wycenę" → informacja o zdjęciach (17.6) → zastrzeżenie (brzmienie z 17.13 A) → **pole uwag** → formularz kontaktowy → przycisk.
+
+Pole uwag (dawny krok 7, ta sama stylistyka z 17.4): etykieta „Twoje uwagi (opcjonalnie)", **nowa podpowiedź w polu:** „Masz pytanie albo konkretny pomysł? Napisz też, z jakiego systemu rezerwacji korzystasz i skąd dziś przychodzą klientki — lepiej przygotuję wycenę."
+
+Ukryte pola wysyłki: odpowiedzi 1–4, treść uwag, wyliczone widełki. Reszta formularza i wysyłki bez zmian (17.4).
+
+### Lista uczciwości — korekta
+
+Punkt „pytanie 6 kreatora nie wpływa na cenę" (17.9) — usunąć, pytanie nie istnieje. Reszta punktów bez zmian.

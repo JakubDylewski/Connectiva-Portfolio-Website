@@ -113,7 +113,7 @@ export const projekty: Projekt[] = [
       'podmiotu leczniczego, który musi budować zaufanie informacją, ' +
       'a\u00A0nie reklamą.',
     seoTytul:
-      'Klinika Aurelia — projekt pokazowy strony kliniki medycyny estetycznej — Connectiva',
+      'Klinika Aurelia — projekt pokazowy strony kliniki medycyny estetycznej — Connectiva Studio',
     seoOpis:
       'Projekt pokazowy strony kliniki medycyny estetycznej: moduł ' +
       '„Dobierz zabieg”, 12 podstron zabiegowych, teksty pisane pod art. 14. ' +
@@ -159,7 +159,7 @@ export const projekty: Projekt[] = [
       'Ten układ jest wzorem dla salonu beauty z\u00A0długą kartą usług, ' +
       'w\u00A0którym klientka ma znaleźć swoją w\u00A0trzy sekundy.',
     seoTytul:
-      'ELARA Instytut Urody — projekt pokazowy strony salonu beauty — Connectiva',
+      'ELARA Instytut Urody — projekt pokazowy strony salonu beauty — Connectiva Studio',
     seoOpis:
       'Projekt pokazowy strony salonu beauty: cennik z\u00A0filtrem na żywo, ' +
       '6 kategorii usług, vouchery i\u00A0rezerwacja z\u00A0kontekstem wybranej usługi. ' +
@@ -205,7 +205,7 @@ export const projekty: Projekt[] = [
       'Ten układ jest wzorem dla gabinetu kosmetologii i\u00A0marki osobistej, ' +
       'która sprzedaje programy kuracji, a\u00A0nie pojedyncze wizyty.',
     seoTytul:
-      'HALICKA Kosmetologia Estetyczna — projekt pokazowy strony gabinetu kosmetologii — Connectiva',
+      'HALICKA Kosmetologia Estetyczna — projekt pokazowy strony gabinetu kosmetologii — Connectiva Studio',
     seoOpis:
       'Projekt pokazowy strony gabinetu kosmetologii: „Karta Twojej Skóry” ' +
       'z\u00A0raportem, programy kuracji z\u00A0osią czasu wizyt i\u00A0lokalne SEO. ' +
