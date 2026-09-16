@@ -8,11 +8,18 @@
  *
  * Tytuły bloków to `p`, nie nagłówki — stoją po h1 i h2/h3 łamałyby
  * kolejność nagłówków (wzór ze stopki, SPEC 11.3).
+ *
+ * Blok „Opieka po starcie" ma kotwicę `#opieka` — prowadzi do niego link
+ * z sekcji „Co potem" na stronie głównej (SPEC 17.14). Treść bierzemy z tego
+ * samego pliku co ta sekcja, żeby cena opieki miała jedno źródło.
  */
 import Base from '../layouts/Base.astro';
 import SectionHead from '../components/SectionHead.astro';
 import Kreator from '../components/Kreator.astro';
 import cennik from '../data/cennik.json';
+import { coPotem } from '../data/coPotem';
+
+const opieka = coPotem.filter((p) => p.id !== 'wlasnosc');
 ---
 
 <Base
@@ -44,6 +51,12 @@ import cennik from '../data/cennik.json';
           <p class="strona-cennik__tytul">Płatność</p>
           <p class="strona-cennik__tekst">{cennik.platnosc}</p>
         </div>
+      </div>
+
+      {/* Cel linku „Szczegóły opieki" z sekcji 06 na stronie głównej (17.14) */}
+      <div class="strona-cennik__blok strona-cennik__opieka" id="opieka">
+        <p class="strona-cennik__tytul">Opieka po starcie</p>
+        {opieka.map((p) => <p class="strona-cennik__tekst">{p.tresc}</p>)}
       </div>
     </div>
   </section>
@@ -94,6 +107,13 @@ import cennik from '../data/cennik.json';
   .strona-cennik__tekst {
     margin-top: 1.25rem;
     color: var(--color-text-2);
+  }
+
+  .strona-cennik__opieka {
+    margin-top: 2.5rem;
+    max-width: 44rem;
+    /* Wejście z kotwicy /cennik/#opieka nie może chować tytułu pod belką. */
+    scroll-margin-top: 5rem;
   }
 
   @media (min-width: 768px) {

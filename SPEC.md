@@ -955,3 +955,130 @@ Wyłącznik `data-motion="off"` na sekcji Projekty zostaje i nadal przywraca wer
 Reguły wydajnościowe z 10.2 obowiązują bez wyjątku, w szczególności: geometria każdego okna mierzona raz po `document.fonts.ready` i `img.decode()`, `will-change` tylko na aktualnie scrubowanym zrzucie i zdejmowane po `onLeave`, `ScrollTrigger.refresh()` po załadowaniu wszystkich trzech zrzutów.
 
 Chipy segmentu z hero nadal przewijają do właściwego **bloku info** (nie bezpośrednio do okna).
+
+
+
+
+
+
+---
+
+## 17.13 Rewizja v3 — dane firmy, cena, opieka, marka (16 września 2026)
+
+> Cztery decyzje biznesowe domknięte po rozmowie z Jakubem. Ma pierwszeństwo przed wszystkim wyżej, gdzie jest sprzeczność.
+
+### A. Cena — usunięcie „netto"
+
+Klientka płaci dokładnie tyle, ile pokazuje kreator — bez doliczania podatku na fakturze. Wszędzie, gdzie w kreatorze wyceny (17.4), na `/cennik/` albo w FAQ pojawia się słowo „netto" przy kwotach — usunąć. Zastąpić jednoznacznym sformułowaniem, że pokazana kwota jest kwotą ostateczną. Przykład zdania do zastrzeżenia w kreatorze (17.4, ekran wyniku, punkt 4): „To wstępna wycena. Kwota, którą widzisz, jest kwotą, którą płacisz — nie doliczamy do niej żadnego podatku. Dokładną cenę ustalamy po rozmowie, zanim cokolwiek zaczniemy."
+
+### B. Opieka — treść finalna (dopisać na `/cennik/`, brakowało od Etapu 12)
+
+Osobny blok pod konfiguratorem, obok „Nie ma w cenie":
+
+**Opieka po starcie (opcjonalnie) — 249 zł miesięcznie.** Aktualizacje, kopie zapasowe, monitoring, do 2 godzin zmian w treści miesięcznie, wprowadzanych w ciągu 48 godzin roboczych. Bez zobowiązania — wypowiedzenie w każdej chwili.
+
+To zamyka też pytanie 5 z listy decyzji otwartych (17.11, „edycja treści przez klientkę"): **rozwiązanie to opieka, nie panel CMS.** Klientka zgłasza zmianę, Jakub ją wprowadza. FAQ (17.8), pytanie „Będę mogła sama zmieniać treści?" — nowa odpowiedź: „Zgłaszasz zmianę — w ramach opieki wprowadzam ją w ciągu 48 godzin. Nie musisz uczyć się żadnego panelu."
+
+### C. Dane firmy w stopce — bez adresu
+
+```
+Connectiva Jakub Dylewski
+NIP: 8911643646 · REGON: 543116883
+```
+
+**Uwaga ważna:** to jest zarejestrowana nazwa firmy z CEIDG i ma zostać dokładnie w tym brzmieniu — „Connectiva Jakub Dylewski", nigdy „Connectiva Studio Jakub Dylewski". To inny byt niż marka (punkt D) i nie wolno ich mylić w kodzie.
+
+Adres świadomie pominięty — decyzja o prywatności, nie przeoczenie.
+
+### D. Marka — rebranding na „Connectiva Studio"
+
+Marka na stronie to teraz **„Connectiva Studio"** wszędzie, gdzie nazwa marki pojawia się w tekście:
+
+- tytuły stron (wzorzec z 11.2: „… — Connectiva" → „… — Connectiva Studio", dotyczy wszystkich stron)
+- `JSON-LD Organization`, pole `name`
+- tekst obok/pod logo w stopce, jeśli istnieje (np. „© 2026 Connectiva" → „© 2026 Connectiva Studio")
+- alt tekst logo w nawigacji i stopce
+- obraz OG, jeśli zawiera nazwę marki jako tekst
+- każde inne miejsce w treści, gdzie strona mówi o sobie z nazwy (przeszukać grepem frazę „Connectiva" i ocenić każde wystąpienie osobno)
+
+**Czego NIE dotyka rebranding:**
+- logo graficzne (SVG z sekcji 3) — zostaje bez zmian, sam wordmark „Connectiva", bez dopisku „Studio" (decyzja z 17.wcześniej: nowy wariant logo ze „Studio"/„www" odłożony, nie wdrażamy go)
+- zarejestrowana nazwa firmy w stopce (punkt C) — zostaje „Connectiva Jakub Dylewski"
+- nazwy trzech projektów pokazowych (Aurelia, ELARA, HALICKA) — bez zmian
+- identyfikatory techniczne: domena `connectiva.biz`, adres `connectiva-portfolio-website.pages.dev`, nazwa repozytorium — bez zmian
+
+### E. Instagram
+
+Handle: `connectiva.studio`. Link `https://instagram.com/connectiva.studio` wstawić wszędzie, gdzie w specyfikacji stoi placeholder Instagram (stopka 8.9, sekcja Kontakt 8.8).
+
+### F. E-mail — bez zmian
+
+Zostaje `TODO_EMAIL`. Nowy adres jeszcze nie gotowy — nie wstawiać `jak.dyl@proton.me`, to tymczasowy adres, którego Jakub nie chce publikować.
+
+
+
+
+
+
+
+
+---
+
+## 17.14 Sekcja „Co potem" — co się dzieje po starcie strony (16 września 2026)
+
+> Nowa, krótka sekcja na stronie głównej. Odpowiada na pytanie, które klientka ma zaraz po zobaczeniu ceny: co się dzieje, kiedy strona już stoi. Zbiera w jednym miejscu wszystko, co ustaliliśmy o życiu strony po publikacji (własność, opieka, zmiany). **Minimalistyczna: trzy punkty, żadnego nowego ruchu.**
+
+### Miejsce i numeracja
+
+Nowa kolejność sekcji (zastępuje 17.2), licznik zmienia się z „NN / 06" na **„NN / 07"**:
+
+1. Hero (bez numeru)
+2. 01 Projekty
+3. 02 Co dostajesz
+4. 03 Sprawdź swoją stronę
+5. 04 Jak pracujemy
+6. 05 Ile to kosztuje
+7. **06 Co potem** — nowa
+8. 07 Pytania
+9. Kontakt (bez numeru)
+10. Stopka
+
+Kotwica: `#co-potem`. Zaktualizować wszystkie liczniki i linki kotwicowe.
+
+### Treść
+
+**H2 (dwie linie, druga wcięta):**
+```
+Strona startuje.
+Co potem?
+```
+
+**Lead:** „Publikacja to nie koniec współpracy, ale też nie początek abonamentu, którego nie da się wypowiedzieć. Trzy rzeczy, które warto wiedzieć."
+
+**Trzy punkty** — na desktopie trzy kolumny obok siebie, na mobile jeden pod drugim. Każdy: marker `Lacznik inline` (statyczny), tytuł w `h3`, dwa–trzy krótkie zdania. Bez kart z cieniem, bez akordeonu — to ma się czytać w dziesięć sekund.
+
+1. **Strona jest Twoja.**
+   „Kod, domena, treści i zdjęcia należą do Ciebie od dnia publikacji. Hosting na Cloudflare nie kosztuje nic, ani teraz, ani później. Bez opieki strona działa dalej dokładnie tak samo."
+
+2. **Opieka, jeśli chcesz.**
+   „249 zł miesięcznie: aktualizacje, kopie zapasowe, monitoring i do 2 godzin zmian w treści, wprowadzanych w ciągu 48 godzin roboczych. Bez zobowiązania — wypowiadasz, kiedy chcesz."
+
+3. **Zmiany bez opieki.**
+   „Nie masz opieki, a chcesz coś zmienić? Piszesz, wyceniamy jednorazowo, robimy. Żadnych ukrytych opłat i żadnego abonamentu, którego nie zamawiałaś."
+
+Pod trzema punktami jeden link tekstowy: `Szczegóły opieki` → `/cennik/#opieka`.
+
+### Ruch
+
+Żadnego nowego. Sekcja dostaje to, co każda: nagłówek z licznikiem i nic więcej. Markery Łącznika statyczne. Na mobile bez pinu.
+
+### Powiązane zmiany w innych miejscach
+
+- **Sekcja 02 „Co dostajesz", punkt 6** („Szybkość, dostępność i własność"): zostawić zdanie o własności i hostingu, ale **usunąć** z niego wzmiankę o opiece i cenie — cena opieki pojawia się tylko w „Co potem" i na `/cennik/`, żeby nie dublować.
+- **Blok opieki na `/cennik/`** (17.13 B) dostaje kotwicę `id="opieka"`, żeby link z „Co potem" prowadził do niego.
+- **Proces (17.7), krok 5 „Start"** — bez zmian; zdanie o okresie poprawek zostaje tam, „Co potem" go nie powtarza.
+- **Kreator wyceny** — bez zmian, opieka nie wchodzi do wyliczenia widełek.
+
+### Decyzja otwarta (nowa)
+
+Stawka za jednorazowe zmiany bez opieki — na stronie celowo bez kwoty („wyceniamy jednorazowo"). Jeśli Jakub ustali stałą stawkę godzinową, dopisać ją w punkcie 3 i na `/cennik/`. Rynek 2026: 70–250 zł za godzinę w zależności od tego, czy freelancer, czy agencja.

@@ -1,5 +1,5 @@
 /**
- * 06 Pytania (SPEC 8.7, zmiany rewizji v2 w 17.8).
+ * 07 Pytania (SPEC 8.7, zmiany rewizji v2 w 17.8; numer z 17.14).
  *
  * Osiem pytań z pełnymi odpowiedziami. Ten sam zestaw zasila akordeon na
  * stronie głównej i dane strukturalne `FAQPage` (SPEC 11.2).

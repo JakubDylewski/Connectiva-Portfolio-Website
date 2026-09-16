@@ -1,0 +1,80 @@
+---
+/**
+ * 06 Co potem (SPEC 17.14).
+ *
+ * Trzy punkty o tym, co dzieje się po starcie strony: własność, opieka jako
+ * opcja, zmiany bez opieki. Na desktopie trzy kolumny obok siebie, na
+ * telefonie jeden pod drugim.
+ *
+ * Bez ruchu. Sekcja dostaje dokładnie to, co każda inna — nagłówek
+ * z licznikiem i nic więcej (17.14). Marker Łącznika jest statyczny:
+ * żadnego rysowania przy wejściu w ekran, żadnego pinu, żadnego hovera.
+ *
+ * Bez kart z cieniem i bez akordeonu — to ma się przeczytać w dziesięć
+ * sekund (17.14, SPEC 13).
+ */
+import Lacznik from './Lacznik.astro';
+import { coPotem } from '../data/coPotem';
+---
+
+<div class="co-potem">
+  <ul class="co-potem__lista">
+    {
+      coPotem.map((p) => (
+        <li class="punkt">
+          <span class="punkt__marker">
+            <Lacznik wariant="inline" />
+          </span>
+          <h3 class="punkt__tytul">{p.tytul}</h3>
+          <p class="punkt__tresc">{p.tresc}</p>
+        </li>
+      ))
+    }
+  </ul>
+
+  <p class="co-potem__link">
+    <a class="link" href="/cennik/#opieka">Szczegóły opieki</a>
+  </p>
+</div>
+
+<style>
+  .co-potem {
+    margin-top: 3rem;
+  }
+
+  .co-potem__lista {
+    display: grid;
+    gap: 2.5rem;
+  }
+
+  .punkt__marker {
+    display: block;
+  }
+
+  .punkt__tytul {
+    margin-top: 1.25rem;
+    font-size: var(--text-h3);
+    font-weight: 500;
+    line-height: 1.25;
+  }
+
+  .punkt__tresc {
+    margin-top: 0.75rem;
+    color: var(--color-text-2);
+  }
+
+  .co-potem__link {
+    margin-top: 2.5rem;
+  }
+
+  @media (min-width: 1024px) {
+    .co-potem__lista {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3rem;
+    }
+
+    .co-potem__link {
+      margin-top: 3rem;
+    }
+  }
+</style>

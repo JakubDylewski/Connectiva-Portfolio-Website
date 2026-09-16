@@ -1,13 +1,16 @@
 ---
 /**
- * Strona główna (SPEC 17.2 — rewizja v2).
+ * Strona główna (SPEC 17.14 — kolejność zastępuje 17.2).
  *
- * Kolejność sekcji i licznik „NN / 06" wprost z 17.2: hero → 01 Projekty
+ * Kolejność sekcji i licznik „NN / 07": hero → 01 Projekty
  * → 02 Co dostajesz → 03 Sprawdź swoją stronę (audyt) → 04 Jak pracujemy
- * → 05 Ile to kosztuje → 06 Pytania → Kontakt (bez numeru).
+ * → 05 Ile to kosztuje → 06 Co potem → 07 Pytania → Kontakt (bez numeru).
  *
  * Sekcja 05 to kreator wyceny (17.4) — do kotwicy `#kreator` prowadzą
  * linki z podstron projektów.
+ *
+ * Sekcja 06 „Co potem" (17.14) stoi zaraz po cenie, bo to pytanie, które
+ * klientka ma w głowie od razu po zobaczeniu kwoty.
  *
  * DO DECYZJI JAKUBA (SPEC 6.2 — nagłówki mają dokładnie dwie linie).
  * Zmierzone na 360 px przy display-2 = 34 px — dwa nagłówki łamią się
@@ -23,6 +26,7 @@ import Accordion from '../components/Accordion.astro';
 import Audit from '../components/Audit.astro';
 import Process from '../components/Process.astro';
 import Kreator from '../components/Kreator.astro';
+import CoPotem from '../components/CoPotem.astro';
 import Faq from '../components/Faq.astro';
 import Contact from '../components/Contact.astro';
 import { zakres } from '../data/zakres';
@@ -82,11 +86,25 @@ import { zakres } from '../data/zakres';
     </div>
   </section>
 
-  {/* 06 Pytania (SPEC 8.7, zmiany treści w Etapie 14) */}
-  <section id="pytania" class="sekcja">
+  {/* 06 Co potem (17.14) — co się dzieje, kiedy strona już stoi */}
+  <section id="co-potem" class="sekcja">
     <div class="kontener">
       <SectionHead
         index="06"
+        linia1="Strona startuje."
+        linia2="Co potem?"
+        lead={'Publikacja to nie koniec współpracy, ale też nie początek abonamentu, którego nie da się wypowiedzieć. Trzy rzeczy, które warto wiedzieć.'}
+        lacznik
+      />
+      <CoPotem />
+    </div>
+  </section>
+
+  {/* 07 Pytania (SPEC 8.7, zmiany treści w Etapie 14) */}
+  <section id="pytania" class="sekcja">
+    <div class="kontener">
+      <SectionHead
+        index="07"
         linia1="Osiem pytań."
         linia2="Osiem odpowiedzi."
         lead={'Wszystko, o co pytają najczęściej: termin, rezerwacja, prawa do strony, faktury i zakaz reklamy w klinikach.'}

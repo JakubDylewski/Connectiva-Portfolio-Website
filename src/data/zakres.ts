@@ -55,9 +55,11 @@ export const zakres: PozycjaAkordeonu[] = [
   {
     tytul: 'Szybkość, dostępność i\u00A0własność',
     tagi: ['Lighthouse 95+', 'hosting Cloudflare', 'pełne prawa'],
+    // Zostaje własność i hosting (tag). Wzmianka o opiece wypadła stąd —
+    // opieka i jej cena mieszkają wyłącznie w sekcji „Co potem" i na
+    // /cennik/, żeby nie dublować (SPEC 17.14).
     tresc:
       'Strona otwiera się w\u00A0ułamku sekundy na telefonie, spełnia wymagania ' +
-      'dostępności i\u00A0jest Twoja: kod, domena, treści. Żadnych ukrytych ' +
-      'abonamentów — opieka jest opcją, nie warunkiem.',
+      'dostępności i\u00A0jest Twoja: kod, domena, treści.',
   },
 ];
