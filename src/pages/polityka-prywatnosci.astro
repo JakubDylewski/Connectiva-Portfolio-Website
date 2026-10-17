@@ -5,10 +5,11 @@
  * DO PRZECZYTANIA PRZEZ JAKUBA PRZED PUBLIKACJĄ.
  * To jest rzetelny opis tego, co strona faktycznie robi z danymi — nie jest
  * to porada prawna i nie zastępuje sprawdzenia przez prawnika. Dokument
- * opisuje stan faktyczny: trzy formularze, Web3Forms jako procesor, Cloudflare
- * Web Analytics bez ciasteczek. Jeśli cokolwiek z tego się zmieni (na przykład
- * dojdzie Meta Pixel), trzeba tu wrócić — i wtedy potrzebny będzie także baner
- * zgody, którego dziś świadomie nie ma (SPEC 0).
+ * opisuje stan faktyczny: trzy formularze (kontaktowy odbiera Margo i chroni
+ * go Cloudflare Turnstile — SPEC 17.16; audyt i kreator idą przez Web3Forms),
+ * Cloudflare Web Analytics bez ciasteczek. Jeśli cokolwiek z tego się zmieni
+ * (na przykład dojdzie Meta Pixel), trzeba tu wrócić — i wtedy potrzebny
+ * będzie także baner zgody, którego dziś świadomie nie ma (SPEC 0).
  *
  * Dane administratora bierzemy z `site.config.ts` (SPEC 17.13 C): nazwa
  * z CEIDG, NIP i REGON, bez adresu — pominięty świadomie, ze względu na
@@ -87,8 +88,9 @@ const mailOk = uzupelnione(site.email);
             pytania kreatora, treść uwag i&nbsp;wyliczone widełki.
           </li>
           <li>
-            Formularz kontaktowy: imię, nazwa salonu i&nbsp;miasto, link do strony
-            lub Instagrama, opcjonalnie treść wiadomości.
+            Formularz kontaktowy: imię, sposób kontaktu (telefon, e-mail albo
+            nazwa na Instagramie), treść wiadomości, opcjonalnie nazwa salonu
+            lub kliniki.
           </li>
         </ul>
         <p>
@@ -102,7 +104,8 @@ const mailOk = uzupelnione(site.email);
         <p>
           Dane z&nbsp;formularzy służą wyłącznie do tego, żeby się z&nbsp;Tobą
           skontaktować i&nbsp;przygotować to, o&nbsp;co prosisz — audyt, wycenę
-          albo odpowiedź na wiadomość. Podstawą jest Twoja zgoda, którą zaznaczasz
+          albo odpowiedź na wiadomość. Dane z&nbsp;formularza kontaktowego
+          przetwarzamy tylko po to, żeby odpowiedzieć. Podstawą jest Twoja zgoda, którą zaznaczasz
           przy wysyłce (art. 6 ust. 1 lit. a&nbsp;RODO), a&nbsp;w&nbsp;zakresie
           dalszej rozmowy o&nbsp;współpracy — nasz uzasadniony interes (art. 6
           ust. 1 lit. f&nbsp;RODO).
@@ -111,14 +114,25 @@ const mailOk = uzupelnione(site.email);
         <h2>Komu powierzamy dane</h2>
         <ul>
           <li>
-            <strong>Web3Forms</strong> — usługa, która przyjmuje formularz
-            i&nbsp;przesyła jego treść na naszą skrzynkę. Przez nią przechodzi
-            wszystko, co wpiszesz w&nbsp;formularzu.
+            <strong>Web3Forms</strong> — usługa, która przyjmuje formularze
+            audytu i&nbsp;kreatora wyceny i&nbsp;przesyła ich treść na naszą
+            skrzynkę. Przez nią przechodzi wszystko, co wpiszesz w&nbsp;tych
+            dwóch formularzach.
+          </li>
+          <li>
+            <strong>Margo</strong> — nasz własny system, który odbiera
+            zgłoszenia z&nbsp;formularza kontaktowego (adres
+            margo.connectiva.studio). Zgłoszenie trafia prosto do nas, bez
+            zewnętrznego pośrednika.
           </li>
           <li>
             <strong>Cloudflare</strong> — hosting strony. Cloudflare przetwarza
             techniczne dane połączenia (adres IP, typ przeglądarki), tak jak
-            każdy serwer, który wysyła Ci stronę.
+            każdy serwer, który wysyła Ci stronę. Formularz kontaktowy chroni
+            dodatkowo <strong>Cloudflare Turnstile</strong>, które sprawdza,
+            czy zgłoszenie wysyła człowiek, a&nbsp;nie bot — w&nbsp;tym celu
+            przetwarza techniczne dane przeglądarki, bez ciasteczek
+            śledzących.
           </li>
         </ul>
 

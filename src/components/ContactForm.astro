@@ -1,10 +1,14 @@
 ---
 /**
- * Formularz kontaktowy (SPEC 8.8).
+ * Formularz kontaktowy (SPEC 8.8, wysyłka: SPEC 17.16).
  *
- * Wysyłka, walidacja i stany inline idą przez wspólne `src/scripts/forms.ts`
- * z Etapu 4 — ten sam honeypot, te same komunikaty pod polami, ta sama
- * blokada, gdy klucz Web3Forms jest jeszcze pustym TODO.
+ * Zgłoszenia odbiera Margo — endpoint i klucz Turnstile stoją
+ * w `site.config.ts`, a całą wysyłkę (walidacja, token, komunikaty po polsku
+ * dla każdej odpowiedzi serwera) prowadzi wspólne `src/scripts/forms.ts`.
+ *
+ * Pola i limity długości odpowiadają kontraktowi `/lead`: imie (80),
+ * salon (120, opcjonalne), kontakt (160 — telefon, e-mail albo Instagram),
+ * wiadomosc (2000). Pułapka `www` ma zostać pusta — wypełnia ją tylko bot.
  */
 import Button from './Button.astro';
 import { site } from '../site.config';
@@ -13,32 +17,26 @@ const id = `kontakt-${crypto.randomUUID().slice(0, 8)}`;
 
 const politykaIstnieje =
   Object.keys(import.meta.glob('../pages/polityka-prywatnosci.astro')).length > 0;
-
-const uzupelnione = (v: string) => Boolean(v) && !v.startsWith('TODO_');
-const tekstBledu = uzupelnione(site.email)
-  ? `Nie udało się wysłać. Napisz na ${site.email}.`
-  : 'Nie udało się wysłać. Spróbuj jeszcze raz za chwilę.';
 ---
 
 <form
   class="kform"
   data-formularz
-  data-klucz={site.web3formsKey}
-  data-tekst-ok={'Wysłane. Odezwiemy się w ciągu 24 godzin w dni robocze.'}
-  data-tekst-blad={tekstBledu}
+  data-margo={site.margo.endpoint}
+  data-sitekey={site.margo.turnstileSiteKey}
+  data-mail-zapas={site.email}
+  data-tekst-ok={'Dzięki! Odezwę się najpóźniej w ciągu 24 h.'}
   data-chowa-pasek
   novalidate
 >
-  <input type="hidden" name="subject" value="Kontakt ze strony — nowa wiadomość" />
-  <input type="hidden" name="from_name" value="Connectiva Studio" />
-
-  {/* Honeypot — widoczny tylko dla botów (SPEC 7.5) */}
+  {/* Honeypot — widoczny tylko dla botów (SPEC 7.5). Nazwa `www` jest częścią
+      kontraktu Margo: serwer odrzuca zgłoszenia z wypełnionym polem. */}
   <div class="kform__pulapka" aria-hidden="true">
-    <label for={`${id}-firma`}>Nie wypełniaj tego pola</label>
+    <label for={`${id}-www`}>Nie wypełniaj tego pola</label>
     <input
-      id={`${id}-firma`}
+      id={`${id}-www`}
       type="text"
-      name="firma"
+      name="www"
       tabindex="-1"
       autocomplete="off"
       data-honeypot
@@ -54,6 +52,7 @@ const tekstBledu = uzupelnione(site.email)
         name="imie"
         type="text"
         autocomplete="given-name"
+        maxlength="80"
         required
         data-waliduj="wymagane"
         aria-describedby={`${id}-imie-blad`}
@@ -62,45 +61,48 @@ const tekstBledu = uzupelnione(site.email)
     </div>
 
     <div class="pole">
-      <label class="pole__etykieta" for={`${id}-salon`}>Salon i&nbsp;miasto</label>
+      <label class="pole__etykieta" for={`${id}-salon`}>
+        Nazwa salonu lub kliniki <span class="pole__opcjonalne">(opcjonalnie)</span>
+      </label>
       <input
         class="pole__input"
         id={`${id}-salon`}
         name="salon"
         type="text"
-        required
-        data-waliduj="wymagane"
-        aria-describedby={`${id}-salon-blad`}
+        autocomplete="organization"
+        maxlength="120"
       />
-      <p class="pole__blad" id={`${id}-salon-blad`} aria-live="polite"></p>
     </div>
 
     <div class="pole">
-      <label class="pole__etykieta" for={`${id}-link`}>
-        Link do strony lub Instagrama
+      <label class="pole__etykieta" for={`${id}-kontakt`}>
+        Telefon, e-mail lub Instagram
       </label>
       <input
         class="pole__input"
-        id={`${id}-link`}
-        name="link"
+        id={`${id}-kontakt`}
+        name="kontakt"
         type="text"
-        autocomplete="url"
+        maxlength="160"
         required
-        data-waliduj="kontakt"
-        aria-describedby={`${id}-link-blad`}
+        data-waliduj="kontakt-tel"
+        aria-describedby={`${id}-kontakt-blad`}
       />
-      <p class="pole__blad" id={`${id}-link-blad`} aria-live="polite"></p>
+      <p class="pole__blad" id={`${id}-kontakt-blad`} aria-live="polite"></p>
     </div>
 
     <div class="pole">
-      <label class="pole__etykieta" for={`${id}-wiadomosc`}>
-        Wiadomość <span class="pole__opcjonalne">(opcjonalnie)</span>
-      </label>
+      <label class="pole__etykieta" for={`${id}-wiadomosc`}>Wiadomość</label>
       <textarea
         class="pole__input pole__input--obszar"
         id={`${id}-wiadomosc`}
         name="wiadomosc"
-        rows="4"></textarea>
+        rows="4"
+        maxlength="2000"
+        required
+        data-waliduj="wymagane"
+        aria-describedby={`${id}-wiadomosc-blad`}></textarea>
+      <p class="pole__blad" id={`${id}-wiadomosc-blad`} aria-live="polite"></p>
     </div>
 
     <div class="pole">
@@ -128,6 +130,12 @@ const tekstBledu = uzupelnione(site.email)
         </label>
       </div>
       <p class="pole__blad" id={`${id}-zgoda-blad`} aria-live="polite"></p>
+    </div>
+
+    {/* Widżet Cloudflare Turnstile — renderuje go forms.ts po załadowaniu
+        API. Zarezerwowana wysokość trzyma układ, zanim widżet wstanie. */}
+    <div class="pole">
+      <div class="kform__turnstile" data-turnstile></div>
     </div>
 
     <div class="kform__wyslij">
@@ -222,6 +230,15 @@ const tekstBledu = uzupelnione(site.email)
     color: var(--color-text-3);
   }
 
+  /* Widżet w trybie flexible wypełnia kontener (minimum Cloudflare: 300 px),
+     więc trzyma się tej samej szerokości co pola formularza. 65 px wysokości
+     zarezerwowane z góry — układ nie skacze, gdy widżet się dorenderuje. */
+  .kform__turnstile {
+    width: 100%;
+    max-width: 26rem;
+    min-height: 65px;
+  }
+
   .kform__wyslij {
     margin-top: 0.5rem;
     padding-bottom: 0.75rem;
@@ -230,6 +247,7 @@ const tekstBledu = uzupelnione(site.email)
   .kform__stan {
     margin-top: 1.5rem;
     color: var(--color-text-2);
+    max-width: 34rem;
   }
 
   .kform__stan:empty {

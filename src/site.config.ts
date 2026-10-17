@@ -56,8 +56,19 @@ export const site = {
     regon: '543116883',
   },
 
-  /** Web3Forms. TODO Jakub przed publikacją (SPEC 0). */
+  /** Web3Forms — nadal obsługuje formularze audytu i kreatora wyceny.
+      TODO Jakub przed publikacją (SPEC 0). */
   web3formsKey: 'TODO_WEB3FORMS_KEY',
+
+  /**
+   * Margo — asystent, który odbiera zgłoszenia z formularza kontaktowego
+   * (SPEC 17.16). Klucz Turnstile jest kluczem publicznym (site key) —
+   * sekret mieszka po stronie Margo, nie w tym repozytorium.
+   */
+  margo: {
+    endpoint: 'https://margo.connectiva.studio/lead',
+    turnstileSiteKey: '0x4AAAAAAFZcVl0vXg5tca_L',
+  },
 
   /* Pytanie „netto czy brutto" jest zamknięte (SPEC 17.13 A): kwota z kreatora
      jest kwotą do zapłaty, nie doliczamy do niej podatku. Dlatego nie ma tu

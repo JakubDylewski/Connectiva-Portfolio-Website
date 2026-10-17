@@ -3,7 +3,11 @@
  *
  * Jedno miejsce dla wszystkich formularzy na stronie: audyt (Etap 4)
  * i kontakt (Etap 6). Walidacja po stronie przeglądarki z komunikatem pod
- * polem, honeypot, wysyłka do Web3Forms i stany inline bez przeładowania.
+ * polem, honeypot i stany inline bez przeładowania.
+ *
+ * Wysyłka ma dwie ścieżki (SPEC 17.16): formularz kontaktowy idzie JSON-em
+ * do Margo (asystent, `data-margo` na formularzu) z tokenem Cloudflare
+ * Turnstile, a audyt i kreator — jak dotąd do Web3Forms (`data-klucz`).
  *
  * Kolor nigdy nie jest jedynym nośnikiem błędu (SPEC 11.3): pole dostaje
  * `aria-invalid`, komunikat tekstowy i powiązanie przez `aria-describedby`.
@@ -64,11 +68,19 @@ export function poprawnyKontakt(wejscie: string): boolean {
   return false;
 }
 
+/** Czy to wygląda na numer telefonu — z kierunkowym lub bez. */
+export function poprawnyTelefon(wejscie: string): boolean {
+  const cyfry = wejscie.replace(/[\s\-().]/g, '');
+  return /^\+?\d{7,15}$/.test(cyfry);
+}
+
 const KOMUNIKATY = {
   wymagane: 'To pole jest wymagane.',
   url: 'To nie wygląda na adres strony. Wpisz na przykład twojsalon.pl',
   kontakt:
     'Wpisz e-mail albo nazwę na Instagramie, żebyśmy wiedzieli, gdzie wysłać wideo.',
+  kontaktTel:
+    'Wpisz telefon, e-mail albo nazwę na Instagramie — tak się do Ciebie odezwę.',
   zgoda: 'Bez zgody nie możemy się odezwać.',
 };
 
@@ -109,6 +121,15 @@ function sprawdzPole(pole: HTMLInputElement): string | null {
     return poprawnyKontakt(wartosc) ? null : KOMUNIKATY.kontakt;
   }
 
+  // Formularz kontaktowy przyjmuje też telefon (SPEC 17.16) — audyt i kreator
+  // zostają przy regule `kontakt`, bo tam odpowiedź wraca mailem albo na IG.
+  if (regula === 'kontakt-tel') {
+    if (wartosc.trim() === '') return KOMUNIKATY.wymagane;
+    return poprawnyKontakt(wartosc) || poprawnyTelefon(wartosc)
+      ? null
+      : KOMUNIKATY.kontaktTel;
+  }
+
   if (regula === 'wymagane') {
     return wartosc.trim() === '' ? KOMUNIKATY.wymagane : null;
   }
@@ -124,13 +145,165 @@ function ustawStan(
   formularz: HTMLFormElement,
   stan: 'gotowy' | 'wysyla' | 'ok' | 'blad',
   komunikat = '',
+  /** Adres zapasowy — dokleja do komunikatu klikalny `mailto:`. */
+  mailZapas = '',
 ): void {
   const wyjscie = formularz.querySelector<HTMLElement>('[data-stan]');
   const przycisk = formularz.querySelector<HTMLButtonElement>('[type="submit"]');
 
   formularz.dataset.stanWysylki = stan;
   if (przycisk) przycisk.disabled = stan === 'wysyla';
-  if (wyjscie) wyjscie.textContent = komunikat;
+  if (!wyjscie) return;
+
+  wyjscie.textContent = komunikat;
+  if (mailZapas === '') return;
+
+  // Odnośnik budujemy elementami, nie przez innerHTML — adres przychodzi
+  // z atrybutu data i nie ma prawa stać się wstrzykniętym znacznikiem.
+  const odnosnik = document.createElement('a');
+  odnosnik.className = 'link';
+  odnosnik.href = `mailto:${mailZapas}`;
+  odnosnik.textContent = mailZapas;
+  wyjscie.append(' Napisz na ', odnosnik, '.');
+}
+
+/* -------------------------------------------------------------------------- */
+/* Margo + Cloudflare Turnstile (formularz kontaktowy, SPEC 17.16)            */
+/* -------------------------------------------------------------------------- */
+
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (element: HTMLElement, opcje: Record<string, unknown>) => string;
+      reset: (widgetId?: string) => void;
+      remove: (widgetId?: string) => void;
+      getResponse: (widgetId?: string) => string | undefined;
+    };
+  }
+}
+
+const TURNSTILE_SRC =
+  'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+
+let ladowanieTurnstile: Promise<void> | null = null;
+
+/**
+ * Dokłada skrypt Turnstile raz na wizytę. ClientRouter nie wymienia kontekstu
+ * JS między stronami, więc `window.turnstile` przeżywa nawigacje — sprawdzamy
+ * go przed kolejną próbą ładowania.
+ */
+function zaladujTurnstile(): Promise<void> {
+  if (window.turnstile) return Promise.resolve();
+  ladowanieTurnstile ??= new Promise((resolve, reject) => {
+    const skrypt = document.createElement('script');
+    skrypt.src = TURNSTILE_SRC;
+    skrypt.async = true;
+    skrypt.onload = () => resolve();
+    skrypt.onerror = () => {
+      // Nieudane ładowanie nie może zablokować widżetu na zawsze —
+      // następna inicjalizacja (np. po powrocie sieci) próbuje od nowa.
+      ladowanieTurnstile = null;
+      skrypt.remove();
+      reject(new Error('turnstile'));
+    };
+    document.head.append(skrypt);
+  });
+  return ladowanieTurnstile;
+}
+
+/** Stan widżetu na formularzu. `id` pojawia się dopiero po załadowaniu API. */
+interface StanWidgetu {
+  id?: string;
+  usuniety?: boolean;
+}
+
+const MARGO_TEKSTY = {
+  ok: 'Dzięki! Odezwę się najpóźniej w ciągu 24 h.',
+  pola:
+    'Coś się nie zgadza w polach formularza. Sprawdź imię, kontakt i treść wiadomości, potem spróbuj jeszcze raz.',
+  limit: 'Za dużo prób w krótkim czasie — spróbuj za chwilę.',
+  weryfikacja:
+    'Nie udało się potwierdzić, że zgłoszenie wysyła człowiek. Przepraszam za kłopot — spróbuj jeszcze raz.',
+  wylaczony: 'Formularz jest chwilowo wyłączony. Przepraszam za kłopot.',
+  siec: 'Nie udało się wysłać. Przepraszam za kłopot — spróbuj za chwilę.',
+  tokenCzeka:
+    'Zabezpieczenie formularza jeszcze się ładuje — odczekaj sekundę i spróbuj ponownie.',
+};
+
+/** Limity długości pól z kontraktu Margo — przycinamy też po stronie klienta. */
+const MARGO_LIMITY = { imie: 80, salon: 120, kontakt: 160, wiadomosc: 2000 } as const;
+
+async function wyslijDoMargo(
+  formularz: HTMLFormElement,
+  stanWidgetu: StanWidgetu | undefined,
+): Promise<void> {
+  const mailZapas = formularz.dataset.mailZapas ?? '';
+
+  // Widżet nie wstał (zablokowany skrypt, brak sieci) — nie mamy jak zdobyć
+  // tokenu, więc od razu podajemy zapasową drogę kontaktu.
+  if (!window.turnstile || stanWidgetu?.id === undefined) {
+    ustawStan(formularz, 'blad', MARGO_TEKSTY.siec, mailZapas);
+    return;
+  }
+
+  const token = window.turnstile.getResponse(stanWidgetu.id) ?? '';
+  if (token === '') {
+    ustawStan(formularz, 'blad', MARGO_TEKSTY.tokenCzeka);
+    return;
+  }
+
+  ustawStan(formularz, 'wysyla', 'Wysyłam…');
+
+  const pole = (nazwa: keyof typeof MARGO_LIMITY) => {
+    const element = formularz.elements.namedItem(nazwa) as
+      | HTMLInputElement
+      | HTMLTextAreaElement
+      | null;
+    return (element?.value ?? '').trim().slice(0, MARGO_LIMITY[nazwa]);
+  };
+
+  try {
+    const odpowiedz = await fetch(formularz.dataset.margo ?? '', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        imie: pole('imie'),
+        salon: pole('salon'),
+        kontakt: pole('kontakt'),
+        wiadomosc: pole('wiadomosc'),
+        // Pułapka serwerowa — człowiek zostawia ją pustą, a bota wysyłającego
+        // POST bez przeglądarki odsiewa Margo.
+        www: '',
+        'cf-turnstile-response': token,
+      }),
+    });
+
+    if (odpowiedz.ok) {
+      ustawStan(formularz, 'ok', formularz.dataset.tekstOk ?? MARGO_TEKSTY.ok);
+      formularz.querySelector<HTMLElement>('[data-pola]')?.setAttribute('hidden', '');
+      ogloszZmianeUkladu();
+      return;
+    }
+
+    // Token Turnstile jest jednorazowy — po każdej odmowie serwera musi
+    // powstać nowy, inaczej ponowna próba zawsze skończy się 403.
+    window.turnstile.reset(stanWidgetu.id);
+
+    if (odpowiedz.status === 422) {
+      ustawStan(formularz, 'blad', MARGO_TEKSTY.pola);
+    } else if (odpowiedz.status === 429) {
+      ustawStan(formularz, 'blad', MARGO_TEKSTY.limit);
+    } else if (odpowiedz.status === 403) {
+      ustawStan(formularz, 'blad', MARGO_TEKSTY.weryfikacja, mailZapas);
+    } else if (odpowiedz.status === 503) {
+      ustawStan(formularz, 'blad', MARGO_TEKSTY.wylaczony, mailZapas);
+    } else {
+      ustawStan(formularz, 'blad', MARGO_TEKSTY.siec, mailZapas);
+    }
+  } catch {
+    window.turnstile?.reset(stanWidgetu.id);
+    ustawStan(formularz, 'blad', MARGO_TEKSTY.siec, mailZapas);
+  }
 }
 
 /**
@@ -175,8 +348,39 @@ export function initForms(): () => void {
 
   const sprzatanie: Array<() => void> = [];
 
+  /** Widżety Turnstile żyjące na tej stronie — po jednym na formularz Margo. */
+  const widgety = new WeakMap<HTMLFormElement, StanWidgetu>();
+
   for (const formularz of formularze) {
     const pola = [...formularz.querySelectorAll<HTMLInputElement>('[data-waliduj]')];
+
+    // Formularz Margo dostaje widżet Turnstile od razu — challenge w trybie
+    // zarządzanym potrzebuje chwili, zanim wystawi token do wysyłki.
+    const kontenerTurnstile = formularz.querySelector<HTMLElement>('[data-turnstile]');
+    if (formularz.dataset.margo && kontenerTurnstile && formularz.dataset.sitekey) {
+      const stanWidgetu: StanWidgetu = {};
+      widgety.set(formularz, stanWidgetu);
+
+      void zaladujTurnstile()
+        .then(() => {
+          // Nawigacja mogła zdjąć stronę, zanim skrypt doszedł.
+          if (stanWidgetu.usuniety || !window.turnstile) return;
+          stanWidgetu.id = window.turnstile.render(kontenerTurnstile, {
+            sitekey: formularz.dataset.sitekey,
+            theme: 'dark',
+            language: 'pl',
+            size: 'flexible',
+          });
+        })
+        .catch(() => {
+          // Brak widżetu zgłosi się przy próbie wysyłki — z adresem zapasowym.
+        });
+
+      sprzatanie.push(() => {
+        stanWidgetu.usuniety = true;
+        if (stanWidgetu.id !== undefined) window.turnstile?.remove(stanWidgetu.id);
+      });
+    }
 
     // Po pierwszej nieudanej próbie poprawiamy komunikat na bieżąco —
     // ale nie krzyczymy, zanim ktokolwiek spróbował wysłać.
@@ -191,6 +395,11 @@ export function initForms(): () => void {
 
     const naWyslanie = async (e: Event) => {
       e.preventDefault();
+
+      // Jedna wysyłka na raz — przycisk jest zablokowany, ale Enter
+      // w polu tekstowym omija przycisk.
+      if (formularz.dataset.stanWysylki === 'wysyla') return;
+
       probowano = true;
 
       // Honeypot: wypełnia go tylko bot. Udajemy sukces i nic nie wysyłamy.
@@ -210,6 +419,12 @@ export function initForms(): () => void {
       if (pierwszyZly) {
         ustawStan(formularz, 'blad', '');
         pierwszyZly.focus();
+        return;
+      }
+
+      // Formularz kontaktowy idzie własną ścieżką do Margo (SPEC 17.16).
+      if (formularz.dataset.margo) {
+        await wyslijDoMargo(formularz, widgety.get(formularz));
         return;
       }
 

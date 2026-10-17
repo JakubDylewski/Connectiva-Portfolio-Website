@@ -1166,3 +1166,15 @@ Ukryte pola wysyłki: odpowiedzi 1–4, treść uwag, wyliczone widełki. Reszta
 ### Lista uczciwości — korekta
 
 Punkt „pytanie 6 kreatora nie wpływa na cenę" (17.9) — usunąć, pytanie nie istnieje. Reszta punktów bez zmian.
+
+---
+
+## 17.16 Formularz kontaktowy → Margo (17 października 2026)
+
+Formularz kontaktowy (strona główna i `/kontakt/`) przestaje czekać na klucz Web3Forms — zgłoszenia odbiera Margo, asystent Jakuba.
+
+**Kontrakt:** `POST https://margo.connectiva.studio/lead`, JSON. Pola: `imie` (wymagane, max 80), `salon` (max 120), `kontakt` (wymagane — telefon, e-mail albo profil IG, max 160), `wiadomosc` (wymagane, max 2000), `www` (pułapka, ma zostać puste), `cf-turnstile-response` (token widżetu). Odpowiedzi: 200 `{"ok": true}`, 422 brak pola / zły kontakt, 403 weryfikacja nieudana, 429 limit prób, 503 formularz wyłączony. CORS z `https://connectiva.studio` i `https://www.connectiva.studio`.
+
+**Po stronie strony:** endpoint i publiczny site key Turnstile w `site.config.ts` (`site.margo`); widżet Turnstile (tryb zarządzany, `theme: dark`, `size: flexible`, po polsku) renderowany przez `forms.ts`; honeypot zmienia nazwę z `firma` na `www`; pole „link do strony" ustępuje polu `kontakt`, które przyjmuje też telefon (nowa reguła `kontakt-tel` — audyt i kreator zostają przy regule `kontakt`); wiadomość staje się wymagana, salon opcjonalny. Komunikaty po polsku dla każdej odpowiedzi; przy 403/503/błędzie sieci zapasowy `mailto:kontakt@connectiva.studio`. Token Turnstile jest jednorazowy — po każdej odmowie serwera widżet dostaje `reset()`.
+
+**Czego nie dotyka:** audyt i kreator wyceny nadal idą do Web3Forms (klucz wciąż TODO — SPEC 0). Strona nie ma własnego CSP, więc nie trzeba niczego dopuszczać; gdyby CSP kiedyś doszło, musi przepuścić `challenges.cloudflare.com` (skrypt + frame) i `https://margo.connectiva.studio` (connect-src).
