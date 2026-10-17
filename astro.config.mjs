@@ -5,9 +5,10 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-  // Adres produkcyjny. Domenę connectiva.biz podpinamy dopiero na wyraźne
-  // polecenie Jakuba (SPEC 0 i Etap 9) — do tego czasu zostaje adres Pages.
-  site: 'https://connectiva-portfolio.pages.dev',
+  // Adres produkcyjny. Domena connectiva.studio jest podpięta w Cloudflare
+  // i serwuje stronę (10.2026) — canonicale, sitemapa i OG wskazują na nią,
+  // a nie na techniczny alias *.pages.dev.
+  site: 'https://connectiva.studio',
 
   // Wszystkie ścieżki statyczne z końcowym ukośnikiem (SPEC 9).
   trailingSlash: 'always',

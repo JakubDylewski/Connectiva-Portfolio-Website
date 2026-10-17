@@ -1015,6 +1015,8 @@ Handle: `connectiva.studio`. Link `https://instagram.com/connectiva.studio` wsta
 
 Zostaje `TODO_EMAIL`. Nowy adres jeszcze nie gotowy — nie wstawiać `jak.dyl@proton.me`, to tymczasowy adres, którego Jakub nie chce publikować.
 
+> **Aktualizacja (17 października 2026):** adres firmowy jest gotowy — `kontakt@connectiva.studio` wstawiony do `site.config.ts`. Razem z nim podpięta domena produkcyjna `https://connectiva.studio` (canonicale, sitemapa, JSON-LD). Punkt F przestaje obowiązywać.
+
 
 
 

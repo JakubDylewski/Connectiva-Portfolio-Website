@@ -13,7 +13,9 @@ export const site = {
    * zostaje bez dopisku: wordmark w SVG to nadal samo „Connectiva”.
    */
   nazwa: 'Connectiva Studio',
-  url: 'https://connectiva-portfolio.pages.dev',
+  /** Domena produkcyjna — podpięta w Cloudflare, serwuje stronę od 10.2026.
+      Adres connectiva-portfolio.pages.dev zostaje jako alias techniczny. */
+  url: 'https://connectiva.studio',
   jezyk: 'pl',
 
   /** Domyślny tytuł i opis — wzór z SPEC 11.2. */
@@ -25,10 +27,10 @@ export const site = {
     'do umówionej wizyty.',
 
   /**
-   * Kontakt. E-mail zostaje TODO — nowy adres nie jest gotowy, a tymczasowego
-   * Jakub nie publikuje (SPEC 17.13 F). Instagram: handle i link z 17.13 E.
+   * Kontakt. Firmowy adres w domenie marki — zastąpił placeholder TODO_EMAIL
+   * z SPEC 17.13 F (10.2026). Instagram: handle i link z 17.13 E.
    */
-  email: 'TODO_EMAIL',
+  email: 'kontakt@connectiva.studio',
   instagram: {
     nazwa: 'connectiva.studio',
     url: 'https://instagram.com/connectiva.studio',

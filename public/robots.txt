@@ -4,4 +4,4 @@ Allow: /
 # Strona robocza z tokenami i komponentami — nie dla wyszukiwarek (SPEC 9).
 Disallow: /styleguide/
 
-Sitemap: https://connectiva-portfolio.pages.dev/sitemap-index.xml
+Sitemap: https://connectiva.studio/sitemap-index.xml
