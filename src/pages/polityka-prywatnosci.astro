@@ -5,8 +5,8 @@
  * DO PRZECZYTANIA PRZEZ JAKUBA PRZED PUBLIKACJĄ.
  * To jest rzetelny opis tego, co strona faktycznie robi z danymi — nie jest
  * to porada prawna i nie zastępuje sprawdzenia przez prawnika. Dokument
- * opisuje stan faktyczny: trzy formularze (kontaktowy odbiera Margo i chroni
- * go Cloudflare Turnstile — SPEC 17.16; audyt i kreator idą przez Web3Forms),
+ * opisuje stan faktyczny: trzy formularze — wszystkie odbiera Margo i chroni
+ * je Cloudflare Turnstile (SPEC 17.16–17.17, Web3Forms wycofane) —
  * Cloudflare Web Analytics bez ciasteczek. Jeśli cokolwiek z tego się zmieni
  * (na przykład dojdzie Meta Pixel), trzeba tu wrócić — i wtedy potrzebny
  * będzie także baner zgody, którego dziś świadomie nie ma (SPEC 0).
@@ -114,23 +114,17 @@ const mailOk = uzupelnione(site.email);
         <h2>Komu powierzamy dane</h2>
         <ul>
           <li>
-            <strong>Web3Forms</strong> — usługa, która przyjmuje formularze
-            audytu i&nbsp;kreatora wyceny i&nbsp;przesyła ich treść na naszą
-            skrzynkę. Przez nią przechodzi wszystko, co wpiszesz w&nbsp;tych
-            dwóch formularzach.
-          </li>
-          <li>
             <strong>Margo</strong> — nasz własny system, który odbiera
-            zgłoszenia z&nbsp;formularza kontaktowego (adres
+            zgłoszenia ze wszystkich trzech formularzy (adres
             margo.connectiva.studio). Zgłoszenie trafia prosto do nas, bez
             zewnętrznego pośrednika.
           </li>
           <li>
             <strong>Cloudflare</strong> — hosting strony. Cloudflare przetwarza
             techniczne dane połączenia (adres IP, typ przeglądarki), tak jak
-            każdy serwer, który wysyła Ci stronę. Formularz kontaktowy chroni
-            dodatkowo <strong>Cloudflare Turnstile</strong>, które sprawdza,
-            czy zgłoszenie wysyła człowiek, a&nbsp;nie bot — w&nbsp;tym celu
+            każdy serwer, który wysyła Ci stronę. Formularze chronią dodatkowo
+            <strong> Cloudflare Turnstile</strong>, które sprawdza, czy
+            zgłoszenie wysyła człowiek, a&nbsp;nie bot — w&nbsp;tym celu
             przetwarza techniczne dane przeglądarki, bez ciasteczek
             śledzących.
           </li>

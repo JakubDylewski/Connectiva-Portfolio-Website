@@ -1178,3 +1178,17 @@ Formularz kontaktowy (strona główna i `/kontakt/`) przestaje czekać na klucz 
 **Po stronie strony:** endpoint i publiczny site key Turnstile w `site.config.ts` (`site.margo`); widżet Turnstile (tryb zarządzany, `theme: dark`, `size: flexible`, po polsku) renderowany przez `forms.ts`; honeypot zmienia nazwę z `firma` na `www`; pole „link do strony" ustępuje polu `kontakt`, które przyjmuje też telefon (nowa reguła `kontakt-tel` — audyt i kreator zostają przy regule `kontakt`); wiadomość staje się wymagana, salon opcjonalny. Komunikaty po polsku dla każdej odpowiedzi; przy 403/503/błędzie sieci zapasowy `mailto:kontakt@connectiva.studio`. Token Turnstile jest jednorazowy — po każdej odmowie serwera widżet dostaje `reset()`.
 
 **Czego nie dotyka:** audyt i kreator wyceny nadal idą do Web3Forms (klucz wciąż TODO — SPEC 0). Strona nie ma własnego CSP, więc nie trzeba niczego dopuszczać; gdyby CSP kiedyś doszło, musi przepuścić `challenges.cloudflare.com` (skrypt + frame) i `https://margo.connectiva.studio` (connect-src).
+
+---
+
+## 17.17 Audyt i kreator wyceny też → Margo, Web3Forms wycofane (18 października 2026)
+
+Formularze audytu i kreatora nigdy nie wysyłały (klucz Web3Forms został przy TODO). Oba przechodzą na tę samą ścieżkę Margo co formularz kontaktowy (kontrakt z 17.16: ten sam endpoint, ten sam klucz Turnstile, pola `imie`/`salon`/`kontakt`/`wiadomosc`/`www`/`cf-turnstile-response`, te same komunikaty błędów z zapasowym mailto). Web3Forms znika z kodu w całości (`web3formsKey`, `data-klucz`, ukryte `subject`/`from_name`); honeypoty zmieniają nazwę na `www`.
+
+**Mapowanie pól.** Dodatkowe pola jadą na początku `wiadomosc` w czytelnym nagłówku (znaczniki `data-margo-zrodlo` na formularzu i `data-margo-info` na polach; skleja `forms.ts`):
+- audyt → `[AUDYT] Strona: https://… | Miasto: … | Wynik: rezerwacja: tak; … (3/6 na tak)`; `kontakt` z pola formularza, `imie`/`salon` puste,
+- kreator → `[CENNIK] Wybrane: <pytania i odpowiedzi> | Szacunek: 8 500–11 000 zł`, a uwagi klientki jako dalsza treść wiadomości (ukryte pole uwag nazywa się teraz `wiadomosc`); `imie` i `salon` z opcjonalnych pól formularza.
+
+Kontrakt wymaga `imie`, którego audyt nie zbiera (w kreatorze jest opcjonalne) — puste `imie` wysyłamy jako `(nie podano)`. Teksty sukcesu zostają po staremu, bo są obietnicami („Wysłane. Wideo przyjdzie w 48 h." / „Wysłane. Odpowiem w ciągu 24 godzin…"); reszta komunikatów wspólna z 17.16. Walidacja `kontakt` w audycie i kreatorze nadal przyjmuje tylko e-mail/IG (odpowiedź wraca tą drogą), telefon przyjmuje wyłącznie formularz kontaktowy.
+
+**Turnstile w ukrytych formularzach.** Oba formularze startują schowane (werdykt/ekran wyniku), a widżet renderowany w ukrytym kontenerze mierzy zerową szerokość — dlatego `forms.ts` renderuje widżety wszystkich formularzy dopiero, gdy formularz pierwszy raz wejdzie w pole widzenia (IntersectionObserver). Challenge kończy się zwykle szybciej, niż ktokolwiek wypełni pola; świeższy token to też mniejsze ryzyko wygaśnięcia (300 s).

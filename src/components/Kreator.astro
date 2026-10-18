@@ -5,7 +5,7 @@
  * Cztery pytania, każde z wyjaśnieniem (pytanie o to, co strona ma robić,
  * wyjaśnia każdą opcję osobno). Dalej ekran wyniku w kolejności z 17.15:
  * widełki, lista „co się składa", informacja o zdjęciach (17.6),
- * zastrzeżenie (17.13 A), pole uwag i formularz (forms.ts, Web3Forms).
+ * zastrzeżenie (17.13 A), pole uwag i formularz (forms.ts → Margo, 17.17).
  *
  * Uwagi przeniosły się z osobnego kroku na ekran wyniku — dlatego ich treść
  * nie jedzie w `pokazWynik()`, tylko doklejamy ją do ukrytego pola na bieżąco
@@ -37,10 +37,6 @@ const LICZBA_KROKOW = pytania.length;
 const politykaIstnieje =
   Object.keys(import.meta.glob('../pages/polityka-prywatnosci.astro')).length > 0;
 
-const uzupelnione = (v: string) => Boolean(v) && !v.startsWith('TODO_');
-const tekstBledu = uzupelnione(site.email)
-  ? `Nie udało się wysłać. Napisz na ${site.email}.`
-  : 'Nie udało się wysłać. Spróbuj jeszcze raz za chwilę.';
 ---
 
 <div class="kreator" data-kreator style={`--kroki: ${LICZBA_KROKOW}`}>
@@ -165,26 +161,29 @@ const tekstBledu = uzupelnione(site.email)
         <form
           class="wynik__formularz"
           data-formularz
-          data-klucz={site.web3formsKey}
+          data-margo={site.margo.endpoint}
+          data-sitekey={site.margo.turnstileSiteKey}
+          data-mail-zapas={site.email}
+          data-margo-zrodlo="CENNIK"
           data-tekst-ok={'Wysłane. Odpowiem w\u00A0ciągu 24 godzin w\u00A0dni robocze.'}
-          data-tekst-blad={tekstBledu}
           data-chowa-pasek
           novalidate
         >
-          <input type="hidden" name="subject" value="Kreator wyceny — nowe zapytanie" />
-          <input type="hidden" name="from_name" value="Connectiva Studio" />
-          {/* Odpowiedzi 1–4, uwagi i wyliczone widełki — do maila (17.15 B). */}
-          <input type="hidden" name="wycena_odpowiedzi" data-pole-odpowiedzi />
-          <input type="hidden" name="wycena_uwagi" data-pole-uwagi />
-          <input type="hidden" name="wycena_widelki" data-pole-widelki />
+          {/* Odpowiedzi 1–4 i widełki wchodzą do nagłówka wiadomości dla
+              Margo; uwagi jadą jako jej treść — stąd nazwa `wiadomosc`
+              (17.15 B, wysyłka 17.17). */}
+          <input type="hidden" name="wycena_odpowiedzi" data-pole-odpowiedzi data-margo-info="Wybrane" />
+          <input type="hidden" name="wiadomosc" data-pole-uwagi />
+          <input type="hidden" name="wycena_widelki" data-pole-widelki data-margo-info="Szacunek" />
 
-          {/* Honeypot — widoczny tylko dla botów (SPEC 7.5) */}
+          {/* Honeypot — widoczny tylko dla botów (SPEC 7.5). Nazwa `www`
+              z kontraktu Margo: wypełnione pole zdradza bota. */}
           <div class="wynik__pulapka" aria-hidden="true">
-            <label for={`${id}-firma`}>Nie wypełniaj tego pola</label>
+            <label for={`${id}-www`}>Nie wypełniaj tego pola</label>
             <input
-              id={`${id}-firma`}
+              id={`${id}-www`}
               type="text"
-              name="firma"
+              name="www"
               tabindex="-1"
               autocomplete="off"
               data-honeypot
@@ -253,6 +252,12 @@ const tekstBledu = uzupelnione(site.email)
                 </label>
               </div>
               <p class="pole__blad" id={`${id}-zgoda-blad`} aria-live="polite"></p>
+            </div>
+
+            {/* Widżet Cloudflare Turnstile — renderuje go forms.ts, gdy ekran
+                wyniku z formularzem wyjdzie z ukrycia. */}
+            <div class="pole">
+              <div class="wynik__turnstile" data-turnstile></div>
             </div>
 
             <div class="wynik__wyslij">
@@ -777,6 +782,13 @@ const tekstBledu = uzupelnione(site.email)
     font-size: var(--text-small);
     color: var(--color-text-2);
     max-width: 34rem;
+  }
+
+  /* Jak w formularzu kontaktowym: szerokość pól, 65 px rezerwy wysokości. */
+  .wynik__turnstile {
+    width: 100%;
+    max-width: 26rem;
+    min-height: 65px;
   }
 
   .wynik__wyslij {

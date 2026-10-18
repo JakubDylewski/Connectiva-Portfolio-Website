@@ -20,11 +20,6 @@ const id = `audyt-${crypto.randomUUID().slice(0, 8)}`;
 const politykaIstnieje =
   Object.keys(import.meta.glob('../pages/polityka-prywatnosci.astro')).length > 0;
 
-const uzupelnione = (v: string) => Boolean(v) && !v.startsWith('TODO_');
-const tekstBledu = uzupelnione(site.email)
-  ? `Nie udało się wysłać. Napisz na ${site.email}.`
-  : 'Nie udało się wysłać. Spróbuj jeszcze raz za chwilę.';
-
 const odpowiedzi = Object.entries(ETYKIETY_ODPOWIEDZI) as Array<
   [keyof typeof ETYKIETY_ODPOWIEDZI, string]
 >;
@@ -95,20 +90,19 @@ const odpowiedzi = Object.entries(ETYKIETY_ODPOWIEDZI) as Array<
     <form
       class="audyt__formularz"
       data-formularz
-      data-klucz={site.web3formsKey}
+      data-margo={site.margo.endpoint}
+      data-sitekey={site.margo.turnstileSiteKey}
+      data-mail-zapas={site.email}
+      data-margo-zrodlo="AUDYT"
       data-tekst-ok={'Wysłane. Wideo przyjdzie w 48 h.'}
-      data-tekst-blad={tekstBledu}
       data-chowa-pasek
       novalidate
     >
-      <input type="hidden" name="subject" value="Audyt w 60 sekund — nowe zgłoszenie" />
-      <input type="hidden" name="from_name" value="Connectiva Studio" />
-      <input type="hidden" name="wynik_audytu" data-wynik-audytu />
-
-      {/* Honeypot — widoczne tylko dla botów (SPEC 7.5) */}
+      {/* Honeypot — widoczne tylko dla botów (SPEC 7.5). Nazwa `www`
+          z kontraktu Margo: wypełnione pole zdradza bota. */}
       <div class="audyt__pulapka" aria-hidden="true">
-        <label for={`${id}-firma`}>Nie wypełniaj tego pola</label>
-        <input id={`${id}-firma`} type="text" name="firma" tabindex="-1" autocomplete="off" data-honeypot />
+        <label for={`${id}-www`}>Nie wypełniaj tego pola</label>
+        <input id={`${id}-www`} type="text" name="www" tabindex="-1" autocomplete="off" data-honeypot />
       </div>
 
       <div class="audyt__pola" data-pola>
@@ -123,6 +117,7 @@ const odpowiedzi = Object.entries(ETYKIETY_ODPOWIEDZI) as Array<
             autocomplete="url"
             required
             data-waliduj="url"
+            data-margo-info="Strona"
             aria-describedby={`${id}-url-blad`}
           />
           <p class="pole__blad" id={`${id}-url-blad`} aria-live="polite"></p>
@@ -155,6 +150,7 @@ const odpowiedzi = Object.entries(ETYKIETY_ODPOWIEDZI) as Array<
             name="miasto"
             type="text"
             autocomplete="address-level2"
+            data-margo-info="Miasto"
           />
         </div>
 
@@ -186,11 +182,22 @@ const odpowiedzi = Object.entries(ETYKIETY_ODPOWIEDZI) as Array<
           <p class="pole__blad" id={`${id}-zgoda-blad`} aria-live="polite"></p>
         </div>
 
+        {/* Widżet Cloudflare Turnstile — renderuje go forms.ts, gdy werdykt
+            z formularzem wyjdzie z ukrycia. Wysokość zarezerwowana z góry. */}
+        <div class="pole">
+          <div class="audyt__turnstile" data-turnstile></div>
+        </div>
+
         <div class="audyt__wyslij">
           <Button type="submit">Wyślij do audytu</Button>
           <p class="audyt__obietnica">{OBIETNICA}</p>
         </div>
       </div>
+
+      {/* Wynik audytu dokleja się do nagłówka wiadomości dla Margo — stoi
+          za polami widocznymi, żeby nagłówek zaczynał się od strony
+          i miasta, a długi zapis odpowiedzi zamykał całość. */}
+      <input type="hidden" name="wynik_audytu" data-wynik-audytu data-margo-info="Wynik" />
 
       <p class="audyt__stan" data-stan aria-live="polite"></p>
     </form>
@@ -501,6 +508,13 @@ const odpowiedzi = Object.entries(ETYKIETY_ODPOWIEDZI) as Array<
 
   .zgoda__todo {
     color: var(--color-text-3);
+  }
+
+  /* Jak w formularzu kontaktowym: szerokość pól, 65 px rezerwy wysokości. */
+  .audyt__turnstile {
+    width: 100%;
+    max-width: 26rem;
+    min-height: 65px;
   }
 
   .audyt__wyslij {

@@ -5,9 +5,10 @@
  * i kontakt (Etap 6). Walidacja po stronie przeglądarki z komunikatem pod
  * polem, honeypot i stany inline bez przeładowania.
  *
- * Wysyłka ma dwie ścieżki (SPEC 17.16): formularz kontaktowy idzie JSON-em
- * do Margo (asystent, `data-margo` na formularzu) z tokenem Cloudflare
- * Turnstile, a audyt i kreator — jak dotąd do Web3Forms (`data-klucz`).
+ * Wysyłka (SPEC 17.16–17.17): wszystkie trzy formularze idą JSON-em do Margo
+ * (`data-margo` na formularzu) z tokenem Cloudflare Turnstile. Audyt
+ * i kreator doklejają swoje dodatkowe pola do nagłówka wiadomości
+ * (`data-margo-zrodlo` + `data-margo-info`), np. „[AUDYT] Strona: … | …".
  *
  * Kolor nigdy nie jest jedynym nośnikiem błędu (SPEC 11.3): pole dostaje
  * `aria-invalid`, komunikat tekstowy i powiązanie przez `aria-describedby`.
@@ -15,8 +16,6 @@
  * Czysty JS — bez GSAP i bez Lenis. Formularze muszą działać także wtedy,
  * gdy warstwa ruchu się nie załaduje (SPEC 8.4, DoD Etapu 4).
  */
-
-const ENDPOINT = 'https://api.web3forms.com/submit';
 
 /** Zdarzenie dla warstwy ruchu: układ się zmienił, przelicz ScrollTriggery. */
 export const ZDARZENIE_UKLAD = 'uklad:zmiana';
@@ -262,15 +261,34 @@ async function wyslijDoMargo(
     return (element?.value ?? '').trim().slice(0, MARGO_LIMITY[nazwa]);
   };
 
+  // Dodatkowe pola formularza (adres strony do audytu, odpowiedzi i widełki
+  // z kreatora) wchodzą do nagłówka wiadomości — Margo widzi od razu, skąd
+  // przyszło zgłoszenie i z czym. Formularz kontaktowy nie ma `zrodla`
+  // i wysyła samą treść.
+  const zrodlo = formularz.dataset.margoZrodlo ?? '';
+  let wiadomosc = pole('wiadomosc');
+  if (zrodlo !== '') {
+    const szczegoly = [...formularz.querySelectorAll<HTMLInputElement>('[data-margo-info]')]
+      .map((p) => ({ etykieta: p.dataset.margoInfo ?? '', wartosc: p.value.trim() }))
+      .filter((s) => s.etykieta !== '' && s.wartosc !== '')
+      .map((s) => `${s.etykieta}: ${s.wartosc}`)
+      .join(' | ');
+    const naglowek = szczegoly === '' ? `[${zrodlo}]` : `[${zrodlo}] ${szczegoly}`;
+    wiadomosc = wiadomosc === '' ? naglowek : `${naglowek}\n${wiadomosc}`;
+    wiadomosc = wiadomosc.slice(0, MARGO_LIMITY.wiadomosc);
+  }
+
   try {
     const odpowiedz = await fetch(formularz.dataset.margo ?? '', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        imie: pole('imie'),
+        // Kontrakt wymaga imienia, a audyt go nie zbiera (w kreatorze jest
+        // opcjonalne) — pusta wartość dostaje czytelny zastępnik.
+        imie: pole('imie') || '(nie podano)',
         salon: pole('salon'),
         kontakt: pole('kontakt'),
-        wiadomosc: pole('wiadomosc'),
+        wiadomosc,
         // Pułapka serwerowa — człowiek zostawia ją pustą, a bota wysyłającego
         // POST bez przeglądarki odsiewa Margo.
         www: '',
@@ -354,29 +372,41 @@ export function initForms(): () => void {
   for (const formularz of formularze) {
     const pola = [...formularz.querySelectorAll<HTMLInputElement>('[data-waliduj]')];
 
-    // Formularz Margo dostaje widżet Turnstile od razu — challenge w trybie
-    // zarządzanym potrzebuje chwili, zanim wystawi token do wysyłki.
+    // Widżet Turnstile renderuje się, gdy formularz pierwszy raz wejdzie
+    // w pole widzenia — formularze audytu i kreatora startują ukryte
+    // (werdykt/wynik), a widżet renderowany w ukrytym kontenerze mierzy
+    // zerową szerokość i potrafi wstać przycięty. Challenge w trybie
+    // zarządzanym kończy się zwykle szybciej, niż ktokolwiek wypełni pola.
     const kontenerTurnstile = formularz.querySelector<HTMLElement>('[data-turnstile]');
     if (formularz.dataset.margo && kontenerTurnstile && formularz.dataset.sitekey) {
       const stanWidgetu: StanWidgetu = {};
       widgety.set(formularz, stanWidgetu);
 
-      void zaladujTurnstile()
-        .then(() => {
-          // Nawigacja mogła zdjąć stronę, zanim skrypt doszedł.
-          if (stanWidgetu.usuniety || !window.turnstile) return;
-          stanWidgetu.id = window.turnstile.render(kontenerTurnstile, {
-            sitekey: formularz.dataset.sitekey,
-            theme: 'dark',
-            language: 'pl',
-            size: 'flexible',
+      // Skrypt API ściągamy od razu — na reveal zostaje sam render.
+      void zaladujTurnstile().catch(() => {});
+
+      const obserwator = new IntersectionObserver((wpisy) => {
+        if (!wpisy.some((w) => w.isIntersecting)) return;
+        obserwator.disconnect();
+        void zaladujTurnstile()
+          .then(() => {
+            // Nawigacja mogła zdjąć stronę, zanim skrypt doszedł.
+            if (stanWidgetu.usuniety || !window.turnstile) return;
+            stanWidgetu.id = window.turnstile.render(kontenerTurnstile, {
+              sitekey: formularz.dataset.sitekey,
+              theme: 'dark',
+              language: 'pl',
+              size: 'flexible',
+            });
+          })
+          .catch(() => {
+            // Brak widżetu zgłosi się przy próbie wysyłki — z adresem zapasowym.
           });
-        })
-        .catch(() => {
-          // Brak widżetu zgłosi się przy próbie wysyłki — z adresem zapasowym.
-        });
+      });
+      obserwator.observe(formularz);
 
       sprzatanie.push(() => {
+        obserwator.disconnect();
         stanWidgetu.usuniety = true;
         if (stanWidgetu.id !== undefined) window.turnstile?.remove(stanWidgetu.id);
       });
@@ -422,51 +452,15 @@ export function initForms(): () => void {
         return;
       }
 
-      // Formularz kontaktowy idzie własną ścieżką do Margo (SPEC 17.16).
-      if (formularz.dataset.margo) {
-        await wyslijDoMargo(formularz, widgety.get(formularz));
-        return;
-      }
-
-      // Adres strony wysyłamy w pełnej postaci, z protokołem.
+      // Adres strony wysyłamy w pełnej postaci, z protokołem — pełny URL
+      // trafia do nagłówka wiadomości (np. „[AUDYT] Strona: https://…").
       const poleUrl = formularz.querySelector<HTMLInputElement>('[data-waliduj="url"]');
       if (poleUrl) {
         const pelny = znormalizujUrl(poleUrl.value);
         if (pelny) poleUrl.value = pelny;
       }
 
-      const klucz = formularz.dataset.klucz ?? '';
-      if (klucz === '' || klucz.startsWith('TODO_')) {
-        // Świadomie nie strzelamy do Web3Forms bez klucza — użytkowniczka
-        // dostałaby mglisty błąd, a my nie wiedzielibyśmy dlaczego.
-        ustawStan(
-          formularz,
-          'blad',
-          'Formularz nie jest jeszcze podłączony: brakuje klucza Web3Forms. Uzupełnij pole web3formsKey w src/site.config.ts.',
-        );
-        return;
-      }
-
-      ustawStan(formularz, 'wysyla', 'Wysyłam…');
-
-      try {
-        const dane = new FormData(formularz);
-        dane.set('access_key', klucz);
-
-        const odpowiedz = await fetch(ENDPOINT, {
-          method: 'POST',
-          headers: { Accept: 'application/json' },
-          body: dane,
-        });
-
-        if (!odpowiedz.ok) throw new Error(String(odpowiedz.status));
-
-        ustawStan(formularz, 'ok', formularz.dataset.tekstOk ?? 'Wysłane.');
-        formularz.querySelector<HTMLElement>('[data-pola]')?.setAttribute('hidden', '');
-        ogloszZmianeUkladu();
-      } catch {
-        ustawStan(formularz, 'blad', formularz.dataset.tekstBlad ?? 'Nie udało się wysłać.');
-      }
+      await wyslijDoMargo(formularz, widgety.get(formularz));
     };
 
     formularz.addEventListener('submit', naWyslanie);
