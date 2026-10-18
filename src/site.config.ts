@@ -67,7 +67,7 @@ export const site = {
    */
   margo: {
     endpoint: 'https://margo.connectiva.studio/lead',
-    turnstileSiteKey: '0x4AAAAAAFZcVl0vXg5tca_L',
+    turnstileSiteKey: '0x4AAAAAAFaN9VuyvsEXmFHZ',
   },
 
   /* Pytanie „netto czy brutto" jest zamknięte (SPEC 17.13 A): kwota z kreatora
