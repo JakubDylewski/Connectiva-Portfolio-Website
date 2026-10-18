@@ -26,6 +26,7 @@
  */
 import Button from './Button.astro';
 import { site } from '../site.config';
+import { MARGO_REWIZJA } from '../scripts/forms';
 import { pytania, UWAGI, WYNIK } from '../data/kreator';
 import cennik from '../data/cennik.json';
 
@@ -162,6 +163,7 @@ const politykaIstnieje =
           class="wynik__formularz"
           data-formularz
           data-margo={site.margo.endpoint}
+          data-margo-rewizja={MARGO_REWIZJA}
           data-sitekey={site.margo.turnstileSiteKey}
           data-mail-zapas={site.email}
           data-margo-zrodlo="CENNIK"

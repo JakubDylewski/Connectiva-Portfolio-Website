@@ -1192,3 +1192,11 @@ Formularze audytu i kreatora nigdy nie wysyłały (klucz Web3Forms został przy 
 Kontrakt wymaga `imie`, którego audyt nie zbiera (w kreatorze jest opcjonalne) — puste `imie` wysyłamy jako `(nie podano)`. Teksty sukcesu zostają po staremu, bo są obietnicami („Wysłane. Wideo przyjdzie w 48 h." / „Wysłane. Odpowiem w ciągu 24 godzin…"); reszta komunikatów wspólna z 17.16. Walidacja `kontakt` w audycie i kreatorze nadal przyjmuje tylko e-mail/IG (odpowiedź wraca tą drogą), telefon przyjmuje wyłącznie formularz kontaktowy.
 
 **Turnstile w ukrytych formularzach.** Oba formularze startują schowane (werdykt/ekran wyniku), a widżet renderowany w ukrytym kontenerze mierzy zerową szerokość — dlatego `forms.ts` renderuje widżety wszystkich formularzy dopiero, gdy formularz pierwszy raz wejdzie w pole widzenia (IntersectionObserver). Challenge kończy się zwykle szybciej, niż ktokolwiek wypełni pola; świeższy token to też mniejsze ryzyko wygaśnięcia (300 s).
+
+---
+
+## 17.18 Rewizja kontraktu wysyłki — stary moduł w otwartej karcie (18 października 2026)
+
+**Incydent.** Dwa zgłoszenia z `/audyt/` na telefonie odbiły się od Margo z 422 „brak pól: imie, wiadomosc" — mimo że świeża sesja wysyła je poprawnie (potwierdzone testem E2E prosto na produkcji). Przyczyna: karta otwarta sprzed wdrożenia 17.17. ClientRouter (View Transitions) podmienia HTML, ale nie wyrzuca starego JS — rezydujący moduł z epoki 17.16 (Margo tylko dla kontaktu) przechwycił submit nowego formularza audytu pierwszy i wysłał `imie: ""`, `wiadomosc: ""` (bez zastępnika imienia i bez budowania nagłówka). Token Turnstile był poprawny, bo widżet wyrenderował którykolwiek z modułów.
+
+**Zabezpieczenie.** `forms.ts` eksportuje `MARGO_REWIZJA` (obecnie `'2'`), a każdy formularz nosi ją w `data-margo-rewizja`. Wysyłkę prowadzi jeden nasłuch `submit` na dokumencie w fazie przechwytywania — wyprzedza nasłuchy na formularzu niezależnie od kolejności rejestracji i ucina je `stopImmediatePropagation()`. Moduł obsługuje wyłącznie formularz o zgodnej rewizji; przy niezgodnej nie dotyka zdarzenia — obsłuży je moduł z pasującą rewizją, a gdy takiego nie ma, naturalna wysyłka przeładuje stronę i załaduje świeży kod. **Przy każdej zmianie kontraktu pól podbić `MARGO_REWIZJA`.** Karty otwarte sprzed tego mechanizmu (sam stary moduł, bez nowego) naprawia dopiero pełne odświeżenie strony.

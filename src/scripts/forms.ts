@@ -167,8 +167,20 @@ function ustawStan(
 }
 
 /* -------------------------------------------------------------------------- */
-/* Margo + Cloudflare Turnstile (formularz kontaktowy, SPEC 17.16)            */
+/* Margo + Cloudflare Turnstile (wszystkie formularze, SPEC 17.16–17.18)      */
 /* -------------------------------------------------------------------------- */
+
+/**
+ * Rewizja kontraktu wysyłki — stoi w `data-margo-rewizja` formularzy i tutaj.
+ *
+ * Po wdrożeniu nowej wersji strony otwarta karta potrafi trzymać dwa
+ * pokolenia tego modułu naraz: ClientRouter podmienia HTML, ale nie wyrzuca
+ * starego JS (incydent z 18.10.2026 — SPEC 17.18: stary moduł wysłał
+ * zgłoszenie audytu bez pól `imie` i `wiadomosc`). Wysyłkę obsługuje
+ * wyłącznie moduł, którego rewizja zgadza się z atrybutem formularza.
+ * Podbij przy każdej zmianie kontraktu pól.
+ */
+export const MARGO_REWIZJA = '2';
 
 declare global {
   interface Window {
@@ -370,8 +382,6 @@ export function initForms(): () => void {
   const widgety = new WeakMap<HTMLFormElement, StanWidgetu>();
 
   for (const formularz of formularze) {
-    const pola = [...formularz.querySelectorAll<HTMLInputElement>('[data-waliduj]')];
-
     // Widżet Turnstile renderuje się, gdy formularz pierwszy raz wejdzie
     // w pole widzenia — formularze audytu i kreatora startują ukryte
     // (werdykt/wynik), a widżet renderowany w ukrytym kontenerze mierzy
@@ -413,64 +423,81 @@ export function initForms(): () => void {
     }
 
     // Po pierwszej nieudanej próbie poprawiamy komunikat na bieżąco —
-    // ale nie krzyczymy, zanim ktokolwiek spróbował wysłać.
-    let probowano = false;
+    // ale nie krzyczymy, zanim ktokolwiek spróbował wysłać. Znacznik próby
+    // siedzi w dataset, bo wysyłkę prowadzi wspólny nasłuch na dokumencie.
     const naZmiane = (e: Event) => {
-      if (!probowano) return;
+      if (formularz.dataset.probowano !== '1') return;
       const pole = e.target as HTMLInputElement;
       if (pole.dataset.waliduj) polePoBledzie(pole, sprawdzPole(pole));
     };
     formularz.addEventListener('input', naZmiane);
     formularz.addEventListener('change', naZmiane);
 
-    const naWyslanie = async (e: Event) => {
-      e.preventDefault();
-
-      // Jedna wysyłka na raz — przycisk jest zablokowany, ale Enter
-      // w polu tekstowym omija przycisk.
-      if (formularz.dataset.stanWysylki === 'wysyla') return;
-
-      probowano = true;
-
-      // Honeypot: wypełnia go tylko bot. Udajemy sukces i nic nie wysyłamy.
-      const pulapka = formularz.querySelector<HTMLInputElement>('[data-honeypot]');
-      if (pulapka && pulapka.value.trim() !== '') {
-        ustawStan(formularz, 'ok', formularz.dataset.tekstOk ?? 'Wysłane.');
-        return;
-      }
-
-      let pierwszyZly: HTMLInputElement | null = null;
-      for (const pole of pola) {
-        const blad = sprawdzPole(pole);
-        polePoBledzie(pole, blad);
-        if (blad && !pierwszyZly) pierwszyZly = pole;
-      }
-
-      if (pierwszyZly) {
-        ustawStan(formularz, 'blad', '');
-        pierwszyZly.focus();
-        return;
-      }
-
-      // Adres strony wysyłamy w pełnej postaci, z protokołem — pełny URL
-      // trafia do nagłówka wiadomości (np. „[AUDYT] Strona: https://…").
-      const poleUrl = formularz.querySelector<HTMLInputElement>('[data-waliduj="url"]');
-      if (poleUrl) {
-        const pelny = znormalizujUrl(poleUrl.value);
-        if (pelny) poleUrl.value = pelny;
-      }
-
-      await wyslijDoMargo(formularz, widgety.get(formularz));
-    };
-
-    formularz.addEventListener('submit', naWyslanie);
-
     sprzatanie.push(() => {
-      formularz.removeEventListener('submit', naWyslanie);
       formularz.removeEventListener('input', naZmiane);
       formularz.removeEventListener('change', naZmiane);
     });
   }
+
+  async function obsluzWysylke(formularz: HTMLFormElement): Promise<void> {
+    // Jedna wysyłka na raz — przycisk jest zablokowany, ale Enter
+    // w polu tekstowym omija przycisk.
+    if (formularz.dataset.stanWysylki === 'wysyla') return;
+
+    formularz.dataset.probowano = '1';
+
+    // Honeypot: wypełnia go tylko bot. Udajemy sukces i nic nie wysyłamy.
+    const pulapka = formularz.querySelector<HTMLInputElement>('[data-honeypot]');
+    if (pulapka && pulapka.value.trim() !== '') {
+      ustawStan(formularz, 'ok', formularz.dataset.tekstOk ?? 'Wysłane.');
+      return;
+    }
+
+    let pierwszyZly: HTMLInputElement | null = null;
+    for (const pole of formularz.querySelectorAll<HTMLInputElement>('[data-waliduj]')) {
+      const blad = sprawdzPole(pole);
+      polePoBledzie(pole, blad);
+      if (blad && !pierwszyZly) pierwszyZly = pole;
+    }
+
+    if (pierwszyZly) {
+      ustawStan(formularz, 'blad', '');
+      pierwszyZly.focus();
+      return;
+    }
+
+    // Adres strony wysyłamy w pełnej postaci, z protokołem — pełny URL
+    // trafia do nagłówka wiadomości (np. „[AUDYT] Strona: https://…").
+    const poleUrl = formularz.querySelector<HTMLInputElement>('[data-waliduj="url"]');
+    if (poleUrl) {
+      const pelny = znormalizujUrl(poleUrl.value);
+      if (pelny) poleUrl.value = pelny;
+    }
+
+    await wyslijDoMargo(formularz, widgety.get(formularz));
+  }
+
+  // Jeden nasłuch na dokumencie, w fazie przechwytywania (SPEC 17.18):
+  // po wdrożeniu nowej wersji strony otwarta karta może wciąż trzymać stary
+  // moduł z nasłuchem na samym formularzu. Przechwycenie na dokumencie
+  // wyprzedza go niezależnie od kolejności rejestracji,
+  // a `stopImmediatePropagation()` nie dopuszcza go do głosu.
+  const naSubmit = (e: Event) => {
+    const cel =
+      e.target instanceof Element ? e.target.closest('form[data-formularz]') : null;
+    if (!(cel instanceof HTMLFormElement)) return;
+
+    // Inna rewizja kontraktu: zostawiamy zdarzenie w spokoju. Obsłuży je
+    // moduł z pasującą rewizją, a gdy go nie ma — naturalna wysyłka
+    // przeładuje stronę i załaduje świeży kod.
+    if (cel.dataset.margoRewizja !== MARGO_REWIZJA) return;
+
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    void obsluzWysylke(cel);
+  };
+  document.addEventListener('submit', naSubmit, true);
+  sprzatanie.push(() => document.removeEventListener('submit', naSubmit, true));
 
   return () => sprzatanie.splice(0).forEach((f) => f());
 }

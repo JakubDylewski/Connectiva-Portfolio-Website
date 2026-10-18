@@ -9,7 +9,9 @@
  */
 import { chromium } from 'playwright';
 
-const BASE = 'http://localhost:4321';
+// BAZA=https://connectiva.studio node scripts/test-form.mjs — test na produkcji
+// (POST do Margo i tak jest przechwytywany, nic nie wychodzi do serwera).
+const BASE = process.env.BAZA ?? 'http://localhost:4321';
 const FORM = 'form[data-margo]';
 
 const bledyJs = [];
@@ -84,6 +86,20 @@ const wyslijIOdbierz = async () => {
 await otworz('/kontakt/');
 zaloz((await page.locator(FORM).count()) === 1, 'formularz kontaktowy na /kontakt/');
 
+// Symulacja starego modułu po wdrożeniu (SPEC 17.18): nasłuch na samym
+// formularzu, który wysłałby zepsuty payload. Nasłuch przechwytujący na
+// dokumencie ma go nie dopuścić do głosu.
+await page.evaluate(() => {
+  document.querySelector('form[data-margo]')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    void fetch('https://margo.connectiva.studio/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ zepsuty: true }),
+    });
+  });
+});
+
 await page.locator(`${FORM} button[type=submit]`).click();
 await page.waitForTimeout(400);
 zaloz((await niepusteBledy()).length === 4, '4 komunikaty walidacji po pustej wysyłce');
@@ -96,6 +112,7 @@ await page.fill(`${FORM} input[name="imie"]`, 'Anna');
 await page.fill(`${FORM} textarea[name="wiadomosc"]`, 'Dzień dobry, proszę o kontakt.');
 await page.check(`${FORM} input[name="zgoda"]`);
 let dane = await wyslijIOdbierz();
+zaloz(!('zepsuty' in dane), 'symulowany stary moduł nie doszedł do głosu');
 zaloz(dane.imie === 'Anna' && dane.kontakt === '+48 601 234 567', 'kontakt: imię i kontakt w payloadzie');
 zaloz(dane.wiadomosc === 'Dzień dobry, proszę o kontakt.', 'kontakt: wiadomość bez nagłówka źródła');
 zaloz(dane.www === '' && dane['cf-turnstile-response'] === 'test-token-e2e', 'kontakt: www puste, token w payloadzie');
